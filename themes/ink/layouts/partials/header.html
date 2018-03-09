@@ -1,0 +1,25 @@
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="/">{{ .Site.Title }}</a>
+            </h1>
+        </div>
+        <div class="nav-container">
+            <div class="nav">
+                <div class="u-link nav-item">
+                    <a href="{{ "/" | relURL }}">home</a>
+                </div>
+                <div class="u-link nav-item">
+                    <a href="{{ "/tags" | relURL }}">tags</a>
+                </div>
+                {{ with .Site.Params.github }}
+                <div class="u-link nav-item">
+                    <a href="{{ printf "https://github.com/%s" . }}">project</a>
+                </div>
+                {{ end }}
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    </div>
+</div>

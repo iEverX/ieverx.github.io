@@ -1,0 +1,26 @@
+{{ define "main" }}
+<div class="block-terms">
+    <h1 class="title" id="page-title"> {{ .Title }}</h1>
+    <div class="terms">
+    {{ range $name, $values := .Data.Terms }}
+        <div class="term">
+            <div class="name u-link">
+                <a href="{{ print "tags/" $name | urlize | relURL}}">{{ $name }}</a>    
+            </div>
+            <ul class="values">
+                {{ range $values }}
+                    <li class="u-link">
+                        <a href="{{ .Permalink }}">{{ .Title }}</a>
+                        <span class="post-date">{{ .Date.Format (default "2006.1.2" .Site.Params.DateFormat)}}</span> 
+                        {{ range .Params.Tags }}
+                            &middot;
+                            <span class="post-tag">{{ . }}</span>
+                        {{ end }}
+                    </li>
+                {{ end }}
+            </ul>
+        </div>
+    {{ end }}
+    </div>
+</div>
+{{ end }}

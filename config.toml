@@ -1,0 +1,28 @@
+baseURL = "http://blog.evercoding.net"
+disablePathToLower = false
+languageCode = "zh-cn"
+title = "天外天"
+
+hasCJKLanguage = true
+
+disqusShortName = "evercoding"
+
+theme = "ink"
+# syntax highlight
+pygmentsUseClasses = true
+pygmentsCodeFences = true
+pygmentsCodeFencesGuessSyntax = false
+
+[blackfriday]
+    extensions = ["hardLineBreak"]
+
+paginate = 10
+
+[Permalinks]
+    post = "/post/:filename"
+
+[params]
+    # see https://gohugo.io/functions/format/
+    dateFormat = "2006.1.2"
+
+    github = "ieverx"

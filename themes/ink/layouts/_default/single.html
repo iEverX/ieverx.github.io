@@ -1,0 +1,10 @@
+{{ define "main" }}
+<div class="block-single">
+    {{ partial "post.html" . }}
+</div>
+
+{{ if .Site.DisqusShortname -}}
+<h2 style="color: #777">评论</h2>
+{{ template "_internal/disqus.html" . }}
+{{ end }}
+{{ end }}

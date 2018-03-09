@@ -1,0 +1,4 @@
+[params]
+    # see https://gohugo.io/functions/format/
+    dateFormat = "2006.01.02"
+    github = ""
