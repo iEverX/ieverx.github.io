@@ -6,6 +6,7 @@ title = "天外天"
 hasCJKLanguage = true
 
 disqusShortName = "evercoding"
+googleAnalytics = "UA-54098391-1"
 
 theme = "ink"
 # syntax highlight
