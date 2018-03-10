@@ -14,9 +14,6 @@ pygmentsUseClasses = true
 pygmentsCodeFences = true
 pygmentsCodeFencesGuessSyntax = false
 
-[blackfriday]
-    extensions = ["hardLineBreak"]
-
 paginate = 10
 
 [Permalinks]
