@@ -1,4 +1,4 @@
-baseURL = "http://blog.evercoding.net"
+baseURL = "https://blog.evercoding.net"
 disablePathToLower = false
 languageCode = "zh-cn"
 title = "天外天"
