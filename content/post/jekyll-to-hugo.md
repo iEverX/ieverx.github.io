@@ -7,7 +7,7 @@ tags:
   - Travis CI
 ---
 
-最近把博客从Jekyll迁移到了Hugo，在这里记录一下。
+最近把博客从Jekyll迁移到了Hugo，在这里记录一下。 
 
 之前一直使用Jekyll，最大的原因是Github Pages原生支持Jekyll，
 repo里只管理源代码就可以，不需要上传build之后的文件。
