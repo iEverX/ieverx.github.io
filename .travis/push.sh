@@ -16,6 +16,7 @@ push() {
     git push -f -u origin-pages master
 }
 
+cp CNAME public/
 cd public
 setup_git
 commit_files
