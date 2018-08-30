@@ -1,7 +1,6 @@
 ---
 title: Default method in interface
 date: 2018-08-31T00:24:02+08:00
-draft: true
 tags:
   - Java
   - 语法
