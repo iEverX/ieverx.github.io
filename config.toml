@@ -24,3 +24,6 @@ paginate = 10
     dateFormat = "2006.1.2"
 
     github = "ieverx"
+
+[blackfriday]
+extensions = ["hardLineBreak", "joinLines"]
