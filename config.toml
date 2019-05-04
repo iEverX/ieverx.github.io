@@ -5,7 +5,7 @@ title = "天外天"
 
 hasCJKLanguage = true
 
-disqusShortName = "evercoding"
+# disqusShortName = "evercoding"
 googleAnalytics = "UA-54098391-1"
 
 theme = "ink"
@@ -25,5 +25,28 @@ paginate = 10
 
     github = "ieverx"
 
+[params.utteranc]
+    enabled = true
+    repo = "ieverx/ieverx.github.io"
+    issueTerm = "pathname"
+    label = "comment"
+    theme = "github-light"
+
+[[params.nav]]
+name = "home"
+url = "/"
+
+[[params.nav]]
+name = "tags"
+url = "/tags"
+
+[[params.nav]]
+name = "message"
+url = "/message-board"
+
+[[params.nav]]
+name = "github"
+github = true
+
 [blackfriday]
-extensions = ["hardLineBreak", "joinLines"]
+    extensions = ["hardLineBreak", "joinLines"]
