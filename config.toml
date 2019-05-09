@@ -17,7 +17,8 @@ pygmentsCodeFencesGuessSyntax = false
 paginate = 10
 
 [Permalinks]
-    post = "/post/:filename"
+    global = "/:filename"
+    post = "/:section/:filename"
 
 [params]
     # see https://gohugo.io/functions/format/
@@ -43,6 +44,10 @@ url = "/tags"
 [[params.nav]]
 name = "message"
 url = "/message-board"
+
+[[params.nav]]
+name = "links"
+url = "/links"
 
 [[params.nav]]
 name = "github"
