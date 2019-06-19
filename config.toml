@@ -52,6 +52,3 @@ url = "/links"
 [[params.nav]]
 name = "github"
 github = true
-
-[blackfriday]
-    extensions = ["hardLineBreak", "joinLines"]
