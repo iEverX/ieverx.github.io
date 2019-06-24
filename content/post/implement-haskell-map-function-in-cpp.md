@@ -1,13 +1,14 @@
----
-date: 2015-09-19T00:00:00Z
-description: ""
-lang: hs
-tagline: Implement Haskell Map Function In Cpp
-tags:
-- Haskell
-- C++
-title: 在C++中实现Haskell的map函数
----
++++
+title = "在C++中实现Haskell的map函数"
+date = 2015-09-19T00:00:00Z
+
+[taxonomies]
+tags = ["Haskell", "C++"]
+
+[extra]
+lang = "hs"
+tagline = "Implement Haskell Map Function In Cpp"
++++
 
 C++11中引入了lambda，类似如下的语法
 

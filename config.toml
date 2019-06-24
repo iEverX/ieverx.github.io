@@ -1,54 +1,39 @@
-baseURL = "https://blog.evercoding.net"
-disablePathToLower = false
-languageCode = "zh-cn"
-title = "天外天"
+# The URL the site will be built for
+base_url = "https://blog.evercoding.net"
 
-hasCJKLanguage = true
+# Whether to automatically compile all Sass files in the sass directory
+compile_sass = true
 
-# disqusShortName = "evercoding"
-googleAnalytics = "UA-54098391-1"
+# Whether to build a search index to be used later on by a JavaScript library
+build_search_index = false
 
+# Whether to do syntax highlighting
+# Theme can be customised by setting the `highlight_theme` variable to a theme supported by Zola
+highlight_code = true
+highlight_theme = "cheerfully-light"
 theme = "ink"
-# syntax highlight
-pygmentsUseClasses = true
-pygmentsCodeFences = true
-pygmentsCodeFencesGuessSyntax = false
 
-paginate = 10
+title = "天外天"
+description = ""
 
-[Permalinks]
-    global = "/:filename"
-    post = "/:section/:filename"
+taxonomies = [
+    {name = "tags"}
+]
 
-[params]
-    # see https://gohugo.io/functions/format/
-    dateFormat = "2006.1.2"
+default_language = "zh-CN"
 
-    github = "ieverx"
+[extra]
 
-[params.utteranc]
-    enabled = true
-    repo = "ieverx/ieverx.github.io"
-    issueTerm = "pathname"
-    label = "comment"
-    theme = "github-light"
+nav = [
+    { type = "page", value = "archive" },
+    { type = "taxonomy", value = "tags" },
+    { type = "page", value = "message-board", title = "messages" },
+    { type = "page", value = "links" },
+    { type = "link", title = "github", url = "https://github.com/iEverX" }
+]
 
-[[params.nav]]
-name = "home"
-url = "/"
-
-[[params.nav]]
-name = "tags"
-url = "/tags"
-
-[[params.nav]]
-name = "message"
-url = "/message-board"
-
-[[params.nav]]
-name = "links"
-url = "/links"
-
-[[params.nav]]
-name = "github"
-github = true
+[extra.etteranc]
+repo = "iEverX/ieverx.github.io"
+issue_term = "pathname"
+label = "comment"
+theme = "github-light"

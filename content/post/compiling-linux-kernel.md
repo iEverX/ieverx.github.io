@@ -1,13 +1,14 @@
----
-date: 2012-07-14T00:00:00Z
-description: Linux内核编译的步骤以及一些相关问题的解决办法
-tagline: Compiling Linux Kernel
-tags:
-- Linux
-- 内核
-- 编译源码
-title: 编译Linux内核
----
++++
+title = "编译Linux内核"
+description = "Linux内核编译的步骤以及一些相关问题的解决办法"
+date = 2012-07-14T00:00:00Z
+
+[taxonomies]
+tags = ["Linux", "内核", "编译源码"]
+
+[extra]
+tagline = "Compiling Linux Kernel"
++++
 
 这几天实验室交给任务，编译linux内核。然后就开始做了。
 

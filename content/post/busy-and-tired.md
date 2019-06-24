@@ -1,13 +1,13 @@
----
-date: 2012-11-25T00:00:00Z
-description: ""
-tagline: Busy And Tired
-tags:
-- 总结
-- 大学
-- 编程生涯
-title: 忙&累
----
++++
+title = "忙&累"
+date = 2012-11-25T00:00:00Z
+
+[taxonomies]
+tags = ["总结", "大学", "编程生涯"]
+
+[extra]
+tagline = "Busy And Tired"
++++
 
 上一篇博客已经说了，这个学有, "编程生涯"许多的大作业，代码量不小。到现在过去了一个月，代码量是蹭蹭的往上涨。一个科目一个科目的说吧。
 

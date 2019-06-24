@@ -1,14 +1,14 @@
----
-date: 2012-09-13T00:00:00Z
-description: 利用Tornado框架连接新浪微博，发送邮件
-tagline: Connect Sina Weibo With Tornado
-tags:
-- Python
-- web开发
-- Tornado
-- 新浪微博
-title: 用Tornado连接新浪微博
----
++++
+title = "用Tornado连接新浪微博"
+description = "利用Tornado框架连接新浪微博，发送邮件"
+date = 2012-09-13T00:00:00Z
+
+[taxonomies]
+tags = ["Python", "web开发", "Tornado", "新浪微博"]
+
+[extra]
+tagline = "Connect Sina Weibo With Tornado"
++++
 
 前几天心血来潮，稍稍看了一下Tornado框架，感觉这个框架和web.py很像（因为本来Tornado就是在web.py的基础上修改而来的）。
 

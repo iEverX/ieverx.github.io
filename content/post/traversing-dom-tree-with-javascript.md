@@ -1,15 +1,14 @@
----
-date: 2013-03-09T00:00:00Z
-description: 截取文章头部作为首页的预览内容，利用Javascript遍历DOM树来实现。顺道吐槽Liquid
-tagline: Traversing DOM Tree With Javascript
-tags:
-- Javascript
-- jQuery
-- DOM
-- Jekyll
-- Liquid
-title: Javascript遍历DOM树
----
++++
+title = "Javascript遍历DOM树"
+description = "截取文章头部作为首页的预览内容，利用Javascript遍历DOM树来实现。顺道吐槽Liquid"
+date = 2013-03-09T00:00:00Z
+
+[taxonomies]
+tags = ["Javascript", "jQuery", "DOM", "Jekyll", "Liquid"]
+
+[extra]
+tagline = "Traversing DOM Tree With Javascript"
++++
 
 这个博客是利用Jekyll在github pages上搭建的，显示在首页的文章，如果用`{{ post.content | truncate: 200 }}`，原有的格式不能完全保持，且有时在最后会有乱码。而`{{ post.content | truncatewords: 50 }}`也有不能保持格式的问题，而且对于中文来说，word的概念大概就变成了句子，截取的长度不能确定。本来[truncatehtml][]这个插件可以解决格式保持的问题，但是出于安全的考虑，github pages不允许运行插件，所以。。。
 

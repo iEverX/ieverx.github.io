@@ -1,10 +1,10 @@
----
-title: Default method in interface
-date: 2018-08-31T00:24:02+08:00
-tags:
-  - Java
-  - 语法
----
++++
+title = "Default method in interface"
+date = 2018-08-31T00:24:02+08:00
+
+[taxonomies]
+tags = ["Java", "语法"]
++++
 
 Java 中的`interface`是一组抽象方法的集合，是一组对外的接口。Java 8 之前，在`interface`中是没有方法体，的，只能在子类实现。如果是所有子类都一致的实现，标准方法是定义一个实现这个接口的抽象类，在抽象类中实现公共方法，子类集成这个抽象类，并实现各子类不同的方法。这样的写法并没有什么问题，只是啰嗦而已。在 Java 8 中，接口内可以实现 defaut method。所有实现改接口的类，如果没有重写这个方法，则使用接口中的实现。针对上面的场景，可以少写一个类。
 

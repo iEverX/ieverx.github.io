@@ -1,13 +1,13 @@
----
-date: 2014-08-29T00:00:00Z
-description: ""
-tagline: Solution Of Django Session Invalid On Apache
-tags:
-- Django
-- Apache
-- SVN
-title: Django Session在Apache服务器失效的问题的解决记录
----
++++
+title = "Django Session在Apache服务器失效的问题的解决记录"
+date = 2014-08-29T00:00:00Z
+
+[taxonomies]
+tags = ["Django", "Apache", "SVN"]
+
+[extra]
+tagline = "Solution Of Django Session Invalid On Apache"
++++
 
 实验室项目，用Django写的Web端，需要登陆功能，因为Django自带的登陆比较庞大，自己写了一个了，没有权限等一些列东西，比较easy的，其中，require_signin这个装饰器是这样的
 

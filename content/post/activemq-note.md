@@ -1,13 +1,13 @@
----
-date: 2014-07-17T00:00:00Z
-description: ""
-tagline: ActiveMQ Note
-tags:
-- ActiveMQ
-- 消息队列
-- 笔记
-title: ActiveMQ笔记
----
++++
+title = "ActiveMQ笔记"
+date = 2014-07-17T00:00:00Z
+
+[taxonomies]
+tags = ["ActiveMQ", "消息队列", "笔记"]
+
+[extra]
+tagline = "ActiveMQ Note"
++++
 
 实验室的项目需要使用ActiveMQ，目的是为了进行一些耗时间的处理时，不会阻塞程序的主流程。调研ActiveMQ的工作就交给我来做了。
 

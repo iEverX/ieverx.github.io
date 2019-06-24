@@ -1,13 +1,13 @@
----
-date: 2013-03-20T00:00:00Z
-description: ""
-tagline: A Sublime Text Plugin
-tags:
-- Sublime Text
-- Sublime Text 2
-- 插件
-title: 自己写sublime text插件
----
++++
+title = "自己写sublime text插件"
+date = 2013-03-20T00:00:00Z
+
+[taxonomies]
+tags = ["Sublime Text", "Sublime Text 2", "插件"]
+
+[extra]
+tagline = "A Sublime Text Plugin"
++++
 
 起因是，自己写Python基本上使用sublime text 2。但是，文件头部的代码
 

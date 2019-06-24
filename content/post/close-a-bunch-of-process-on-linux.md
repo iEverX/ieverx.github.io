@@ -1,12 +1,13 @@
----
-date: 2013-04-12T00:00:00Z
-description: ""
-tagline: Close A Bunch Of Process On Linux
-tags:
-- Linux
-- shell
-title: Linux下关闭多个进程
----
++++
+title = "Linux下关闭多个进程"
+date = 2013-04-12T00:00:00Z
+
+[taxonomies]
+tags = ["Linux", "shell"]
+
+[extra]
+tagline = "Close A Bunch Of Process On Linux"
++++
 
 很多时候，需要同时关闭一系列的有着相同的关键字的进程，比如说，开着十多个网页的chrome死掉了这种情况。。
 

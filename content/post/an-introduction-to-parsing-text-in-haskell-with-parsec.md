@@ -1,12 +1,13 @@
----
-date: 2016-01-20T00:00:00Z
-lang: hs
-tags:
-- Haskell
-- Parsec
-- 翻译
-title: Haskell Parsec的简短介绍[译]
----
++++
+title = "Haskell Parsec的简短介绍[译]"
+date = 2016-01-20T00:00:00Z
+
+[taxonomies]
+tags = ["Haskell", "Parsec", "翻译"]
+
+[extra]
+lang = "hs"
++++
 
 本文翻译自<http://unbui.lt/#!/post/haskell-parsec-basics/>。这是我第一次翻译文章，这篇文章的英文看起来也不是很难，只是想尝试翻一下。由于第一次，许多地方的翻译并没有很通顺，整片文章读起来也是有些奇怪。此外代码中的注释没有翻译。以下是正文。
 

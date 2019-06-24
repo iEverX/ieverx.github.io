@@ -1,12 +1,13 @@
----
-date: 2015-12-20T00:00:00Z
-description: ""
-tagline: Just Talk
-tags:
-- 代码之外
-- 胡言乱语
-title: 年末瞎扯淡
----
++++
+title = "年末瞎扯淡"
+date = 2015-12-20T00:00:00Z
+
+[taxonomies]
+tags = ["代码之外", "胡言乱语"]
+
+[extra]
+tagline = "Just Talk"
++++
 
 前几天糊里糊涂的就开完题了，开题之前就知道不做这个题目。现在对于论文很烦，不知道怎么搞。根本就不是写论文的料。
 

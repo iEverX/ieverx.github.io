@@ -1,10 +1,10 @@
----
-title: 在只有类名时使用 Jackson 反序列化 Java 对象
-date: 2019-04-21T16:41:00+08:00
-tags:
-  - Jackson
-  - Java
----
++++
+title = "在只有类名时使用 Jackson 反序列化 Java 对象"
+date = 2019-04-21T16:41:00+08:00
+
+[taxonomies]
+tags = ["Jackson", "Java"]
++++
 
 # 反序列化
 

@@ -1,9 +1,10 @@
----
-title: neovim 插件 denote.nvim
-date: 2019-05-03T21:15:39+08:00
-tags:
-- neovim
----
++++
+title = "neovim 插件 denote.nvim"
+date = 2019-05-03T21:15:39+08:00
+
+[taxonomies]
+tags = ["neovim"]
++++
 
 # neovim
 

@@ -1,15 +1,13 @@
 dist: xenial
-language: go
-go:
- - '1.10'
+language: rust
 branches:
   only:
   - source
 install:
-  - wget https://github.com/gohugoio/hugo/releases/download/v0.55.6/hugo_extended_0.55.6_Linux-64bit.tar.gz -O /tmp/hugo.tar.gz
+  - wget https://github.com/getzola/zola/releases/download/v0.8.0/zola-v0.8.0-x86_64-unknown-linux-gnu.tar.gz -O /tmp/zola.tar.gz
   - mkdir -p bin
-  - tar -xvf /tmp/hugo.tar.gz -C bin
+  - tar -xvf /tmp/zola.tar.gz -C bin
 script:
-  - bin/hugo
+  - bin/zola build
 after_success:
   - sh .travis/push.sh

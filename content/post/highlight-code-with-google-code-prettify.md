@@ -1,13 +1,14 @@
----
-date: 2013-02-27T00:00:00Z
-description: 在Jekyll中高亮代码，利用google code pretty
-tagline: Highlight Code With Google-code-prettify In Jekyll
-tags:
-- Jekyll
-- 代码高亮
-- google-code-prettify
-title: Jekyll中使用google-code-prettify高亮代码
----
++++
+title = "Jekyll中使用google-code-prettify高亮代码"
+description = "在Jekyll中高亮代码，利用google code pretty"
+date = 2013-02-27T00:00:00Z
+
+[taxonomies]
+tags = ["Jekyll", "代码高亮", "google-code-prettify"]
+
+[extra]
+tagline = "Highlight Code With Google-code-prettify In Jekyll"
++++
 
 这个博客，到现在换了好几个代码高亮的工具，之前的SyntaxHIghlighter虽然漂亮，无奈加载太慢，只能舍弃了。现在用的这个是google-code-prettfy，效果也相当不错。最重要的是，非常小，加载速度比SyntaxHighlighter快得多，而且，可以直接使用markdown的语法去写代码。
 

@@ -1,10 +1,10 @@
----
-date: 2016-09-24T00:00:00Z
-tags:
-- Rust
-- Web服务器
-title: 用Rust写了一个简单的Web服务器
----
++++
+title = "用Rust写了一个简单的Web服务器"
+date = 2016-09-24T00:00:00Z
+
+[taxonomies]
+tags = ["Rust", "Web服务器"]
++++
 
 # Rust
 

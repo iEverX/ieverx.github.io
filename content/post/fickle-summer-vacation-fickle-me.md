@@ -1,13 +1,14 @@
----
-date: 2012-08-16T00:00:00Z
-description: 暑假结束之时对自己的暑假规划、表现所做的一些反思
-tagline: Fickle Summer Vacation, Fickle Me
-tags:
-- 总结
-- 反思
-- 暑假
-title: 浮躁的暑假浮躁的我
----
++++
+title = "浮躁的暑假浮躁的我"
+description = "暑假结束之时对自己的暑假规划、表现所做的一些反思"
+date = 2012-08-16T00:00:00Z
+
+[taxonomies]
+tags = ["总结", "反思", "暑假"]
+
+[extra]
+tagline = "Fickle Summer Vacation, Fickle Me"
++++
 
 没有几天，暑假就结束了。从6月26日正式放假以来，感觉自己在放假之前画的大饼完全没有实现，可以说，整个暑假是一事无成。个人感觉都是**浮躁**惹的祸。
 

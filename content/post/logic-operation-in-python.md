@@ -1,12 +1,14 @@
----
-date: 2012-06-20T00:00:00Z
-description: Python中的逻辑运算的规定以及实质
-tagline: Logic Operation In Python
-tags:
-- Python
-- 语义
-title: Python的逻辑运算
----
++++
+title = "Python的逻辑运算"
+description = "Python中的逻辑运算的规定以及实质"
+date = 2012-06-20T00:00:00Z
+
+[taxonomies]
+tags = ["Python", "语义"]
+
+[extra]
+tagline = "Logic Operation In Python"
++++
 
 Python的逻辑运算(and，or，not)与C/C++、Java等语言不太一样。这些语言的逻辑运算返回的值都是bool值，而Python返回的则不同。
 

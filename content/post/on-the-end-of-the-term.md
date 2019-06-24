@@ -1,13 +1,14 @@
----
-date: 2013-01-08T00:00:00Z
-description: 期末的一些感想
-tagline: On The End Of The Term
-tags:
-- 感想
-- 大学
-- 编程生涯
-title: 写在学期末
----
++++
+title = "写在学期末"
+description = "期末的一些感想"
+date = 2013-01-08T00:00:00Z
+
+[taxonomies]
+tags = ["感想", "大学", "编程生涯"]
+
+[extra]
+tagline = "On The End Of The Term"
++++
 
 今天，软工的答辩结束。至此，这个学期的课，除了软工的第二次结对编程还要写代码、编译还要检查之外，这个学期就没有其他的事情了。说现在是放假状态也无不可。
 

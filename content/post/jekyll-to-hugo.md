@@ -1,11 +1,10 @@
----
-title: 从Jekyll迁移到Hugo
-date: 2018-03-10T15:48:40+08:00
-tags:
-  - Jekyll
-  - Hugo
-  - Travis CI
----
++++
+title = "从Jekyll迁移到Hugo"
+date = 2018-03-10T15:48:40+08:00
+
+[taxonomies]
+tags = ["Jekyll", "Hugo", "Travis CI"]
++++
 
 最近把博客从Jekyll迁移到了Hugo，在这里记录一下。 
 

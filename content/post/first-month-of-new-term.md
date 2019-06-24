@@ -1,12 +1,13 @@
----
-date: 2012-10-19T00:00:00Z
-description: ""
-tagline: First Month Of New Term
-tags:
-- 总结
-- 新学期
-title: 新学期的第一个月
----
++++
+title = "新学期的第一个月"
+date = 2012-10-19T00:00:00Z
+
+[taxonomies]
+tags = ["总结", "新学期"]
+
+[extra]
+tagline = "First Month Of New Term"
++++
 
 已经过了午夜，算是19号了。算来，从上个月10好开学，也有一个多月了。正好博客也一个月没更新了，正好写一篇。
 

@@ -1,10 +1,10 @@
----
-date: 2017-08-20T00:00:00Z
-tags:
-- Java
-- 并发
-title: Synchronized的内存屏障
----
++++
+title = "Synchronized的内存屏障"
+date = 2017-08-20T00:00:00Z
+
+[taxonomies]
+tags = ["Java", "并发"]
++++
 
 # 问题
 

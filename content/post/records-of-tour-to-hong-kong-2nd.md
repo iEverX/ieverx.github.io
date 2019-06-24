@@ -1,13 +1,14 @@
----
-date: 2012-08-29T00:00:00Z
-description: 2012年暑假，随访学团赴香港第二天，在GAMA协会听吕先生演讲、游玩迪士尼乐园
-tagline: Records Of Tour To Hong Kong 2nd
-tags:
-- 香港
-- 旅游
-- 暑假
-title: 香港游小记二
----
++++
+title = "香港游小记二"
+description = "2012年暑假，随访学团赴香港第二天，在GAMA协会听吕先生演讲、游玩迪士尼乐园"
+date = 2012-08-29T00:00:00Z
+
+[taxonomies]
+tags = ["香港", "旅游", "暑假"]
+
+[extra]
+tagline = "Records Of Tour To Hong Kong 2nd"
++++
 
 # GAMA协会吕广基先生演讲
 

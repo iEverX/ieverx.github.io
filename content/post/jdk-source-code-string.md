@@ -1,12 +1,10 @@
----
-date: 2017-07-09T00:00:00Z
-tags:
-- Java
-- JDK
-- 源码
-- String
-title: JDK源码阅读之String
----
++++
+title = "JDK源码阅读之String"
+date = 2017-07-09T00:00:00Z
+
+[taxonomies]
+tags = ["Java", "JDK", "源码", "String"]
++++
 
 这几天看了看Java的`String`的实现。Java中的所有的`String`字面量都是`String`类的实例。
 文件注释中写到了，字面量生命`String s = "abc"`和

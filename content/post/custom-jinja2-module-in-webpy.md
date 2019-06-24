@@ -1,14 +1,13 @@
----
-date: 2013-03-03T00:00:00Z
-description: ""
-tagline: Custom Jinja2 Module In Web.Py
-tags:
-- Python
-- jinja2
-- web开发
-- web.py
-title: web.py中自定义jinja2模块
----
++++
+title = "web.py中自定义jinja2模块"
+date = 2013-03-03T00:00:00Z
+
+[taxonomies]
+tags = ["Python", "jinja2", "web开发", "web.py"]
+
+[extra]
+tagline = "Custom Jinja2 Module In Web.Py"
++++
 
 web.py是一个轻量级的Python web开发框架，不过自带的模板自己很不习惯，就换成了jinja2。web.py已经封装了jinja2的接口，很简单
 
