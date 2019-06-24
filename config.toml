@@ -37,3 +37,6 @@ repo = "iEverX/ieverx.github.io"
 issue_term = "pathname"
 label = "comment"
 theme = "github-light"
+
+[extra.ga]
+track_id = "UA-54098391-1"
