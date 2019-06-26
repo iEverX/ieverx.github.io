@@ -5,6 +5,7 @@
             <loc>{{ sitemap_entry.permalink | safe }}</loc>
             {% if sitemap_entry.date %}
                 <lastmod>{{ sitemap_entry.date }}</lastmod>
+                <priority>0.9</priority>
             {% endif %}
         </url>
     {% endfor %}
