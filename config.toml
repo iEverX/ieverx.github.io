@@ -32,7 +32,7 @@ nav = [
     { type = "link", title = "github", url = "https://github.com/iEverX" }
 ]
 
-[extra.etteranc]
+[extra.utterances]
 repo = "iEverX/ieverx.github.io"
 issue_term = "pathname"
 label = "comment"
