@@ -1,6 +1,6 @@
 +++
 transparent = true
-render = true 
+render = true
 template = ""
 redirect_to = "/"
 +++
