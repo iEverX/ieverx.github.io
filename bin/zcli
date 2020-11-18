@@ -1,0 +1,32 @@
+#! /bin/sh
+
+new_post() {
+    year=$(date +%Y)
+    folder=./content/post/$year/
+    mkdir -p $folder
+    idx_file=$folder/_index.md
+    if [ ! -e $idx_file ]; then
+        cat > $idx_file << EOF
++++
+transparent = true
+render = false
++++
+EOF
+    fi
+
+    filename=$1
+    post=$folder/$1.md
+    cat > $post << EOF
++++
+title = "$(echo $filename | sed 's/[^-]*/\u&/g' | sed 's/-/ /g')"
+date = $(date -Iseconds)
+
+draft = true
+
+[taxonomies]
+tags = []
++++
+EOF
+}
+
+new_post $1
