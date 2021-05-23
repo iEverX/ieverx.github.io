@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>利用注解实现依赖注入</title>
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;style.css">
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="/">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;archive&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">利用注解实现依赖注入</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2016-04-12</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;java&#x2F;">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;yi-lai-zhu-ru&#x2F;">#依赖注入</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;zhu-jie&#x2F;">#注解</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">1276 字</span>
+        &middot;
+        <span class="reading_time">大约需要 7 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="zhun-bei">准备</h1>
+<h2 id="yi-lai-zhu-ru-shi-sha">依赖注入是啥？</h2>
+<p>提到依赖注入（Denpendency Injection，DI），得先讲控制反转（Inversion of Control，IoC）。控制反转是一种设计原则，目的是去除代码的去耦合。通常写程序，我们会在类中实例化所需的对象，比如说</p>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#668f14;">class </span><span style="color:#c23f31;">Car </span><span style="color:#1f1f1f;">{
+    </span><span style="color:#a2a001;">Tier </span><span style="color:#1f1f1f;">tier </span><span style="color:#72ab00;">= new </span><span style="color:#a2a001;">Tier</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;A&quot;</span><span style="color:#1f1f1f;">);
+}
+</span></code></pre>
+<p>这里，<code>Tier</code>就是<code>Car</code>的一个依赖。像这种代码会造成一个问题，那就是<code>Tier</code>和<code>Car</code>之间是耦合在一起的。假如<code>Tier</code>的实现变了，增加了新的构造函数，原来的无参构造函数不满足<code>Car</code>的需求，那么就还需要修改<code>Car</code>的代码。如果换个方式，把代码改成下面这样</p>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#668f14;">class </span><span style="color:#c23f31;">Car </span><span style="color:#1f1f1f;">{
+    </span><span style="color:#a2a001;">Tier </span><span style="color:#1f1f1f;">tier;
+    </span><span style="color:#668f14;">public void </span><span style="color:#c23f31;">setTier</span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">Tier </span><span style="color:#5597d6;">tier</span><span style="color:#1f1f1f;">) {
+        </span><span style="color:#5597d6;">this</span><span style="color:#1f1f1f;">.tier </span><span style="color:#72ab00;">=</span><span style="color:#1f1f1f;"> tier;
+    }
+}
+</span></code></pre>
+<p>那么就可以通过事先实例化一个<code>Tier</code>对象，通过<code>setTier</code>方法传给<code>Car</code>对象，<code>Car</code>的代码完全不需要修改。这就是控制反转，所谓反转，意思是依赖的控制被反转了。之前，依赖的生成有对象控制，现在依赖的生成由外层代码控制。上面的采用<code>set</code>方法的方式就称为依赖注入，还可以通过构造函数，或者通过接口实现。</p>
+<h2 id="zhu-jie">注解</h2>
+<p>注解（Annotation）是Java在1.5版本提供的特性，通过注解可以给JVM提供额外的信息。这些额外的信息，可以在运行时获取，从而改变代码的行为。</p>
+<h1 id="dai-ma-shi-xian">代码实现</h1>
+<p>为了实现依赖注入，需要有以下几个东西</p>
+<ul>
+<li>标识一个属性通过外部注入的注解</li>
+<li>根据注解注入对象的代码</li>
+<li>一个保存组件的容器，以及生成的组件</li>
+</ul>
+<p>其中最后一点就是Spring中的<code>component-scan</code>功能，不过我不会实现，所以本文的最后一点是手工完成的。</p>
+<h2 id="zhu-jie-1">注解</h2>
+<p>代码很简单</p>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#1f1f1f;">@</span><span style="color:#5597d6;">Target</span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">ElementType</span><span style="color:#1f1f1f;">.</span><span style="color:#b3933a;">FIELD</span><span style="color:#1f1f1f;">)
+@</span><span style="color:#5597d6;">Retention</span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">RetentionPolicy</span><span style="color:#1f1f1f;">.</span><span style="color:#b3933a;">RUNTIME</span><span style="color:#1f1f1f;">)
+@</span><span style="color:#5597d6;">Documented
+</span><span style="color:#668f14;">public @interface </span><span style="color:#c23f31;">Inject </span><span style="color:#1f1f1f;">{
+    </span><span style="color:#a2a001;">String </span><span style="color:#c23f31;">value</span><span style="color:#1f1f1f;">() </span><span style="color:#72ab00;">default </span><span style="color:#d07711;">&quot;&quot;</span><span style="color:#1f1f1f;">;
+}
+</span></code></pre>
+<p>这就OK了，一个注解就是这么简单。这里声明了一个名为<code>Inject</code>的注解，其关键字为<code>@interface</code>。与普通的接口不一样的地方是，不允许有属性，只能有方法，且方法不能有参数。此外，方法后可以跟一个<code>default</code>说明默认值。</p>
+<p>在注解之上的<code>Target</code>，<code>Retention</code>，<code>Documented</code>同样是注解，这些注解称为“元注解”，共有4个，除了以上三个还有一个<code>Inherited</code>。元注解用于对注解进行类型说明。</p>
+<ul>
+<li><code>Target</code>指明注解的使用范围，这里的<code>ElementType.FIELD</code>表明<code>Inject</code>可以注解属性，可选的值还包括<code>TYPE</code>，<code>PARAMETER</code>等</li>
+<li><code>Retention</code>指明注解的保留期限，<code>RUNTIME</code>表明在运行时可以获取注解信息。可选值还有<code>SOURCE</code>和<code>CLASS</code>，分别表示在源码和字节码中保留注解信息</li>
+<li><code>Documented</code>用来指明注解应该被文档化，指示javadoc之类的工具应该生成该注解的文档</li>
+<li><code>Inherited</code>指明注解可以被继承</li>
+</ul>
+<p><code>Inject</code>的定义很简单，其实可以更简单，那就是直接用Java自带的注解，比如<code>Resource</code>。因为注解本身不提供功能，注解功能的实现是由其他代码读取注解信息从而完成的。</p>
+<h2 id="shi-yong-zhu-jie">使用注解</h2>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#668f14;">public class </span><span style="color:#c23f31;">Car </span><span style="color:#1f1f1f;">{
+
+    @</span><span style="color:#5597d6;">Inject
+    </span><span style="color:#668f14;">private </span><span style="color:#a2a001;">Tier </span><span style="color:#1f1f1f;">tier;
+    
+    @</span><span style="color:#5597d6;">Inject</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;james&quot;</span><span style="color:#1f1f1f;">)
+    </span><span style="color:#668f14;">private </span><span style="color:#a2a001;">Driver </span><span style="color:#1f1f1f;">driver;
+
+    </span><span style="color:#668f14;">public void </span><span style="color:#c23f31;">run</span><span style="color:#1f1f1f;">() {
+        </span><span style="color:#a2a001;">System</span><span style="color:#1f1f1f;">.out.</span><span style="color:#5597d6;">println</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;A car is running, driver is &quot; </span><span style="color:#72ab00;">+</span><span style="color:#1f1f1f;"> driver.</span><span style="color:#5597d6;">getName</span><span style="color:#1f1f1f;">() </span><span style="color:#72ab00;">+ </span><span style="color:#d07711;">&quot;, and its tier&#39;s brand is &quot; </span><span style="color:#72ab00;">+</span><span style="color:#1f1f1f;"> tier.</span><span style="color:#5597d6;">getName</span><span style="color:#1f1f1f;">());
+    }
+}
+</span></code></pre>
+<p><code>Tier</code>的注解没有参数，说明给的是默认值，<code>driver</code>的注解加了参数，但是没有指明是哪个参数，这种情况下，默认使用<code>value</code>，当有多个参数时，不允许省略value。</p>
+<h2 id="du-qu-zhu-jie-bing-zhu-ru">读取注解并注入</h2>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#668f14;">static</span><span style="color:#1f1f1f;"> void </span><span style="color:#5597d6;">inject</span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">Object</span><span style="color:#1f1f1f;"> obj, </span><span style="color:#a2a001;">Map</span><span style="color:#1f1f1f;">&lt;</span><span style="color:#a2a001;">String</span><span style="color:#1f1f1f;">, </span><span style="color:#a2a001;">Object</span><span style="color:#1f1f1f;">&gt; container) {
+    </span><span style="color:#a2a001;">Field</span><span style="color:#668f14;">[]</span><span style="color:#1f1f1f;"> fields </span><span style="color:#72ab00;">=</span><span style="color:#1f1f1f;"> obj.</span><span style="color:#5597d6;">getClass</span><span style="color:#1f1f1f;">().</span><span style="color:#5597d6;">getDeclaredFields</span><span style="color:#1f1f1f;">();
+    </span><span style="color:#72ab00;">for </span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">Field</span><span style="color:#1f1f1f;"> field </span><span style="color:#72ab00;">:</span><span style="color:#1f1f1f;"> fields) {
+        field.</span><span style="color:#5597d6;">setAccessible</span><span style="color:#1f1f1f;">(</span><span style="color:#b3933a;">true</span><span style="color:#1f1f1f;">);
+        </span><span style="color:#a2a001;">Inject</span><span style="color:#1f1f1f;"> inject </span><span style="color:#72ab00;">=</span><span style="color:#1f1f1f;"> field.</span><span style="color:#5597d6;">getAnnotation</span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">Inject</span><span style="color:#1f1f1f;">.</span><span style="color:#5597d6;">class</span><span style="color:#1f1f1f;">);
+        </span><span style="color:#72ab00;">if </span><span style="color:#1f1f1f;">(inject </span><span style="color:#72ab00;">!= </span><span style="color:#b3933a;">null</span><span style="color:#1f1f1f;">) {
+            </span><span style="color:#a2a001;">String</span><span style="color:#1f1f1f;"> name </span><span style="color:#72ab00;">=</span><span style="color:#1f1f1f;"> inject.</span><span style="color:#5597d6;">value</span><span style="color:#1f1f1f;">();
+            </span><span style="color:#72ab00;">if </span><span style="color:#1f1f1f;">(name.</span><span style="color:#5597d6;">isEmpty</span><span style="color:#1f1f1f;">()) {
+                name </span><span style="color:#72ab00;">=</span><span style="color:#1f1f1f;"> field.</span><span style="color:#5597d6;">getName</span><span style="color:#1f1f1f;">();
+            }
+            </span><span style="color:#72ab00;">if </span><span style="color:#1f1f1f;">(</span><span style="color:#72ab00;">!</span><span style="color:#1f1f1f;">container.</span><span style="color:#5597d6;">containsKey</span><span style="color:#1f1f1f;">(name)) {
+                </span><span style="color:#72ab00;">throw new </span><span style="color:#a2a001;">RuntimeException</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;Object </span><span style="color:#aeb52b;">\&quot;</span><span style="color:#d07711;">&quot; </span><span style="color:#72ab00;">+</span><span style="color:#1f1f1f;"> name </span><span style="color:#72ab00;">+ </span><span style="color:#d07711;">&quot;</span><span style="color:#aeb52b;">\&quot;</span><span style="color:#d07711;"> cannot be found in container.&quot;</span><span style="color:#1f1f1f;">);
+            }
+            </span><span style="color:#72ab00;">try </span><span style="color:#1f1f1f;">{
+                field.</span><span style="color:#5597d6;">set</span><span style="color:#1f1f1f;">(obj, container.</span><span style="color:#5597d6;">get</span><span style="color:#1f1f1f;">(name));
+            } </span><span style="color:#72ab00;">catch </span><span style="color:#1f1f1f;">(</span><span style="color:#a2a001;">IllegalAccessException </span><span style="color:#5597d6;">e</span><span style="color:#1f1f1f;">) {
+                </span><span style="color:#7f8989;">// ignore
+            </span><span style="color:#1f1f1f;">}
+        }
+    }
+}
+</span></code></pre>
+<p>这段代码通过反射获取一个类的所有字段，并获取字段上的Inject注解。如果有注解的情况下，依次根据注解的<code>value</code>以及属性的名字获取注入的对象名。并通过发射将对象赋给相应的属性。</p>
+<h2 id="shi-ji-yun-xing">实际运行</h2>
+<pre style="background-color:#f5f5f5;">
+<code class="language-java" data-lang="java"><span style="color:#a2a001;">Map</span><span style="color:#1f1f1f;">&lt;</span><span style="color:#a2a001;">String</span><span style="color:#1f1f1f;">, </span><span style="color:#a2a001;">Object</span><span style="color:#1f1f1f;">&gt; container </span><span style="color:#72ab00;">= new </span><span style="color:#a2a001;">HashMap</span><span style="color:#1f1f1f;">&lt;</span><span style="color:#a2a001;">String</span><span style="color:#1f1f1f;">, </span><span style="color:#a2a001;">Object</span><span style="color:#1f1f1f;">&gt;();
+container.</span><span style="color:#5597d6;">put</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;james3&quot;</span><span style="color:#1f1f1f;">, </span><span style="color:#72ab00;">new </span><span style="color:#a2a001;">Driver</span><span style="color:#1f1f1f;">());
+container.</span><span style="color:#5597d6;">put</span><span style="color:#1f1f1f;">(</span><span style="color:#d07711;">&quot;tier&quot;</span><span style="color:#1f1f1f;">, </span><span style="color:#72ab00;">new </span><span style="color:#a2a001;">Tier</span><span style="color:#1f1f1f;">());
+
+</span><span style="color:#a2a001;">Car</span><span style="color:#1f1f1f;"> car </span><span style="color:#72ab00;">= new </span><span style="color:#a2a001;">Car</span><span style="color:#1f1f1f;">();
+</span><span style="color:#5597d6;">inject</span><span style="color:#1f1f1f;">(car, container);
+car.</span><span style="color:#5597d6;">run</span><span style="color:#1f1f1f;">();
+</span></code></pre>
+<p>在这里，通过<code>inject</code>方法将container中的对象根据需要注入到<code>car</code>中，无需<code>car</code>去管理对象的生成。注意到，这里的对象实例化都是有自己手动完成的。而且在实例化<code>car</code>时，依然自己手动调用了<code>inject</code>方法。所以这里简略的实现了一个依赖注入。为了自动实现以上想法，需要把<code>car</code>也放到<code>container</code>中。而<code>container</code>也应自动生成，可以通过扫描指定的包下的类来实现。个人感觉这里比较负责，不是很好写。具体可以参考Spring的实现。</p>
+<h1 id="zong-jie">总结</h1>
+<p>使用注解可以极大的增强代码的灵活性，而且使用注解也并不复杂，通过几个简单地API就可以完全搞定，真的是so easy！</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2016&#x2F;rust-web-server&#x2F;">&xlArr; 用Rust写了一个简单的Web服务器</a>
+            </span>
+        
+            <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2016&#x2F;an-introduction-to-parsing-text-in-haskell-with-parsec&#x2F;">Haskell Parsec的简短介绍[译] &xrArr;</a>
+            </span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2021</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

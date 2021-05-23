@@ -1,0 +1,609 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    
+        <url>
+            <loc>https://blog.evercoding.net/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/archive/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/links/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/message-board/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/p/1/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/p/2/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/p/3/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/p/4/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/busy-and-tired/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/compiling-linux-kernel/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/connect-sina-weibo-with-tornado/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/fickle-summer-vacation-fickle-me/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/first-month-of-new-term/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/logic-operation-in-python/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/records-of-tour-to-hong-kong-1st/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/records-of-tour-to-hong-kong-2nd/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/records-of-tour-to-hong-kong-3rd-completed/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2012/use-syntaxhighlighter-highlighting-code-in-jekyll/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/a-bit-about-mongoengine/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/a-sublime-text-plugin/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/close-a-bunch-of-process-on-linux/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/custom-jinja2-module-in-webpy/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/highlight-code-with-google-code-prettify/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/install-gitlab/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/machine-learning-reading-note-1st/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/on-the-end-of-the-term/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/traversing-dom-tree-with-javascript/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2013/use-syntaxhighlighter-highlighting-code-in-jekyll-2nd/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2014/activemq-note/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2014/solution-of-django-session-invalid-on-apache/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2015/first-glance-of-react-and-redux/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2015/implement-haskell-map-function-in-cpp/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2015/just-talk/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2015/writing-a-web-framwork/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2016/an-introduction-to-parsing-text-in-haskell-with-parsec/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2016/before-2017/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2016/implement-dependency-injection-by-annotation/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2016/rust-web-server/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2017/jdk-source-code-string/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2017/memory-barrier-in-synchronized/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2018/default-method-in-interface/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2018/jekyll-to-hugo/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2019/an-adventure-to-redis/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2019/jackson-deserialize-with-only-class-names/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2019/neovim-plugin-denite/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2019/read-design-data-intensive-applications/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/post/2021/idea-in-wsl/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/activemq/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/apache/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/bi-ji/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/bian-cheng-sheng-ya/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/bian-yi-yuan-ma/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/bing-fa/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/c/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/cha-jian/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/da-xue/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/dai-ma-gao-liang/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/dai-ma-zhi-wai/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/django/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/dom/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/du-shu-bi-ji/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/du-shu/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/fan-si/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/fan-yi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/fen-bu-shi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/gan-xiang/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/git/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/gitlab/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/google-code-prettify/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/haskell/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/hu-yan-luan-yu/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/hugo/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/intelij-idea/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/jackson/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/java/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/javascript/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/jdk/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/jekyll/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/ji-qi-xue-xi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/jinja2/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/jquery/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/linux/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/liquid/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/lu-you/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/mongodb/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/nei-he/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/neovim/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/parsec/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/python/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/qian-duan/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/react/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/redis/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/redux/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/rust/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/shell/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/shu-jia/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/string/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/sublime-text-2/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/sublime-text/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/svn/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/syntaxhighlighter/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/tornado/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/travis-ci/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/web-framework/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/web-py/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/webfu-wu-qi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/webkai-fa/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/wsl/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/xiang-gang/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/xiao-xi-dui-lie/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/xin-lang-wei-bo/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/xin-xue-qi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/yi-lai-zhu-ru/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/yin-xiang/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/yu-fa/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/yu-yi/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/yuan-ma/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/zhu-jie/</loc>
+            
+        </url>
+    
+        <url>
+            <loc>https://blog.evercoding.net/tags/zong-jie/</loc>
+            
+        </url>
+    
+</urlset>

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>用Tornado连接新浪微博</title>
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;style.css">
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="/">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;archive&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">用Tornado连接新浪微博</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2012-09-13</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;python&#x2F;">#Python</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;webkai-fa&#x2F;">#web开发</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;tornado&#x2F;">#Tornado</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;xin-lang-wei-bo&#x2F;">#新浪微博</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">497 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>前几天心血来潮，稍稍看了一下Tornado框架，感觉这个框架和web.py很像（因为本来Tornado就是在web.py的基础上修改而来的）。</p>
+<p>微博的API就是微博官网上的那个新的API，可以从<a href="http://michaelliao.github.com/sinaweibopy/">这里</a>下载。网上有很多的教程，不过用的都是原来的API，不过也可以参照。不多说了，直接贴代码，不过这是简写的，不过可以连接到微博了。</p>
+<pre style="background-color:#f5f5f5;">
+<code>#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import tornado.web
+import tornado.ioloop
+
+from weibo import APIClient
+
+APP_KEY = '*****'
+APP_SECRET = '******'
+CALLBACK_URL = 'http://apps.weibo.com/webotxyz/callback'
+# 这是回调地址，必须在微博应用的域名下面，否则报错
+
+class Index(tornado.web.RequestHandler):
+    def post(self): # 注意，这里是post
+        client = APIClient(app_key=APP_KEY, 
+                           app_secret=APP_SECRET,
+                           redirect_uri=CALLBACK_URL)
+        url = client.get_authorize_url()
+        # self.write('&lt;a href=&quot;' + url +'&quot;&gt;click&lt;/a&gt;') 
+        # 用户点击链接后跳转到验证界面
+        self.redirect(url) # 直接跳转到验证界面
+
+class Callback(tornado.web.RequestHandler):
+    def post(self): # 注意，这里也是post
+        code = self.get_argument('code')
+        client = APIClient(app_key=APP_KEY,
+                           app_secret=APP_SECRET,
+                           redirect_uri=CALLBACK_URL)
+        r = client.request_access_token(code)
+        access_token = r.access_token
+        expires_in = r.expires_in
+        client.set_access_token(access_token, expires_in)
+        # res = client.get.statuses__user_timeline(screen_name='iEverX')
+        # 这以后就可以自己调用API了，比如上一句就是抓取我的最近的微博
+
+app = tornado.web.Application([
+    (r'/', Index),
+    ('/callback', Callback),
+])
+
+if __name__ == '__main__':
+    app.listen(9009)
+    tornado.ioloop.IOLoop.instance().start()
+</code></pre>
+<p>我的应用的源码在这里<a href="http://github.com/iEverX/webotxyz">http://github.com/iEverX/webotxyz</a>，不过我的应用不可能上线的了，因为抓取数据存到邮箱了。。</p>
+<p>下面是我在里面用到的一段Python发送邮件的代码，比较短，可以充分的看出Python的简洁</p>
+<pre style="background-color:#f5f5f5;">
+<code>#! /usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+def send_mail(mail_from, mail_to_list, subject, content):
+    from_format = 'Ever' + '&lt;' + mail_from + '&gt;'
+    # 格式应该是这样的 Nickname&lt;username@host.address&gt;，中间无空格
+    txt = MIMEText(content, 'html') # 若content中有html编码
+    # txt = MIMEText(content) # 若content中没有html编码
+    txt.set_charset('utf-8')
+    msg = MIMEMultipart()
+    msg['Subject'] = subject
+    msg['From'] = from_mail
+    msg['To'] = ';'.join(mail_to_list)
+    msg.attach(txt)
+    try:
+        s = smtplib.SMTP()
+        s.connect(mail_info['host'])
+        s.login(mail_info['sender'], mail_info['sender_password'])
+        s.sendmail(mail_info['sender_address'], mail_to_list, msg.as_string())
+        s.close()
+    except:
+        return false
+    return True
+</code></pre>
+<p>嗯，这篇文章几乎都是代码，就当是自己的备忘录好了。。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2012&#x2F;first-month-of-new-term&#x2F;">&xlArr; 新学期的第一个月</a>
+            </span>
+        
+            <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2012&#x2F;records-of-tour-to-hong-kong-3rd-completed&#x2F;">香港游小记三（完） &xrArr;</a>
+            </span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2021</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

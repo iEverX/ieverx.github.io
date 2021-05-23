@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>web.py中自定义jinja2模块</title>
+    <link rel="stylesheet" href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;style.css">
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="/">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;archive&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">web.py中自定义jinja2模块</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2013-03-03</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;python&#x2F;">#Python</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;jinja2&#x2F;">#jinja2</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;webkai-fa&#x2F;">#web开发</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;tags&#x2F;web-py&#x2F;">#web.py</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">346 字</span>
+        &middot;
+        <span class="reading_time">大约需要 2 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>web.py是一个轻量级的Python web开发框架，不过自带的模板自己很不习惯，就换成了jinja2。web.py已经封装了jinja2的接口，很简单</p>
+<pre style="background-color:#f5f5f5;">
+<code>from web.contrib.template import render_jinja
+render = render_jinja('templates', encoding='utf-8')
+</code></pre>
+<p>之后就和自带模板一样使用了。web.py中使用jinja2的源代码如下</p>
+<pre style="background-color:#f5f5f5;">
+<code>class render_jinja:
+    &quot;&quot;&quot;Rendering interface to Jinja2 Templates
+    
+    Example:
+
+        render= render_jinja('templates')
+        render.hello(name='jinja2')
+    &quot;&quot;&quot;
+    def __init__(self, *a, **kwargs):
+        extensions = kwargs.pop('extensions', [])
+        globals = kwargs.pop('globals', {})
+
+        from jinja2 import Environment,FileSystemLoader
+        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+        self._lookup.globals.update(globals)
+        
+    def __getattr__(self, name):
+        # Assuming all templates end with .html
+        path = name + '.html'
+        t = self._lookup.get_template(path)
+        return t.render
+</code></pre>
+<p>在<code>__getattr__</code>函数中，<code>path = name + '.html'</code>使得只能访问同级目录下的模板。同时，还不方便使用自定义函数。在其基础之上，稍作修改即可，如下</p>
+<pre style="background-color:#f5f5f5;">
+<code>class RenderJinja2:
+
+    postfix = ('.html', '', 'htm', 'tpl')
+
+    def __init__(self, *a, **kwargs):
+        extensions = kwargs.pop('extensions', [])
+        globals = kwargs.pop('globals', {})
+        registers = kwargs.pop('registers', {})
+
+        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+        self._lookup.globals.update(globals)
+        self._lookup.globals.update(registers)
+
+    def render(self, path, **kwargs):
+        for fix in self.postfix:
+            realpath = path + fix
+            try:
+                t = self._lookup.get_template(realpath)
+                return t.render(**kwargs)
+            except:
+                pass
+        raise TemplateNotFound
+
+    def __getattr__(self, name):
+        path = name + '.html'
+        t = self._lookup.get_template(path)
+        return t.render
+</code></pre>
+<p>现在，自定义的函数、变量可以通过register这个字典传入，渲染时也有两种方式，</p>
+<pre style="background-color:#f5f5f5;">
+<code># 通过register传入自定义的函数或者变量，这里为了方便，使用了locals()
+render = RenderJinja2('path/to/templats', encoding='utf-8', registers=locals())
+
+# 渲染时
+render.render('path', **kwargs) # 新加的render
+render.post(**kwargs) # 原先的方式，通过 __getattr__
+</code></pre>
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2013&#x2F;traversing-dom-tree-with-javascript&#x2F;">&xlArr; Javascript遍历DOM树</a>
+            </span>
+        
+            <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.evercoding.net&#x2F;post&#x2F;2013&#x2F;highlight-code-with-google-code-prettify&#x2F;">Jekyll中使用google-code-prettify高亮代码 &xrArr;</a>
+            </span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2021</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>
