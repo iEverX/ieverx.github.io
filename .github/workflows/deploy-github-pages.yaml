@@ -20,3 +20,4 @@ jobs:
           PAGES_BRANCH: master
           BUILD_DIR: .
           TOKEN: $GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}
+          ZOLA_MODE: production
