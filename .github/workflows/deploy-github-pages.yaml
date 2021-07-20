@@ -15,7 +15,7 @@ jobs:
         with:
           ref: source
       - name: Build and deploy
-        uses: shalzz/zola-deploy-action@v0.13.0
+        uses: ieverx/zola-deploy-action@v0.14.0
         env:
           PAGES_BRANCH: master
           BUILD_DIR: .
