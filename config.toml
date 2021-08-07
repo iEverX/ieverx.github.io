@@ -28,7 +28,7 @@ render_emoji = true
 [extra]
 
 nav = [
-    { type = "page", value = "archive" },
+    { type = "section", value = "post", title = "archive" },
     { type = "taxonomy", value = "tags" },
     { type = "page", value = "message-board", title = "messages" },
     { type = "page", value = "links" },

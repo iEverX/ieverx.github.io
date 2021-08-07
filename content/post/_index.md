@@ -1,6 +1,6 @@
 +++
 transparent = true
 render = true
-template = ""
-redirect_to = "/"
+template = "archive.html"
+title = "归档"
 +++
