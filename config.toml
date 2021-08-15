@@ -22,7 +22,7 @@ default_language = "zh-CN"
 
 [markdown]
 highlight_code = true
-highlight_theme = "cheerfully-light"
+highlight_theme = "demain"
 render_emoji = true
 
 [extra]
