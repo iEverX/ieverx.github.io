@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;03</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;03</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-08-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">694 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode.com/problems/minimum-window-substring/">Minimum Window Substring - LeetCode</a></p>
+<p>两个字符串<code>s</code>和<code>t</code>，找到<code>s</code>中包含有<code>t</code>中全部字母（包括重复的）的最短的子串。想了挺长时间没有思路，看了提示。维护一个滑动窗口，右边界扩张直到满足条件，再收缩左边界。一旦不满足条件了，再重复扩张右边界，直到遍历完整个字符串。</p>
+<p>自己的第一个实现，并没有维护一个当前窗口与t的相近关系，每次扩张都重新计算是否满足条件，因而复杂度比较高。下边的代码是看过解答之后的版本（但是并不是最优化的版本）</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public </span><span style="color:#c99e00;">String </span><span style="color:#c82728;">minWindow</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> s, </span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> t) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">if </span><span>(t.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">() </span><span style="color:#3e999f;">&gt;</span><span> s.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">()</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#839c00;">&quot;&quot;</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">int</span><span> n </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">()</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Character</span><span>, </span><span style="color:#c99e00;">Integer</span><span>&gt; m </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">count</span><span style="color:#4271ae;">(t)</span><span>;
+</span><span>    </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Character</span><span>, </span><span style="color:#c99e00;">Integer</span><span>&gt; acc </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashMap</span><span>&lt;&gt;();
+</span><span>    </span><span style="color:#8959a8;">int</span><span> distinct </span><span style="color:#3e999f;">=</span><span> m.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">()</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">int[]</span><span> r </span><span style="color:#3e999f;">= </span><span>{n </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span>, </span><span style="color:#3e999f;">-</span><span style="color:#f07219;">1</span><span>, </span><span style="color:#3e999f;">-</span><span style="color:#f07219;">1</span><span>};
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">int</span><span> lower </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>    </span><span style="color:#8959a8;">int</span><span> upper </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>    </span><span style="color:#8959a8;">int</span><span> match </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>    </span><span style="color:#8959a8;">while </span><span>(upper </span><span style="color:#3e999f;">&lt;</span><span> n) {
+</span><span>        </span><span style="color:#8959a8;">char</span><span> ch </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(upper)</span><span>;
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(m.</span><span style="color:#c82728;">containsKey</span><span style="color:#4271ae;">(ch)</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">int</span><span> num </span><span style="color:#3e999f;">=</span><span> acc.</span><span style="color:#c82728;">merge</span><span style="color:#4271ae;">(ch, </span><span style="color:#f07219;">1</span><span style="color:#4271ae;">, </span><span style="color:#c99e00;">Integer</span><span style="color:#4271ae;">::</span><span style="color:#c82728;">sum</span><span style="color:#4271ae;">)</span><span>;
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(num </span><span style="color:#3e999f;">==</span><span> m.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(ch)</span><span>) {
+</span><span>                match</span><span style="color:#3e999f;">++</span><span>;
+</span><span>            }
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(match </span><span style="color:#3e999f;">==</span><span> distinct) {
+</span><span>                </span><span style="color:#8959a8;">while </span><span>(lower </span><span style="color:#3e999f;">&lt;=</span><span> upper) {
+</span><span>                    </span><span style="color:#8959a8;">char</span><span> c </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(lower)</span><span>;
+</span><span>                    </span><span style="color:#8959a8;">if </span><span>(m.</span><span style="color:#c82728;">containsKey</span><span style="color:#4271ae;">(c)</span><span>) {
+</span><span>                        num </span><span style="color:#3e999f;">=</span><span> acc.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(c) </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span>;
+</span><span>                        acc.</span><span style="color:#c82728;">put</span><span style="color:#4271ae;">(c, num)</span><span>;
+</span><span>                        </span><span style="color:#8959a8;">if </span><span>(num </span><span style="color:#3e999f;">&lt;</span><span> m.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(c)</span><span>) {
+</span><span>                            </span><span style="color:#3e999f;">--</span><span>match;
+</span><span>
+</span><span>                            </span><span style="color:#8959a8;">if </span><span>(upper </span><span style="color:#3e999f;">-</span><span> lower </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1 </span><span style="color:#3e999f;">&lt;</span><span> r[</span><span style="color:#f07219;">0</span><span>]) {
+</span><span>                                r[</span><span style="color:#f07219;">0</span><span>] </span><span style="color:#3e999f;">=</span><span> upper </span><span style="color:#3e999f;">-</span><span> lower </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span>;
+</span><span>                                r[</span><span style="color:#f07219;">1</span><span>] </span><span style="color:#3e999f;">=</span><span> lower;
+</span><span>                                r[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">=</span><span> upper;
+</span><span>                            }
+</span><span>                            </span><span style="color:#3e999f;">++</span><span>lower;
+</span><span>                            </span><span style="color:#8959a8;">break</span><span>;
+</span><span>                        }
+</span><span>
+</span><span>                    }
+</span><span>                    </span><span style="color:#3e999f;">++</span><span>lower;
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>        </span><span style="color:#3e999f;">++</span><span>upper;
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">if </span><span>(r[</span><span style="color:#f07219;">0</span><span>] </span><span style="color:#3e999f;">&lt;=</span><span> n) {
+</span><span>        </span><span style="color:#8959a8;">return</span><span> s.</span><span style="color:#c82728;">substring</span><span style="color:#4271ae;">(r[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">], r[</span><span style="color:#f07219;">2</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span style="color:#4271ae;">)</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#839c00;">&quot;&quot;</span><span>;
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Character</span><span>, </span><span style="color:#c99e00;">Integer</span><span>&gt; </span><span style="color:#c82728;">count</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> t) </span><span>{
+</span><span>    </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Character</span><span>, </span><span style="color:#c99e00;">Integer</span><span>&gt; m </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashMap</span><span>&lt;&gt;();
+</span><span>    </span><span style="color:#8959a8;">int</span><span> n </span><span style="color:#3e999f;">=</span><span> t.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0 </span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> n; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>        m.</span><span style="color:#c82728;">merge</span><span style="color:#4271ae;">(t.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(i), </span><span style="color:#f07219;">1</span><span style="color:#4271ae;">, </span><span style="color:#c99e00;">Integer</span><span style="color:#4271ae;">::</span><span style="color:#c82728;">sum</span><span style="color:#4271ae;">)</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return</span><span> m;
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<p><a href="https://netflixtechblog.com/achieving-observability-in-async-workflows-cd89b923c784">Achieving observability in async workflows</a></p>
+<p>Netflix 的工程师分享了他们的项目，Prodicle Distribution，是如何在异步工作流中获得可观测性的 —— 基于 Netflix 的 Cosmos 系统，Cosmos 提供了对异步工作流的观测能力。文章没什么干货。</p>
+<p><a href="https://netflixtechblog.com/the-netflix-cosmos-platform-35c14d9351ad">The Netflix Cosmos Platform</a></p>
+<p>上一篇文章提到了 Cosmos 系统，这篇文章就是对 Cosmos 的简要介绍。Cosmos 是一个结合了微服务、异步工作流以及Severless Function的计算平台，其最初的目的是替换 Netfix 已有的媒体处理系统 Reloaded。在保持当前能力的同时，希望能够提供可观测性、模块化、高效、持续交付能力。</p>
+<h2 id="tip">Tip</h2>
+<p>没有🤣</p>
+<h2 id="share">Share</h2>
+<p><a href="https://tech.youzan.com/ru-he-yong-okrpo-jie-kua-tuan-dui-xie-tong-mi-ju/">如何用OKR促进跨团队协同</a> </p>
+<p>有赞利用OKR进行项目过程管理<sup class="footnote-reference"><a href="#1">1</a></sup>，在此基础上，针对跨团队协同场景，有赞给出了他们的实践和原则。</p>
+<p>公司目前也在用OKR进行目标管理，希望团队可以就当前的目标达成一致。然而在实践过程中，并不尽如人意。多了解一下其他公司对于OKR的使用，可能会让我们对OKR的理解更透彻一些。</p>
+<div class="footnote-definition" id="1"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://tech.youzan.com/tou-guo-okr-jin-xing-xiang-mu-guo-cheng-guan-li/">透过 OKR 进行项目过程管理</a></p>
+</div>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2023</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>
