@@ -15,9 +15,9 @@ jobs:
         with:
           ref: source
       - name: Build and deploy
-        uses: ieverx/zola-deploy-action@v0.15.2
+        uses: shalzz/zola-deploy-action@v0.17.2
         env:
           PAGES_BRANCH: master
           BUILD_DIR: .
-          TOKEN: $GITHUB_ACTOR:${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ZOLA_MODE: production
