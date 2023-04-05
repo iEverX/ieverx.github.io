@@ -31,8 +31,8 @@ nav = [
     { type = "section", value = "post", title = "archive" },
     { type = "section", value = "arts" },
     { type = "taxonomy", value = "tags" },
-    { type = "page", value = "message-board", title = "messages" },
-    { type = "page", value = "links" },
+    { type = "page", value = "pages/message-board", title = "messages" },
+    { type = "page", value = "pages/links" },
     { type = "link", title = "github", url = "https://github.com/iEverX" }
 ]
 

@@ -8,5 +8,5 @@ links = [
     { url = "http://youthyblog.com", name = "Youthy的伟大航" },
     { url = "https://andsoaway.github.io", name = "渊薮" }
 ]
-in_nav = true
+path = "/links"
 +++
