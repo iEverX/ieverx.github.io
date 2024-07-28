@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>在只有类名时使用 Jackson 反序列化 Java 对象</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">在只有类名时使用 Jackson 反序列化 Java 对象</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2019-04-21</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jackson/">#Jackson</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">727 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="fan-xu-lie-hua">反序列化</h1>
+<p>Java 里，用 Jackson 序列号和反序列化，非常简单。序列化不是本文关心的内容，不谈。反序列的接口，基本下边这两个接口。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#3e999f;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#3e999f;">&gt; </span><span style="color:#c99e00;">T </span><span style="color:#c82728;">readValue</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> content, </span><span style="color:#c99e00;">Class</span><span style="color:#4271ae;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#4271ae;">&gt; valueType)</span><span>;
+</span><span style="color:#3e999f;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#3e999f;">&gt; </span><span style="color:#c99e00;">T </span><span style="color:#c82728;">readValue</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> content, </span><span style="color:#c99e00;">TypeReference</span><span style="color:#4271ae;"> valueTypeRef)</span><span>;
+</span></code></pre>
+<p>使用 <code>Class&lt;T&gt;</code> 的接口，返回的是一个类型为 <code>T</code> 的对象。接口的声明很直接，使用也比较舒服。不过当需要反序列的是带有参数的类型，比如 <code>List</code> 等，这个接口提供的信息就缺失了一些，那就是 <code>List</code> 的类型参数。在语法上，<code>readValue(s, List&lt;Type&gt;.class)</code> 是行不通的。而，<code>List&lt;Dog&gt;</code> 和 <code>List&lt;Cat&gt;</code> 显然不同，在反序列化时，我们期望得到元素类型不同的 <code>List</code> 。</p>
+<p>Java 中，不允许 <code>List&lt;Type&gt;.class</code> 的写法，是因为类型擦除。编译之后，只有 <code>List</code> 这个 rawType。为了解决这个问题，Jackson 提供了 <code>TypeRefernece</code>，来保存类型参数信息。既然可以保存，显然，类型擦除并没有完全地把所有的类型参数的信息都丢掉。实际上，可以通过反射来获取类的泛型信息，方法是通过 <code>Class#getGenericSuperclass</code> 获取泛型父类，返回的类型是 <code>Type</code>。如果父类实际上没有类型参数，则实际上是个 <code>Class</code>，否则，是 <code>ParameterizedType</code>。看下 <code>TypeReference</code> 的具体实现，</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8e908c;">// 删除了无关代码、注释、空行
+</span><span style="color:#8959a8;">public abstract class </span><span style="color:#c99e00;">TypeReference</span><span>&lt;</span><span style="color:#f07219;">T</span><span>&gt; {
+</span><span>    </span><span style="color:#8959a8;">protected final </span><span style="color:#c99e00;">Type </span><span>_type;
+</span><span>    </span><span style="color:#8959a8;">protected </span><span style="color:#4271ae;">TypeReference</span><span>() {
+</span><span>        </span><span style="color:#c99e00;">Type</span><span> superClass </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">getClass</span><span style="color:#4271ae;">()</span><span>.</span><span style="color:#c82728;">getGenericSuperclass</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(superClass </span><span style="color:#3e999f;">instanceof </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt;) { </span><span style="color:#8e908c;">// sanity check, should never happen
+</span><span>            </span><span style="color:#8959a8;">throw new </span><span style="color:#c99e00;">IllegalArgumentException</span><span>(</span><span style="color:#839c00;">&quot;Internal error: TypeReference constructed without actual type information&quot;</span><span>);
+</span><span>        }
+</span><span>        _type </span><span style="color:#3e999f;">= </span><span>((</span><span style="color:#c99e00;">ParameterizedType</span><span>) superClass).</span><span style="color:#c82728;">getActualTypeArguments</span><span style="color:#4271ae;">()</span><span>[</span><span style="color:#f07219;">0</span><span>];
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getType</span><span>() { </span><span style="color:#8959a8;">return</span><span> _type; }
+</span><span>}
+</span></code></pre>
+<p>注意 <code>TypeReference</code> 是一个抽象类，这意味着实例化时都是要创建一个子类。有了 <code>TypeRerence</code>，反序列化就没有问题了。</p>
+<h1 id="mei-you-lei-xing-de-ju-ti-xin-xi">没有类型的具体信息</h1>
+<p>这里其实还有个问题，假如我没有类的实际信息，只有类的名字以及类型参数的名字，怎么来反序列化呢？我碰到这个问题，是在尝试写一个简单的 RPC，序列化方式就是用的 json。在传递参数时，客户端只能把参数的类型通过字符串传递，需要在服务端解析出来。</p>
+<p><code>TypeReference</code> 的构造函数，要求必须有类型参数。然而，即使通过类名，获得了对应的 <code>Class</code> 实例，也没有办法转变成字面量去创建一个 <code>TypeReference</code>。解决办法其实很简单，重写 <code>getType</code> 方法，因为 <code>TypeReference</code> 的目的就只是提供一个 <code>getType</code> 方法。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">CustomeTypeRef</span><span>&lt;</span><span style="color:#f07219;">T</span><span>&gt; </span><span style="color:#8959a8;">extends </span><span style="color:#839c00;">TypeReference</span><span>&lt;</span><span style="color:#c99e00;">T</span><span>&gt; {
+</span><span>        </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; rawType, paramType;
+</span><span>        </span><span style="color:#8959a8;">protected </span><span style="color:#4271ae;">MyTypeRef</span><span>(</span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; </span><span style="color:#f07219;">rawType</span><span>, </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; </span><span style="color:#f07219;">paramType</span><span>) {
+</span><span>            </span><span style="color:#c82728;">this</span><span>.rawType </span><span style="color:#3e999f;">=</span><span> rawType;
+</span><span>            </span><span style="color:#c82728;">this</span><span>.paramType </span><span style="color:#3e999f;">=</span><span> paramType;
+</span><span>        }
+</span><span>        @</span><span style="color:#c82728;">Override
+</span><span>        </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getType</span><span>() {
+</span><span>            </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">ParameterizedType</span><span>() {
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type</span><span style="color:#8959a8;">[] </span><span style="color:#4271ae;">getActualTypeArguments</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">Type</span><span>[]{paramType};
+</span><span>                }
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getRawType</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return</span><span> rawType;
+</span><span>                }
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getOwnerType</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return </span><span style="color:#f07219;">null</span><span>;
+</span><span>                }
+</span><span>            };
+</span><span>        }
+</span><span>    }
+</span><span style="font-style:italic;color:#c82829;">}
+</span></code></pre>
+<p>虽然参数类型 <code>T</code> 已经不需要了，但是必须得有。因为在 <code>TypeReference</code> 的默认构造函数，强制必须有参数类型。</p>
+<p>看起来很简单的样子啊。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

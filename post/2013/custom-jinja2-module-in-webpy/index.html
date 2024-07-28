@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>web.py中自定义jinja2模块</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">web.py中自定义jinja2模块</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2013-03-03</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/python/">#Python</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jinja2/">#jinja2</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/webkai-fa/">#web开发</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/web-py/">#web.py</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">346 字</span>
+        &middot;
+        <span class="reading_time">大约需要 2 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>web.py是一个轻量级的Python web开发框架，不过自带的模板自己很不习惯，就换成了jinja2。web.py已经封装了jinja2的接口，很简单</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>from web.contrib.template import render_jinja
+</span><span>render = render_jinja(&#39;templates&#39;, encoding=&#39;utf-8&#39;)
+</span></code></pre>
+<p>之后就和自带模板一样使用了。web.py中使用jinja2的源代码如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>class render_jinja:
+</span><span>    &quot;&quot;&quot;Rendering interface to Jinja2 Templates
+</span><span>    
+</span><span>    Example:
+</span><span>
+</span><span>        render= render_jinja(&#39;templates&#39;)
+</span><span>        render.hello(name=&#39;jinja2&#39;)
+</span><span>    &quot;&quot;&quot;
+</span><span>    def __init__(self, *a, **kwargs):
+</span><span>        extensions = kwargs.pop(&#39;extensions&#39;, [])
+</span><span>        globals = kwargs.pop(&#39;globals&#39;, {})
+</span><span>
+</span><span>        from jinja2 import Environment,FileSystemLoader
+</span><span>        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+</span><span>        self._lookup.globals.update(globals)
+</span><span>        
+</span><span>    def __getattr__(self, name):
+</span><span>        # Assuming all templates end with .html
+</span><span>        path = name + &#39;.html&#39;
+</span><span>        t = self._lookup.get_template(path)
+</span><span>        return t.render
+</span></code></pre>
+<p>在<code>__getattr__</code>函数中，<code>path = name + '.html'</code>使得只能访问同级目录下的模板。同时，还不方便使用自定义函数。在其基础之上，稍作修改即可，如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>class RenderJinja2:
+</span><span>
+</span><span>    postfix = (&#39;.html&#39;, &#39;&#39;, &#39;htm&#39;, &#39;tpl&#39;)
+</span><span>
+</span><span>    def __init__(self, *a, **kwargs):
+</span><span>        extensions = kwargs.pop(&#39;extensions&#39;, [])
+</span><span>        globals = kwargs.pop(&#39;globals&#39;, {})
+</span><span>        registers = kwargs.pop(&#39;registers&#39;, {})
+</span><span>
+</span><span>        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+</span><span>        self._lookup.globals.update(globals)
+</span><span>        self._lookup.globals.update(registers)
+</span><span>
+</span><span>    def render(self, path, **kwargs):
+</span><span>        for fix in self.postfix:
+</span><span>            realpath = path + fix
+</span><span>            try:
+</span><span>                t = self._lookup.get_template(realpath)
+</span><span>                return t.render(**kwargs)
+</span><span>            except:
+</span><span>                pass
+</span><span>        raise TemplateNotFound
+</span><span>
+</span><span>    def __getattr__(self, name):
+</span><span>        path = name + &#39;.html&#39;
+</span><span>        t = self._lookup.get_template(path)
+</span><span>        return t.render
+</span></code></pre>
+<p>现在，自定义的函数、变量可以通过register这个字典传入，渲染时也有两种方式，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span># 通过register传入自定义的函数或者变量，这里为了方便，使用了locals()
+</span><span>render = RenderJinja2(&#39;path/to/templats&#39;, encoding=&#39;utf-8&#39;, registers=locals())
+</span><span>
+</span><span># 渲染时
+</span><span>render.render(&#39;path&#39;, **kwargs) # 新加的render
+</span><span>render.post(**kwargs) # 原先的方式，通过 __getattr__
+</span></code></pre>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

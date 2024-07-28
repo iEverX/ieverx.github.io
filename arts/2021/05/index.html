@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;05</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;05</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-09-04</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">438 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="algorithm">Algorithm</h1>
+<p><a href="https://leetcode.com/problems/minimum-height-trees/">Minimum Height Trees</a></p>
+<p>自己没做出来，看的答案，需要一个关于图论的知识点。具体而言，一棵树是一个无环图，而一个图的中心点定义为到其他所有节点最短的点，而一个无环图，最多有两个中心点。对于这道题目而言，中心点就是想要的最小高度树的根。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt; </span><span style="color:#c82728;">findMinHeightTrees</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> n, </span><span style="color:#8959a8;">int[][]</span><span style="color:#4271ae;"> edges) </span><span>{
+</span><span>	</span><span style="color:#8959a8;">if </span><span>(edges.length </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">0</span><span>) {
+</span><span>		</span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">Collections</span><span>.</span><span style="color:#c82728;">singletonList</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">)</span><span>;
+</span><span>	}
+</span><span>	</span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>, </span><span style="color:#c99e00;">Set</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt;&gt; mat </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">distance</span><span style="color:#4271ae;">(edges)</span><span>;
+</span><span>
+</span><span>	</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt; q </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;(</span><span style="color:#f07219;">16</span><span>);
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> n; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>		</span><span style="color:#8959a8;">if </span><span>(mat.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(i)</span><span>.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">() </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">1</span><span>) {
+</span><span>			q.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(i)</span><span>;
+</span><span>		}
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#8959a8;">int</span><span> total </span><span style="color:#3e999f;">=</span><span> n;
+</span><span>	</span><span style="color:#8959a8;">while </span><span>(total </span><span style="color:#3e999f;">&gt; </span><span style="color:#f07219;">2</span><span>) {
+</span><span>		</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt; next </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;(</span><span style="color:#f07219;">16</span><span>);
+</span><span>
+</span><span>		</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#c99e00;">Integer</span><span> node </span><span style="color:#3e999f;">:</span><span> q) {
+</span><span>			</span><span style="color:#c99e00;">Integer</span><span> neighbour </span><span style="color:#3e999f;">=</span><span> mat.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(node)</span><span>.</span><span style="color:#c82728;">iterator</span><span style="color:#4271ae;">()</span><span>.</span><span style="color:#c82728;">next</span><span style="color:#4271ae;">()</span><span>;
+</span><span>			mat.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(neighbour)</span><span>.</span><span style="color:#c82728;">remove</span><span style="color:#4271ae;">(node)</span><span>;
+</span><span>			</span><span style="color:#8959a8;">if </span><span>(mat.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(neighbour)</span><span>.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">() </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">1</span><span>) {
+</span><span>				next.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(neighbour)</span><span>;
+</span><span>			}
+</span><span>		}
+</span><span>
+</span><span>		total </span><span style="color:#3e999f;">-=</span><span> q.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">()</span><span>;
+</span><span>		q </span><span style="color:#3e999f;">=</span><span> next;
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">return</span><span> q;
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>, </span><span style="color:#c99e00;">Set</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt;&gt; </span><span style="color:#c82728;">distance</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">int[][]</span><span style="color:#4271ae;"> edges) </span><span>{
+</span><span>	</span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>, </span><span style="color:#c99e00;">Set</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt;&gt; r </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashMap</span><span>&lt;&gt;(edges.length </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span>);
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;=</span><span> edges.length; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>		r.</span><span style="color:#c82728;">put</span><span style="color:#4271ae;">(i, </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashSet</span><span style="color:#4271ae;">&lt;&gt;())</span><span>;
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int[]</span><span> edge</span><span style="color:#3e999f;">:</span><span> edges) {
+</span><span>		r.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(edge[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">])</span><span>.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(edge[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">])</span><span>;
+</span><span>		r.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(edge[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">])</span><span>.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(edge[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">])</span><span>;
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">return</span><span> r;
+</span><span>}
+</span></code></pre>
+<h1 id="review">Review</h1>
+<p><a href="https://medium.com/swlh/what-does-cloud-native-really-mean-1b10ed003aa9">What Does Cloud Native Really Mean?</a></p>
+<p>Cloud Native 是什么含义呢？不同人的理解不尽相同，也可能会片面。这篇文章认为，Cloud Native 意味着充分利用云的独特特性，从而快速交付业务价值。虽然现在谈论 Cloud Native 更多是关注与技术层面，但是 Cloud Native 不仅仅是技术，而是一套涉及「技术和基础设置」、「架构和设计」、「组织和工作流程」的理念</p>
+<h1 id="tip">Tip</h1>
+<p>没有……</p>
+<h1 id="share">Share</h1>
+<p><a href="https://insights.thoughtworks.cn/timezone-timestamp-format/">代码中的时间 - Thoughtworks洞见</a></p>
+<p>一篇关于代码中时间的文章，阐明了时间、日期、时刻、时区等概念。文章的观点是程序中应该仅仅保存、传输「时刻」，因为其他概念都可以由时刻转换而来</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

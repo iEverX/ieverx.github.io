@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;07</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;07</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-09-15</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">481 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="algorithm">Algorithm</h1>
+<p><a href="https://leetcode.com/problems/delete-and-earn/">Delete and Earn - LeetCode</a>
+动态规划，看 leetcode 题解就可以。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public int </span><span style="color:#c82728;">deleteAndEarn</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">int[]</span><span style="color:#4271ae;"> nums) </span><span>{
+</span><span>	</span><span style="color:#8959a8;">if </span><span>(nums.length </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">1</span><span>) {
+</span><span>		</span><span style="color:#8959a8;">return</span><span> nums[</span><span style="color:#f07219;">0</span><span>];
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">int[]</span><span> v </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new int</span><span>[</span><span style="color:#f07219;">10001</span><span>];
+</span><span>	</span><span style="color:#8959a8;">int</span><span> max </span><span style="color:#3e999f;">= -</span><span style="color:#f07219;">1</span><span>;
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> n </span><span style="color:#3e999f;">:</span><span> nums) {
+</span><span>		v[n] </span><span style="color:#3e999f;">+=</span><span> n;
+</span><span>		max </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(n, max)</span><span>;
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">int</span><span> a </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>, b </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;=</span><span> max; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>		</span><span style="color:#8959a8;">int</span><span> c </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(a </span><span style="color:#3e999f;">+</span><span style="color:#4271ae;"> v[i], b)</span><span>;
+</span><span>		a </span><span style="color:#3e999f;">=</span><span> b;
+</span><span>		b </span><span style="color:#3e999f;">=</span><span> c;
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">return</span><span> b;
+</span><span>}
+</span></code></pre>
+<h1 id="review">Review</h1>
+<p><a href="https://martinfowler.com/articles/ship-show-ask.html">Ship / Show / Ask</a></p>
+<p>Pull Request 下如何把提交合并到主干呢？Fowler 认为有三个方式，Ship，即直接在主干提交；Show，提PR后自己通过；Ask，需要他人review才可以通过。不同的团队里，对三种方式的倾向是不一样的，也体现了团队的特点。</p>
+<p>目前公司的 review 是事先 review，也就是 Ask 模式。其优劣很明显，所有代码都有 review，代码质量会有更好的保证。而缺点则是提交会长时间的 block，导致效率的下降。也许放开限制是一个解决办法</p>
+<h1 id="tip">Tip</h1>
+<p>从同事那里得知，对 maven 的 mirror 和 repo 理解得不对，这也是之前配置多个 profile 没有成功的原因。</p>
+<p>mirrorOf  和 repo.id 相同，说明 mirror 是 repo 的镜像，先访问 mirror</p>
+<h1 id="share">Share</h1>
+<p><a href="https://insights.thoughtworks.cn/what-is-software-quality/">什么是软件质量？ - Thoughtworks洞见</a></p>
+<p>关于软件质量的文章，文章中提到了软件工程中的一些概念，部分名词听起来有些耳熟，公司里也有些人提到，留待以后看看。文章中也提到，软件质量分为流程质量、内部质量、外部质量、使用质量，具有层次递进的依赖、影响关系。软件的质量需要团队来保证，而不是交由某一个人或者某一个角色来保证的。</p>
+<p>这篇文章对「软件质量」这个词做了拆解，结合了软件工程的观点，给出了提升软件质量的途径，并没有具体的操作指南</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>在C++中实现Haskell的map函数</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">在C++中实现Haskell的map函数</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2015-09-19</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/haskell/">#Haskell</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/c/">#C++</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">1221 字</span>
+        &middot;
+        <span class="reading_time">大约需要 7 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>C++11中引入了lambda，类似如下的语法</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>[value](</span><span style="color:#8959a8;">int</span><span> x) -&gt; </span><span style="color:#c82728;">int </span><span>{ </span><span style="color:#8959a8;">return</span><span> x </span><span style="color:#3e999f;">*</span><span> x; }
+</span></code></pre>
+<p>其中，<code>[]</code>中的部分，是捕获外界变量，<code>()</code>中的部分则是参数，<code>-&gt;</code>表明返回类型，<code>{}</code>中是函数体。</p>
+<p>正好这几天在看Haskell，于是想要在C++中实现Haskell中的<code>map</code>函数。Haskell中，<code>map</code>的的效果与下面的代码效果相同，</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">map </span><span style="color:#8959a8;">::</span><span> (</span><span style="color:#c82728;">a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">b</span><span>) </span><span style="color:#8959a8;">-&gt;</span><span> [</span><span style="color:#c82728;">a</span><span>] </span><span style="color:#8959a8;">-&gt;</span><span> [</span><span style="color:#c82728;">b</span><span>]
+</span><span>map _ </span><span style="color:#f07219;">[] </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">[]
+</span><span>map f (x</span><span style="color:#3e999f;">:</span><span>xs) </span><span style="color:#3e999f;">=</span><span> f x</span><span style="color:#3e999f;">:</span><span> map f xs
+</span></code></pre>
+<p>实际上是一个列表中的所有元素都用给定的函数进行计算，其结果保存为一个新的列表。</p>
+<p>我期望最终的<code>map</code>函数，可以进行这样的调用</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8e908c;">// lambda，多态
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">([](</span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> x) { </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> x </span><span style="color:#3e999f;">*</span><span style="color:#4271ae;"> x; }, int_vec)</span><span>;
+</span><span>vector&lt;</span><span style="color:#8959a8;">bool</span><span>&gt; br </span><span style="color:#4271ae;">map</span><span>([](</span><span style="color:#8959a8;">double</span><span> n) { </span><span style="color:#8959a8;">return</span><span> n </span><span style="color:#3e999f;">&gt; </span><span style="color:#f07219;">0</span><span>; }, </span><span style="color:#f07219;">double_vec</span><span>);
+</span><span>
+</span><span style="color:#8e908c;">// 函数指针
+</span><span style="color:#8959a8;">int </span><span style="color:#4271ae;">f</span><span>(string </span><span style="color:#f07219;">s</span><span>) { </span><span style="color:#8959a8;">return</span><span> s.</span><span style="color:#c82728;">length</span><span>() }
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir2 </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">(f, string_vec)</span><span>;
+</span><span>
+</span><span style="color:#8e908c;">// functor
+</span><span style="color:#8959a8;">struct </span><span>F {
+</span><span>	</span><span style="color:#8959a8;">int </span><span style="color:#4271ae;">operator()</span><span>(</span><span style="color:#8959a8;">int </span><span style="color:#f07219;">n</span><span>) {
+</span><span>		</span><span style="color:#8959a8;">return</span><span> n </span><span style="color:#3e999f;">% </span><span style="color:#f07219;">5</span><span>;
+</span><span>	}
+</span><span>}
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir3 </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">F</span><span style="color:#4271ae;">(), int_vec)</span><span>;
+</span></code></pre>
+<p>我第一次想到的函数声明是这个样子的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template</span><span>&lt;</span><span style="color:#8959a8;">typename</span><span> T, </span><span style="color:#8959a8;">typename</span><span> R&gt;
+</span><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(R </span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(T)</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>这个声明的问题在于，<code>R f(T)</code>是个函数指针，不接受lambda函数和functor，让人很无奈。于是尝试将类型改为function&lt;R(T)&gt;，也就是下面这样（之后省略template说明）</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(function&lt;R(T)&gt; </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>现在3中方式都可以了，但是问题是，需要强制类型转换。这就比较痛苦了。至此陷入了困境。然后我想C++标准库库中是有可以传入lambda的函数的。于是我打开了<code>algorithm</code>，里面有个<code>for_each</code>函数，其声明是这样的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template</span><span>&lt;</span><span style="color:#8959a8;">class</span><span> _InIt,
+</span><span>	</span><span style="color:#8959a8;">class</span><span> _Fn1&gt; </span><span style="color:#8959a8;">inline
+</span><span>	_Fn1 </span><span style="color:#4271ae;">for_each</span><span>(_InIt </span><span style="color:#f07219;">_First</span><span>, _InIt </span><span style="color:#f07219;">_Last</span><span>, _Fn1 </span><span style="color:#f07219;">_Func</span><span>)
+</span></code></pre>
+<p>也就是将函数类型作为多模板参数，于是我也将我的声明修改了一下</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>然后又报错了，C++编译器无法推断出R的类型。</p>
+<p>其实从Haskell的<code>map</code>的类型可以看出来，我们并不需要3个模板参数，输入类型T，输出类型R，函数类型F，是有关系的，<code>F(T) = R</code>，最开始，我是使用T和R来表示F，并不是很成功。从它们的关系来看，使用F和T表示R，相比之下，要比用F，R表示T来的直白的多。现在的问题是，如何使用C++的语法来表示R。</p>
+<p>C++11中有个<code>decltype</code>，可以用来表示一个类型。如下</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8e908c;">// 声明一个x类型的y
+</span><span style="color:#8959a8;">decltype</span><span>(x) y </span><span style="color:#3e999f;">=</span><span> x;
+</span><span style="color:#8e908c;">// 与下面一行功能相同
+</span><span style="color:#8959a8;">auto</span><span> y </span><span style="color:#3e999f;">=</span><span> x;
+</span><span>
+</span><span style="color:#8e908c;">// 表明函数的返回类型
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f</span><span>(</span><span style="color:#8959a8;">int </span><span style="color:#f07219;">t</span><span>) -&gt; </span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">foo</span><span style="color:#4271ae;">(t)</span><span>);
+</span></code></pre>
+<p>最后一行，则使用了<code>decltype</code>来指明函数的返回类型和<code>foot(t)</code>的类型一样。那么，我们就可以写出<code>map</code>的函数声明了</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f_map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; vector&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt;
+</span></code></pre>
+<p>其中<code>decltype(f(T()))</code>，<code>T()</code>是T类型的无参构造函数。当然也可以是用<code>*begin(list)</code>或者<code>*list.end()</code>等等，<code>decltype</code>与<code>sizeof</code>类似，不会对操作数进行求值。</p>
+<p>最终的完整函数是这这样的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">typename</span><span> T, </span><span style="color:#8959a8;">typename</span><span> F&gt;
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f_map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; vector&lt;</span><span style="color:#8959a8;">decltype </span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt; {
+</span><span>	vector</span><span style="color:#3e999f;">&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)</span><span style="color:#3e999f;">&gt;</span><span> result;
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">auto</span><span> it </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">begin</span><span style="color:#4271ae;">(list)</span><span>; it </span><span style="color:#3e999f;">!= </span><span style="color:#c82728;">end</span><span style="color:#4271ae;">(list)</span><span>; </span><span style="color:#3e999f;">++</span><span>it) {
+</span><span>		result.</span><span style="color:#c82728;">push_back</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#3e999f;">*</span><span style="color:#4271ae;">it)</span><span>);
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">return</span><span> result;
+</span><span>}
+</span></code></pre>
+<p>现在的实现的是map，当时我还想实现更加一般化的<code>fmap</code></p>
+<pre data-lang="hs" style="background-color:#f9f9f9;color:#111111;" class="language-hs "><code class="language-hs" data-lang="hs"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Functor </span><span style="color:#c82728;">f </span><span style="color:#8959a8;">where
+</span><span>	</span><span style="color:#4271ae;">fmap </span><span style="color:#8959a8;">::</span><span> (</span><span style="color:#c82728;">a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">b</span><span>) </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">f a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">f b
+</span></code></pre>
+<p><code>fmap</code>并没有一个统一的实现，对于列表而言，<code>fmap</code>的实现就是<code>fmap = map</code>。注意，这里<code>Functor</code>和C++中的<code>Functor</code>不是一个概念。</p>
+<p>当然Haskell中的<code>Functor</code>在C++中不存在，我只是想写一个这种模式，比如对于一些容器，如<code>set</code>，<code>map</code>等等，可以进行<code>map</code>操作（实际上，这些容器，可以被定义为Haskell中的<code>Functor</code>）。但最后我放弃了，因为在C++中，这些容器并不具体有共同的基类，我可以写出函数声明，但是实现却无法统一。</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">typename</span><span style="color:#3e999f;">...</span><span>&gt; </span><span style="color:#8959a8;">class</span><span> C, </span><span style="color:#8959a8;">typename</span><span> F, </span><span style="color:#8959a8;">typename</span><span> T&gt;
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">mymap </span><span>(F </span><span style="color:#f07219;">f</span><span>, C&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; C&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt;;
+</span></code></pre>
+<p>其实标准库中已经有了类似的函数，就是<code>transform</code>，不过<code>transform</code>并不返回值，而是通过一个指针，修改外部的变量</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; result;
+</span><span style="color:#c82728;">transform</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">begin</span><span style="color:#4271ae;">(input), </span><span style="color:#c82728;">end</span><span style="color:#4271ae;">(input), </span><span style="color:#c82728;">back_inserter</span><span style="color:#4271ae;">(result),
+</span><span style="color:#4271ae;">		[](</span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> x) { </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> x </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">3</span><span style="color:#4271ae;">; })</span><span>;
+</span></code></pre>
+<p><code>result</code>就是map后返回的结果。</p>
+<p>总体来说，由于C++和Haskell的设计理念并不相同，Haskell中的<code>fmap</code>无法（至少我无法）完全在C++中实现，而<code>map</code>由于限制较少，其实现没有问题。此外，C++的标准库中其实提供的了许多与Haskell中功能的相似的函数，但是名字并不相同，而且细节略有差异。C++的容器操作，一般是需要提供指明起止位置的iterator，对一个范围进行操作。而Haskell由于值不可修改，因此均是对所有元素进行操作的，最后返回新值。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

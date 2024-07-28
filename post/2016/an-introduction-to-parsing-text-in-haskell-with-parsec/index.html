@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Haskell Parsec的简短介绍[译]</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">Haskell Parsec的简短介绍[译]</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2016-01-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/haskell/">#Haskell</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/parsec/">#Parsec</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/fan-yi/">#翻译</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">6638 字</span>
+        &middot;
+        <span class="reading_time">大约需要 34 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>本文翻译自<a href="http://unbui.lt/#!/post/haskell-parsec-basics/">http://unbui.lt/#!/post/haskell-parsec-basics/</a>。这是我第一次翻译文章，这篇文章的英文看起来也不是很难，只是想尝试翻一下。由于第一次，许多地方的翻译并没有很通顺，整片文章读起来也是有些奇怪。此外代码中的注释没有翻译。以下是正文。</p>
+<blockquote>
+<p>Parsec的存在使得在Haskell中解析文本非常简单。这篇文章的目的在于给我自己和其他人一个从零开始介绍每个函数，并配有例子的指南和参考。</p>
+</blockquote>
+<p>首先，为什么要用Parsec而不是与之类似于正则表达式之类的东西来解析内容呢？其他语言中，把内容切分成数组，每次用正则表达式处理一部分，这种方式或者类似的其他方式，是一种非常常见的模式。在Haskell中，我们也可以采用这种方式，但是我已经看到了Parsec发出的光，我想把这种更好的方式介绍给你们。</p>
+<p>大多数的指南都是上来就是一个完整的例子，但是我会一个一个的介绍这些不同的函数，以后这篇文章也可以作为一个使用Parsec的备忘（对我自己和所有其他人都是如此）。我尽量保证每个例子是独立的，所以跳过某些部分并不会有问题，但是请注意最开始的基础代码。我也把所有的例子的代码放到了<a href="https://jsdw.github.io/unbuilt-posts/haskell-parsec-basics/examples.hs">这个文件</a>中，可以直接使用<code>:load</code>命令读到<code>ghci</code>中使用。</p>
+<h1 id="ji-chu">基础</h1>
+<p>对于一个从头到尾的文本流，Parsec会尝试用一个规则或者规则的集合去匹配这个输入流。Parsec也是一个monadic，所以我们可以很容易把不同的规则通过<code>do</code>拼凑到一个序列中。一个一般的概念是，一个规则的工作方式是，每次从输入消费一个字符，并判断是否匹配。所以当把几个规则拼凑正一个序列时，每个规则会消费部分输入，直到没有输入、没有规则或者某个规则没有匹配（产生一个error）。</p>
+<p>我们首先从最基本的开始。我qualified引入了<code>Parsec</code>，所以可以直接使用<code>Parsec</code>函数（注：无需使用包名前缀）。同时引入了<code>Control.Applicative</code>，因此稍后可以使用applicative形式的代码。最后给<code>parseTest</code>起了一个简短的别名。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I import qualified so that it&#39;s clear which
+</span><span style="color:#8e908c;">-- functions are from the parsec library:
+</span><span style="color:#8959a8;">import qualified </span><span>Text.Parsec </span><span style="color:#8959a8;">as </span><span>Parsec
+</span><span>
+</span><span style="color:#8e908c;">-- I am the error message infix operator, used later:
+</span><span style="color:#8959a8;">import </span><span>Text.Parsec ((&lt;?&gt;))
+</span><span>
+</span><span style="color:#8e908c;">-- Imported so we can play with applicative things later.
+</span><span style="color:#8e908c;">-- not qualified as mostly infix operators we&#39;ll be using.
+</span><span style="color:#8959a8;">import </span><span>Control.Applicative
+</span><span>
+</span><span style="color:#8e908c;">-- Get the Identity monad from here:
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.Identity (</span><span style="color:#8959a8;">Identity</span><span>)
+</span><span>
+</span><span style="color:#8e908c;">-- alias Parsec.parse for more concise usage in my examples:
+</span><span>parse rule text </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>parse rule </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> text
+</span></code></pre>
+<p>以上就是基本的设定，并定义了一个简单的函数<code>parse</code>，这个函数只是忽略了<code>Parsec.parse</code>的第二个参数（实际上，这个参数是带解析内容的文件名，只用于Parsec显示错误信息是能提供一些其他的信息）。</p>
+<p>Parsec是有一系列的“积木”搭建起来的，每一块都是一个规则本身，或者是与其他规则一起组成的更复杂的规则。接下来我们看看这些基础的积木，以及它们是如何和上面的基本设定一起工作的。</p>
+<h2 id="parsec-char"><code>Parsec.char</code></h2>
+<p>这个函数返回一个规则，该规则根据输入的参数，去匹配输入文本中的当前字符。我们ghci中运行一下。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> someText </span><span style="color:#3e999f;">= </span><span style="color:#839c00;">&quot;Hello Hello Hello World World World&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;H&#39;</span><span>) someText
+</span><span>Right </span><span style="color:#839c00;">&#39;H&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;e&#39;</span><span>) someText
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;H&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;e&quot;
+</span></code></pre>
+<p><code>Parsec.char 'H'</code>返回了一个会匹配单个字符<code>'H'</code>的规则。如果我们用这个规则匹配一个以<code>H</code>开头的字符串，结果是好的。如果尝试任何不是<code>H</code>的字母，就会失败。结果的类型总是<code>Either ParsecError res</code>，如果规则成功，则得到<code>Right result</code>，失败则得到<code>Left error</code>。我们可以试试模式匹配，例子非常简单：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>main </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    </span><span style="color:#8959a8;">let</span><span> result </span><span style="color:#3e999f;">=</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;H&#39;</span><span>) </span><span style="color:#839c00;">&quot;Hello&quot;
+</span><span>    </span><span style="color:#8959a8;">case</span><span> result </span><span style="color:#8959a8;">of
+</span><span>        Right v </span><span style="color:#3e999f;">-&gt;</span><span> putStrLn </span><span style="color:#839c00;">&quot;success!&quot;
+</span><span>        Left err </span><span style="color:#3e999f;">-&gt;</span><span> putStrLn (</span><span style="color:#839c00;">&quot;whoops, error: &quot;</span><span style="color:#3e999f;">++</span><span>show err)
+</span></code></pre>
+<h2 id="parsec-string"><code>Parsec.string</code></h2>
+<p>这个函数返回的是尝试匹配字符串的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello world!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span></code></pre>
+<p>Parser从输入中一个一个的消费字符，直到所有的字符都匹配或者某一个字符与预期不符。因为上面的两个尝试都是以<code>'h'</code>开头，错误信息是遇到了<code>unexpected 'o'</code>。当多个规则串联在一起时，字符的消费(consuming of characters)会变得非常重要。</p>
+<h2 id="parsec-oneof"><code>Parsec.oneOf</code></h2>
+<p>有时我们想要匹配多个字符，这时<code>Parsec.oneOf</code>就会非常方便。与<code>Parsec.char</code>相似，不过参数是<code>[Char]</code>类型：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;allo&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;chewy&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;c&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;gnaw&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;g&quot;
+</span></code></pre>
+<p>可以看到，parser会<em>消费</em><code>abcde</code>中的任意一个字符。这里我们可以用区间泪简化，比如可以使用<code>Parsec.oneOf ['a'..'z']</code>来匹配任意小写字母。</p>
+<p>Parsec提供了规则来完成上面的目的，比如，<code>Parsec.anyChar</code>会消费任何字符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse Parsec</span><span style="color:#3e999f;">.</span><span>anyChar </span><span style="color:#839c00;">&quot;blahblah&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse Parsec</span><span style="color:#3e999f;">.</span><span>anyChar </span><span style="color:#839c00;">&quot;=-symbols...&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;=&#39;
+</span></code></pre>
+<p>规则<code>Parsec.letter</code>会消费任意字母，<code>Parsec.lower</code>会消费小写字母，<code>Parsec.digit</code>会消费数字，<code>Parsec.alphaNum</code>则是字母和数字。所有这些可以通过<code>Parsec.oneOf</code>来手动构建，不过这些提供了更好的错误提示信息（也可以在自己的规则里添加，我们稍后会看到）。</p>
+<h2 id="parsec-noneof"><code>Parsec.noneOf</code></h2>
+<p>与上一个相反，这个函数的参数是不允许匹配的字符串，它会匹配任何一个不在参数中的字符。当然也可以使用区间：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>noneOf [</span><span style="color:#839c00;">&#39;0&#39;</span><span style="color:#3e999f;">..</span><span style="color:#839c00;">&#39;9&#39;</span><span>]) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>noneOf [</span><span style="color:#839c00;">&#39;0&#39;</span><span style="color:#3e999f;">..</span><span style="color:#839c00;">&#39;9&#39;</span><span>]) </span><span style="color:#839c00;">&quot;100&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;1&quot;
+</span></code></pre>
+<h2 id="parsec-many-and-parsec-many1"><code>Parsec.many</code> and <code>Parsec.many1</code></h2>
+<p>我们有时候会希望不止解析一个字母，<code>Parsec.many</code>会不断尝试提供的规则，直到失败位为止。即使一次也没有成功，也不会返回失败，只是给出了一个空的结果。看看如何使用这个：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;</span><span>)) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hhhh&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;e&#39;</span><span>)) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hhhheeelllooo&quot;
+</span></code></pre>
+<p>就像我们看到的，<code>Parsec.many</code>从来不会出错，它总是开心的匹配提供的规则0次，然后什么也不返回。它会尽量往前尝试，并且返回他匹配的任何东西。<code>Parsec.many1</code>类似，除了所给的规则至少匹配一次：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;hello!!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;75 hello&#39;s!&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;7&quot;
+</span><span>expecting letter
+</span></code></pre>
+<p>当想要匹配至少有一个字母或者数字的集合的时候，会非常有用。</p>
+<h2 id="parsec-count"><code>Parsec.count</code></h2>
+<p>当想要匹配某个东西特定的次数时，可以使用<code>Parsec.count</code>。参数是一个数字n和一个规则，期望匹配这个规则相应的次数（或者失败），返回匹配的结果。来个例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>count </span><span style="color:#f07219;">4 </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;ahoythere&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ahoy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>count </span><span style="color:#f07219;">4 </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;aho&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">4</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected end </span><span style="color:#8959a8;">of</span><span> input
+</span><span>expecting letter
+</span></code></pre>
+<h2 id="parsec-manytill"><code>Parsec.manyTill</code></h2>
+<p>这个parser有两参数，尝试匹配的规则以及恰好在这个规则之后的规则。与<code>many</code>一样，第一个规则会匹配0次或者多次，但是如果两个规则都不匹配，会报错。下面的例子尝试匹配字母，并期望后面跟着数字：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;hello12345&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;12345&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;hello 12345&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">6</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot; &quot;
+</span><span>expecting digit or letter
+</span></code></pre>
+<p>注意，必须要记住，它会消费（并输出）所有的第一个规则，并且消费第二个规则匹配的任何东西（但是在输出中忽略)。当我们开始把规则串联起来，我们消费了什么，以及下一个规则要处理什么，会变得更加的重要。</p>
+<p>我认为Parsec非常好的一点是，它提供了非常直接及时的错误信息，包括我们开头传的字符串（<code>&quot;(source)&quot;</code>)，错误的行号列号，以及一些指明哪里错了的有用信息。现在我们只处理了单行inxi，但是从单词的角度出发的酷。</p>
+<h1 id="zu-he-gui-ze">组合规则</h1>
+<p>现在我们已经有了基本规则的经验了，接下来我们聊聊怎么把他们组合起来。Parsec，作为一个monadic，允许我们可以使用Haskell的<code>do</code>语法糖来写解析器。下面是一个把上面的简单规则拼凑成一个序列的例子，获取字母数字对并返回：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- This looks for letters, then spaces, then digits.
+</span><span style="color:#8e908c;">-- we then return letters and digits in a tuple.
+</span><span style="color:#4271ae;">myParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    letters </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    digits </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit
+</span><span>    return (letters,digits)
+</span></code></pre>
+<p>注意到我给显式的给了这个parser的类型<code>Parsec.Parsec String () (String,String)</code>。这个类型的参数类型，按按顺序来，是输入类型、想要在parser之间保持的一些状态（这里使用的是unit类型，也就是没有有意义的状态，稍后会快速的介绍一下），以及输出类型。在这个例子中，一个<code>String</code>作为输入，返回一个两个<code>String</code>的元组。在ghci中用<code>:type</code>查看这个规则的类型，会看到他们有<code>ParsecT</code>类型而不是<code>Parsec</code>类型构造的。<code>ParsecT</code>只是一个monad transformer，与<code>Parsec.Parsec</code>有相同的类型，但是有一个参数<code>m</code>来表明其包装的monad。无需多言，这两个类型是一样的：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I have to import the identity monad to use in the ParsecT definition:
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.Identity (</span><span style="color:#8959a8;">Identity</span><span>)
+</span><span>
+</span><span style="color:#4271ae;">myParser1 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">ParsecT String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">Identity</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser1 </span><span style="color:#3e999f;">=</span><span> myParser
+</span><span>
+</span><span style="color:#4271ae;">myParser2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser2 </span><span style="color:#3e999f;">=</span><span> myParser
+</span></code></pre>
+<p>当在<code>Parsec</code>包中查看函数类型时，在脑子里记住这一点，会帮助你理解你在处理什么东西。每个规则都有相似的类型，虽然返回值各个规则都不一样。比如，<code>Parsec.many</code>返回一个所有匹配的数组。可以自己在ghci中看看。</p>
+<p>不管怎么说，我们已经定义了<code>myParser</code>，可以把它传给<code>parse</code>函数了：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;hello 1000&quot;
+</span><span>Right (</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1000&quot;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;woohoooo0!!&quot;
+</span><span>Right (</span><span style="color:#839c00;">&quot;woohoooo&quot;</span><span>,</span><span style="color:#839c00;">&quot;0&quot;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;1000&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;1&quot;
+</span><span>expecting letter
+</span></code></pre>
+<p>因为我们用的<code>Parsec.many1</code>，要求输入至少有一个字母，其后面跟着一个或者多个空格，最后跟着至少一个数字。我们的规则把这些包装成一个元组（但是也可以把他们包装成一个自定义类型或者任何
+其他形式）。</p>
+<p>假如我们有一系列的字母数字对，被一些分隔符分割，比如逗号。这个例子中，我们想要把他们解析成元组的列表。我们来定义一个解析分隔符的规则</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">mySeparator </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() ()
+</span><span>mySeparator </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;,&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span></code></pre>
+<p>我又添加了显式的类型，因为当我在在测试文件中写独立的调用时，Haskell不能推断出类型。注意，只有最后一行是返回的东西，和签名的类型的是一致。其他之前的parser的返回值被忽略了。当然我们可以在一行显式的<code>return ()</code>，不过<code>Parsec.spaces</code>已经做了这件事。</p>
+<p>这个规则匹配0个或者多个空格，后跟一个逗号，再接着0或多个空格，由于我们不关心这些规则的返回值，我们可以把上面的代码脱糖成一行： </p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>mySeparator </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>spaces </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;,&#39; </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span></code></pre>
+<p>现在有了<code>myParser</code>和<code>mySeparator</code>，每个都是由更小的规则构成的。用同样的方式，我们可以把新的规则组成更大的规则。还是根据上面学到的，来构建一个更冗长的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">--I want to return a list of pairs, this time.
+</span><span style="color:#4271ae;">myPairs </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    mySeparator
+</span><span>    return pair
+</span></code></pre>
+<p>只是简单的用<code>Parsec.many</code>去解析0次或多次<code>myParser</code>后面跟着<code>mySeparator</code>的实例。注意，我用了<code>do</code>的语法糖来构建要给规则，之后把这个规则来传给<code>Parsec.many</code>。下面是脱糖的写法，可以清楚的看<code>do</code>块是<code>Parsec.many</code>的一个参数：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>myPairs </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many (myParser </span><span style="color:#3e999f;">&gt;&gt;= \</span><span>pair </span><span style="color:#3e999f;">-&gt;</span><span> mySeparator </span><span style="color:#3e999f;">&gt;&gt;</span><span> return pair)
+</span></code></pre>
+<p>鉴于<code>Parsec.many</code>返回一个列表（从类型签名的最后可以看出来），这个结果就是一个<code>(String, String)</code>的列表，我们来运行一下：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;hello 1, byebye 2,&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;&quot;
+</span><span>Right </span><span style="color:#f07219;">[]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;hello 1, byebye 2&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">18</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected end </span><span style="color:#8959a8;">of</span><span> input
+</span><span>expecting digit, white space or </span><span style="color:#839c00;">&quot;,&quot;
+</span></code></pre>
+<p>可以看到，使用<code>Parsec.many</code>，解析器发现没有匹配的实例，是不会报错的。但是如果一旦开始匹配输入了，失败（比如最后缺少了一个分隔符）就会导致报错。像这种普遍的分隔符分割项目的模式，有内置的函数专门进行处理。</p>
+<h2 id="parsec-endby"><code>Parsec.endBy</code></h2>
+<p>接受两个参数，一个解析项目的规则，一个解析分隔符的规则。本质上，<code>Parsec.endBy</code>和上面的函数一样，总是期望一个符合规则的字符串，然后一个分隔符，返回一个数组，元素是规则的返回值。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I want to return a list of pairs as above but using a built in helper:
+</span><span style="color:#4271ae;">myPairs2a </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2a </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>endBy myParser mySeparator
+</span></code></pre>
+<h2 id="parsec-sepby"><code>Parsec.sepBy</code></h2>
+<p>接受和和<code>Parsec.endBy</code>相同的两个参数，但是解析完最后一个项目之后，期望后面不跟着分隔符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I want to return a list of pairs without a final separator:
+</span><span style="color:#4271ae;">myPairs2b </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2b </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>sepBy myParser mySeparator
+</span></code></pre>
+<p>这个规则不要求最后是一个分隔符（实际上，如果最后是个分隔符会报错(注：第二个例子不是原文的例子)：</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>ghci&gt; parse myPairs2b &quot;hello 1, bye 2&quot;
+</span><span>Right [(&quot;hello&quot;,&quot;1&quot;),(&quot;bye&quot;,&quot;2&quot;)]
+</span><span>ghci&gt; parse myPairs2b &quot;hello 1, bye 2,&quot;
+</span><span>Left &quot;(source)&quot; (line 1, column 16):
+</span><span>unexpected end of input
+</span><span>expecting white space or letter
+</span></code></pre>
+<h1 id="shi-yong-parsec-choicehe-pi-pei-duo-ge-gui-ze-zhong-de-yi-ge">使用<code>Parsec.choice</code>和 <code>&lt;|&gt;</code>匹配多个规则中的一个</h1>
+<p>使用<code>Parsec.choice</code>或者中缀操作符<code>Parsec.&lt;|&gt;</code>（<code>Control.Applicative</code>中也有），我们可以解析不止一个规则，而第一个<strong>成功消费输入</strong>的规则会被使用（即使之后失败了也是如此，会得到一个警告）。我们来看看在实践上，它是怎么去掉我们的myParirs规则对结尾的分隔符的需要的：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">--I want to return a list of pairs with an optional end separator.
+</span><span style="color:#4271ae;">myPairs2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>choice [Parsec</span><span style="color:#3e999f;">.</span><span>eof, mySeparator]
+</span><span>    return pair
+</span></code></pre>
+<p>现在，我们的规则会消费多个字母数字对，每个后面跟着一个文件结束标记（parsec提供的规则）或则我们定义的分隔符，可以使用中缀操作符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8959a8;">import </span><span>Text.Parsec (&lt;|&gt;)
+</span><span>
+</span><span style="color:#4271ae;">myPairs3 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs3 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>eof </span><span style="color:#3e999f;">&lt;|&gt;</span><span> mySeparator
+</span><span>    return pair
+</span></code></pre>
+<p>在这里我引入了<code>&lt;|&gt;</code>操作符，所以不用给它加前缀，也没有那么丑了。中缀操作符和<code>Parsec.choices</code>都支持多个选择，比如<code>Parsec.choice [rule1, rule2, rule3]</code> or <code>rule1 &lt;|&gt; rule2 &lt;|&gt; rule3</code>。在两个例子中，序列中第一个消费了输入的规则会被使用。由于接受文件结束标记或者我们自定义的分隔符，结尾不在需要分隔符了：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs2 </span><span style="color:#839c00;">&quot;hello 1, byebye 2,&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParis2 </span><span style="color:#839c00;">&quot;hello 1, byebye 2&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span></code></pre>
+<p>要记住，第一个消费了输入的规则会被使用，这点很重要。这也许会导致出乎意料的失败。比如下面这个例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<p>随便来个人可能会认为这个parser先尝试匹配<code>&quot;hello&quot;</code>，并且会失败，然后在匹配<code>&quot;howdy&quot;</code>的时候回成功。而实际上，这个解析会完全的失败：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span></code></pre>
+<p>这是因为尝试匹配字符串<code>&quot;hello&quot;</code>时，<code>Parsec.string &quot;hello&quot;</code>创建的规则成功消费了<code>'h'</code>，所以这个规则被选择使用，随后在下一个字符匹配失败。下面一个例子会更清楚：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bye&quot;</span><span>) </span><span style="color:#839c00;">&quot;bye&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;bye&quot;
+</span></code></pre>
+<p>这里，第一个规则在成功消费任何输入之前就失败了，所以第二个规则被选择没有任何问题。由于性能的原因，默认的情况下，Parsec不会“向前”看一个规则是否匹配。第一个解决方案（可能也是性能最好的）是将任何输入里相同的部分单独解析，然后再解析余下的部分，避免任何超前查看的行为，如：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39; </span><span style="color:#3e999f;">&gt;&gt;</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;owdy&quot;</span><span>)) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;owdy&quot;
+</span></code></pre>
+<p>注意，由于忽略了第一个parser（消费了<code>'h'</code>）的结果，所以没有返回整个字符串。如果有必要，这个是很容易改进的，可以把上面的一行标记改成一个更显式的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">helloOrHowdy </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>helloOrHowdy </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    first </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    rest </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;owdy&quot;
+</span><span>    return (first</span><span style="color:#3e999f;">:</span><span>rest)
+</span></code></pre>
+<p>通过手动决定哪些需要从规则里返回，我们可以通过把初始的字符加到余下的字符串上的方式来返回正确的字符串。现在错误也是基于每个规则尝试消费的部分而不是整个字符串，提升了精确性，但是可能损失了清晰性：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;allo&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;a&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;h&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;hoops&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">2</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;owdy&quot;
+</span></code></pre>
+<p>第一个错来自<code>Parsec.char</code>，第二个则是<code>Parsec.string</code>。之后我们会展示如何提供自定义的错误信息，但我们先来看看超前查看这种更整洁的解析这些字符串的方式。</p>
+<h2 id="parsec-try"><code>Parsec.try</code></h2>
+<p>当规则变得复杂时，避免超前查看会很快变得笨重。在这些情形下，我们可以命令Parsec尝试一个规则，并且如果规则匹配失败，则回退到之前的状态。<code>Parsec.try</code>就是做的这件事，它会catch任何失败，并且回退。考虑到性能的影响，最好是把超前查看保持在一个尽可能小的范围内，<code>try</code>函数中的可能的解析越少越好。<code>Parsec.try</code>把被包入的规则的报错信息都截获了，因此如果不正确使用的话，可能会导致产生奇怪并且没有任何帮助的错误信息。这个意思是，如果使用得当，我们能够体验到良好的错误信息的优点，我们来试一下：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">helloOrHowdy2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>helloOrHowdy2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>try (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<p>这个会产生正确的解析，通常也会有更好的错误信息，但是既然任何一个解析<code>&quot;hello&quot;</code>的失败都被拦截了，错误信息只会描述<code>choice</code>操作符或者<code>&quot;howdy&quot;</code>的匹配失败，忽略配<code>&quot;hello&quot;</code>的匹配损失败：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;boo!&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;b&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;</span><span> or </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;hellay&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;e&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<h2 id="tong-guo-cao-zuo-fu-zi-ding-yi-cuo-wu-xin-xi">通过<code>&lt;?&gt;</code>操作符自定义错误信息</h2>
+<p>有时候，通常在构建自己的规则是，会想要用自己定义的匹配失败的错误信息。<code>&lt;?&gt;</code>操作符允许把一个自定义错误信息很简单的附加到任何一个规则上。我们来看看实际效果：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;wrongstring&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;w&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;a common greeting&quot;</span><span>) </span><span style="color:#839c00;">&quot;wrongstring&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;w&quot;
+</span><span>expecting a common greeting
+</span></code></pre>
+<p>我们简单的把一个错误信息附加到了一个<code>Parsec.string</code>产生的规则上。<code>&lt;?&gt;</code>的优先级是最低的，以为这任何其他的东西都会优先求值。以把一个新的错误信息附加到由<code>&lt;|&gt;</code>产生的规则链为例，那么当所有的规则都匹配失败了并且<em>没有消费任何输入</em>，这个错误信息才会被使用。只要有一个规则消费了输入，那么这个规则的错误信息将会用来描述整体的失败（当然除了这个规则被<code>try</code>包了起来）。这个基本的例子说明了这个事实：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- this fails without consuming any input:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;apple&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bat&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;boom!&quot;</span><span>) </span><span style="color:#839c00;">&quot;cat&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;c&quot;
+</span><span>expecting boom</span><span style="color:#3e999f;">!
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- this consumes input before failing:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;apple&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bat&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;boom!&quot;</span><span>) </span><span style="color:#839c00;">&quot;aunty&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;u&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;apple&quot;
+</span></code></pre>
+<p>如果想要给创建的规则一个自定义的错误信息，可以把规则装进<code>try</code>里，catch这些可能的错误信息，并且提供自己的错误信息。这儿有一个简单的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- here we parse a basic greeting with no custom errors:
+</span><span style="color:#4271ae;">greeting </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>greeting </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;olla&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot;
+</span><span>    return </span><span style="color:#839c00;">&quot;greeting&quot;
+</span><span>
+</span><span style="color:#8e908c;">--parse the same greeting, but wrap in try and add custom error:
+</span><span style="color:#4271ae;">greeting2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>greeting2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>try greeting </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;a greeting!&quot;
+</span></code></pre>
+<p>这种做做法对于更重要的规则并不推荐，因为来自子规则的精确的错误信息会被更一般且较少帮助信息的错误信息替换掉。然而，当构建小的规则时，提供自己的错误信息会比<code>Parsec</code>提供的更有描述性。</p>
+<h1 id="li-yong-applicativehan-shu-zuo-dao-geng-jian-ji-de-jie-xi">利用applicative函数做到更简洁的解析</h1>
+<p>模块<code>Control.Applicative</code>引入了几个函数，多数是中缀操作符，在正确的场合，这些可以让规则更简洁可读。很明显我明已经使用过了这样的一个操作符<code>&lt;|&gt;</code>。Applicative函数常常使得代码变短，因为他们都是与point-free相关的，也就是不显式的引用传入的参数。</p>
+<p>我们来把最初的parser改成applicative形式，看看每个操作符干了什么：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- lets start again with our first parser to parse a letter/digit pair:
+</span><span style="color:#4271ae;">myParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    letters </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    digits </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit
+</span><span>    return (letters,digits)
+</span><span>
+</span><span style="color:#8e908c;">-- in applicative style:
+</span><span style="color:#4271ae;">myParserApp </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp </span><span style="color:#3e999f;">= </span><span style="color:#4271ae;">(,) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt;</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>spaces *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span><span>
+</span><span style="color:#8e908c;">-- could also be written as:
+</span><span style="color:#4271ae;">myParserApp2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp2 </span><span style="color:#3e999f;">=</span><span> liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) (Parsec</span><span style="color:#3e999f;">.</span><span>spaces *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span><span>
+</span><span style="color:#8e908c;">-- or even (swapping *&gt; for the more familiar &gt;&gt;):
+</span><span style="color:#4271ae;">myParserApp </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp2 </span><span style="color:#3e999f;">=</span><span> liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) (Parsec</span><span style="color:#3e999f;">.</span><span>spaces </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span></code></pre>
+<p>我们来一个一个看看主要的applicative操作符，看看它们到底干了什么事：</p>
+<h2 id="he"><code>&lt;$&gt;</code>和<code>&lt;*&gt;</code></h2>
+<p>这个操作符本质上是<code>fmap</code>。左操作数是一个函数，右操作数是一个规则，并把规则的结果在返回之前传给这个函数（当规则匹配成功时，如果匹配失败，则是得到一个解析错误）。如果想要把这个函数应用到多个参数，用<code>&lt;*&gt;</code>分割参数。来看看ghci中的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- apply the result to a tuple constructor:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (</span><span style="color:#4271ae;">(,) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right (</span><span style="color:#839c00;">&#39;a&#39;</span><span>,</span><span style="color:#839c00;">&#39;b&#39;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- put the result into an array:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse ((</span><span style="color:#3e999f;">\</span><span>a b </span><span style="color:#3e999f;">-&gt;</span><span> [a,b]) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ab&quot;
+</span></code></pre>
+<p>整洁的一点就是无论需要多少个参数，都可以在通过在后面加一个<code>&lt;*&gt;</code>来串联起来。</p>
+<h2 id="liftax"><code>liftAx</code></h2>
+<p>上面的一个前缀版本，<code>liftAx</code>接受<em>x</em>个后续参数，并把他们传给第一个。没有中缀版本那么灵活，但是有时会更加可读。这是一个和上面完全一样的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- apply the result to a tuple constructor:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span>) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>)) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right (</span><span style="color:#839c00;">&#39;a&#39;</span><span>,</span><span style="color:#839c00;">&#39;b&#39;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- put the result into an array:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (liftA2 (</span><span style="color:#3e999f;">\</span><span>a b </span><span style="color:#3e999f;">-&gt;</span><span> [a,b]) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span>) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>)) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ab&quot;
+</span></code></pre>
+<h2 id="he-1"><code>&lt;*</code>和<code>*&gt;</code></h2>
+<p>有时会想要匹配一下规则，除了其中的一个，其余的结果都扔掉。这两个操作符接受两个规则，并且返回尖括号指向的规则的结果。例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span></code></pre>
+<p>同样可以串联起来，这样可以忽略几个规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;c&#39;
+</span></code></pre>
+<p>当想要做一些类似去空格什么的或者从一些片段中提取某个片段的时候，这个经常会会特别方便。</p>
+<h2 id=""><code>&lt;$</code></h2>
+<p>匹配右边的规则，并且如果左边的规则匹配成功，则返回左边的结果。我们来看看做这个事情的一些等价的方式：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (</span><span style="color:#839c00;">&quot;greeting!&quot; </span><span style="color:#3e999f;">&lt;$ </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&gt;&gt;</span><span> return </span><span style="color:#839c00;">&quot;greeting!&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (return </span><span style="color:#839c00;">&quot;greeting!&quot; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span></code></pre>
+<p>可以看到，这些不同的方式都没有减少代码。我自己会选用更明显的第二种方式，虽然它比第一种长了一些，但是你们自己随意。</p>
+<h1 id="chu-li-zhuang-tai">处理状态</h1>
+<p>最近我了解到可以在parser之间保持状态。当需要跟踪某个事情时，这非常有用，比如缩进的层数。这是一个非常简单的利用状态数字母的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- matches char &#39;h&#39;, incrementing int state by 1
+</span><span style="color:#8e908c;">-- each time one is seen.
+</span><span style="color:#4271ae;">hCountParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String Int </span><span style="color:#f07219;">()
+</span><span>hCountParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    c </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>getState
+</span><span>    </span><span style="color:#8959a8;">let</span><span> c&#39; </span><span style="color:#3e999f;">=</span><span> c</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>putState c&#39;
+</span><span>    return </span><span style="color:#f07219;">()
+</span><span>
+</span><span style="color:#8e908c;">-- parse as many h&#39;s as we can, then return the state
+</span><span style="color:#8e908c;">-- to see how many there were
+</span><span>Parsec</span><span style="color:#3e999f;">.</span><span>runParser (Parsec</span><span style="color:#3e999f;">.</span><span>many hCountParser </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>getState) </span><span style="color:#f07219;">0 </span><span style="color:#839c00;">&quot;&quot; &quot;hhhhhhhhhhhhellooo&quot;
+</span></code></pre>
+<p>对于<code>get</code>and<code>set</code>，我们可以用<code>Parsec.modifyState</code>来原地修改状态。一个hCountParser简单的版本：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">hCountParser&#39; </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String Int </span><span style="color:#f07219;">()
+</span><span>hCountParser&#39; </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>modifyState (</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1</span><span>)
+</span><span>    return </span><span style="color:#f07219;">()
+</span></code></pre>
+<p>值得注意的是，作为一个monad transformer，我们也有这样一个选择，把parser和类似于<code>State</code>  monad的东西结合，来保存状态。这种方式与monad transformer的做事方式更一致。使用<code>State</code> monad，则是下面这样：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8959a8;">import </span><span>Control.Monad       (</span><span style="color:#4271ae;">lift</span><span>)
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.State </span><span style="color:#8959a8;">as </span><span>S
+</span><span>
+</span><span style="color:#4271ae;">hCountParser&#39;&#39; </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">ParsecT String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">S</span><span>.</span><span style="color:#8959a8;">State Int</span><span>) </span><span style="color:#f07219;">()
+</span><span>hCountParser&#39;&#39; </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    lift </span><span style="color:#3e999f;">$</span><span> modify (</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1</span><span>)
+</span><span>
+</span><span style="color:#8e908c;">-- after running our parser transformer, we get back our unevaluated inner state, which
+</span><span style="color:#8e908c;">-- contains our parser result and state (&#39;h&#39; count). We only want the state so
+</span><span style="color:#8e908c;">-- we use execState rather than runState or evalState to execute and unwrap the state monad,
+</span><span style="color:#8e908c;">-- providing an initial state to start the ball rolling.
+</span><span>S</span><span style="color:#3e999f;">.</span><span>execState (Parsec</span><span style="color:#3e999f;">.</span><span>runParserT (Parsec</span><span style="color:#3e999f;">.</span><span>many hCountParser2) </span><span style="color:#f07219;">() </span><span style="color:#839c00;">&quot;&quot; &quot;hhhhhhhhhhhhellooo&quot;</span><span>) </span><span style="color:#f07219;">0
+</span></code></pre>
+<h1 id="zong-jie">总结</h1>
+<p>我们已经了解了一些内置的函数和规则，之后又看了看如何通过组合规则来构建大的规则，包括在多个规则之中选择、通过<code>try</code>来超前查看，最后添加了向自己的规则添加自定义的错误信息，并且快速的尝试了一下保存状态。有了以上的经验，接下来应该会很容易了！</p>
+<p>我建议在ghci下，通过别名引入<code>Parsec</code>模块（或者qualified引入）并且使用tab键来获得<code>Parsec</code>提供的所有东西，详细考察<code>Parsec</code>的函数。对这些函数使用<code>:type</code>，会让你对其有更深的理解，同样也是我探索这么多的函数的基础。<em>Real World Haskell</em>的这一章（<a href="http://book.realworldhaskell.org/read/using-parsec.html">英文版</a>，<a href="http://cnhaskell.com/chp/16.html">中文版</a>）也是非常好的教程，并且有更为大量的实际例子，虽然其中的一小部分已经过时了。</p>
+<p>我希望这篇文章能给你提供帮助。如果我漏掉了什么，请留下你的评论，让我知道！</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

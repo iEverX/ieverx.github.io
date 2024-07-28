@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Javascript遍历DOM树</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">Javascript遍历DOM树</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2013-03-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/javascript/">#Javascript</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jquery/">#jQuery</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dom/">#DOM</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/liquid/">#Liquid</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">633 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>这个博客是利用Jekyll在github pages上搭建的，显示在首页的文章，如果用<code>{{ post.content | truncate: 200 }}</code>，原有的格式不能完全保持，且有时在最后会有乱码。而<code>{{ post.content | truncatewords: 50 }}</code>也有不能保持格式的问题，而且对于中文来说，word的概念大概就变成了句子，截取的长度不能确定。本来<a href="https://github.com/MattHall/truncatehtml">truncatehtml</a>这个插件可以解决格式保持的问题，但是出于安全的考虑，github pages不允许运行插件，所以。。。</p>
+<p>这个问题有很长时间了，今天闲的没事，用js写了一下。就是遍历DOM树，叠加文本节点的长度，当长度达到既定长度时，其后所有的节点修改style为<code>display: none</code>，用jQuery就是<code>hide()</code>，具体到自己的博客，代码如下，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$(function() {
+</span><span>    function traverse($node, len, maxCount) {
+</span><span>      var reachMaxCount = len &gt; maxCount;
+</span><span>      if (reachMaxCount) {
+</span><span>        $node.hide();
+</span><span>      }
+</span><span>      var $contents = $node.contents();
+</span><span>      for (var i = 0; i &lt; $contents.length; ++i) {
+</span><span>        if (reachMaxCount) {
+</span><span>          $contents.eq(i).hide();
+</span><span>          continue;
+</span><span>        }
+</span><span>        if ($contents[i].nodeType == 3) { // TextNode
+</span><span>          var tmp = len;
+</span><span>          var s = $contents[i].nodeValue;
+</span><span>          len += s.length;
+</span><span>          reachMaxCount = len &gt; maxCount;
+</span><span>          if (reachMaxCount) {
+</span><span>            $contents[i].nodeValue = s.substring(0, maxCount - tmp);
+</span><span>          }
+</span><span>        }
+</span><span>        else if ($contents[i].nodeType == 1) { // Element
+</span><span>          len = traverse($contents.eq(i), len, maxCount);
+</span><span>        }
+</span><span>      }
+</span><span>      return len;
+</span><span>    }
+</span><span>
+</span><span>    $(&#39;.post_at_index&#39;).each(function() {
+</span><span>      traverse($(this), 0, {{ site.description_length }});
+</span><span>      var thisUrl = $(this).siblings().first().children().attr(&#39;href&#39;);
+</span><span>      $(this).after(&#39;\n&lt;a href=&quot;&#39; + thisUrl + &#39;&quot; rel=&quot;nofollow&quot;&gt;&#39; + &#39;Read More ...&lt;/a&gt;&#39;);
+</span><span>    });
+</span><span>});
+</span></code></pre>
+<p>对于js，我都会使用jQuery，这个同样如此，需要jQuery的支持。在最后加上了了read more，指向页面。写完之后，发现代码不长，不过却花了我一个下午的时间，主要是对js太不熟悉了，上网各种查，开始是用的<code>children()</code>这个方法，但是这个不能处理很好，后来改成了<code>contents()</code>，不过已经浪费了很长时间了。。</p>
+<p>另外吐槽一下Liquid这个模板，规避标签太麻烦了，比如要打一个</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{{ some tag }}
+</span><span>{% some tag %}
+</span></code></pre>
+<p>需要如下这样才行，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{{&#39;{&#39;}}% raw %}{{ some tag }}{{&#39;{&#39;}}% endraw %}
+</span><span>{{&#39;{&#39;}}% raw %}{% some tag %}{{&#39;{&#39;}}% endraw %}
+</span><span>或者
+</span><span>{{&#39;{&#39;}}{ some tag }}
+</span><span>{{&#39;{&#39;}}% some tag %}
+</span></code></pre>
+<p>其他的模板带语言，要输出自身的控制标签确实都不容易，但是Liquid已经不是不容易，而是复杂了。。我感觉，如果有两个停止解析的标志，比如说</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{! here is not parsed !}
+</span><span>{@ here is not parsed @}
+</span></code></pre>
+<p>那么，如果有如果有显示<code>{! !}</code>，只需要<code>{@ {! !} @}</code>，目前，Liquid有标签<code>raw</code>和<code>literal</code>可以使用，但是我的试验结果是<code>literal</code>和<code>raw</code>似乎不太协调，不知什么原因，渲染结果总是与预想的结果不一致。。看了Liquid的issue，发现有可能是Jekyll的问题，也不清楚到底是怎么回事，不去想了。。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

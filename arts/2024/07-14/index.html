@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2024.07.01 - 2024.07.14</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2024.07.01 - 2024.07.14</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2024-07-14</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">387 字</span>
+        &middot;
+        <span class="reading_time">大约需要 2 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="algorithm">Algorithm</h1>
+<p><a href="https://leetcode.cn/problems/max-increase-to-keep-city-skyline/description/">807. 保持城市天际线 - 力扣（LeetCode）</a></p>
+<p>简单题</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Solution </span><span>{
+</span><span>    </span><span style="color:#8959a8;">public int </span><span style="color:#4271ae;">maxIncreaseKeepingSkyline</span><span>(</span><span style="color:#8959a8;">int[][] </span><span style="color:#f07219;">grid</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">int</span><span> n </span><span style="color:#3e999f;">=</span><span> grid.length;
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">int[]</span><span> hcol </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new int</span><span>[n];
+</span><span>        </span><span style="color:#8959a8;">int[]</span><span> hrow </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new int</span><span>[n];
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> n; i</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> j </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; j </span><span style="color:#3e999f;">&lt;</span><span> n; j</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>                hrow[i] </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(hrow[i], grid[i][j])</span><span>;
+</span><span>                hcol[j] </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(hcol[j], grid[i][j])</span><span>;
+</span><span>            }
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">int</span><span> ret </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> n; i</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> j </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; j </span><span style="color:#3e999f;">&lt;</span><span> n; j</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>                </span><span style="color:#8959a8;">int</span><span> sky </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">min</span><span style="color:#4271ae;">(hrow[i], hcol[j])</span><span>;
+</span><span>                ret </span><span style="color:#3e999f;">+= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">, sky </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> grid[i][j])</span><span>;
+</span><span>            }
+</span><span>        }
+</span><span>        
+</span><span>        </span><span style="color:#8959a8;">return</span><span> ret;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h1 id="review">Review</h1>
+<p><a href="https://netflixtechblog.com/migrating-netflix-to-graphql-safely-8e1e4d4f1e72">Migrating Netflix to GraphQL Safely | by Netflix Technology Blog | Netflix TechBlog</a></p>
+<p>Netflix 从普通的API迁移到了 GraphQL，0宕机时间。为了安全迁移，netflix使用3个工具</p>
+<ul>
+<li>AB实验</li>
+<li>流量回放</li>
+<li>粘性金丝雀</li>
+</ul>
+<h1 id="tips">Tips</h1>
+<p>最近才了解到的一个java事实：不设置 xms、xmx时，java会使用物理内存的1/4</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/60107793/why-default-java-max-heap-is-1-4th-of-physical-memory">garbage collection - Why default java max heap is 1/4th of Physical memory? - Stack Overflow</a></li>
+<li><a href="https://v2ex.com/t/1055770#reply124">果然吃内存，一个简单的 Java 程序就占用了 250M 内存 - V2EX</a></li>
+</ul>
+<h1 id="share">Share</h1>
+<p><a href="https://mp.weixin.qq.com/s/JgGCn9o2-DNPNqazPZXTtA">MySQL安魂九霄，PostgreSQL驶向云外 (qq.com)</a></p>
+<p>MySQL 9.0发布，然而并没有引入什么有用的新特性。这篇文章对比了 MySQL 和 PostgreSQL 对新特性的支持。</p>
+<p>作为一个应用层的研发，对于数据库的关注其实并不是很多，也很少能用到一些比较独特的特性。这篇文章可以让我对当前 MySQL 和 PostgreSQL 有个大致的印象，也对自己头脑中两者的现状做一次更新</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

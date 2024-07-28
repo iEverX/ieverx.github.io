@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;06</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;06</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-09-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">791 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="algorithm">Algorithm</h1>
+<p><a href="https://leetcode.com/problems/russian-doll-envelopes/">Russian Doll Envelopes</a></p>
+<p>最初的实现是按照宽度、长度依次排序。记录一个<code>Map&lt;Integer, List&lt;int[]&gt;&gt; levelMap</code>表示每一个层次的信封。遍历所有信封，找到其所在的层次，最后返回最大的层次。这个算法的时间复杂度，在最坏情况下是n方的。排序在这里的作用是不会有先处理的信封比后处理的信封还能装。</p>
+<p>看了<a href="https://leetcode.com/problems/russian-doll-envelopes/discuss/82763/Java-NLogN-Solution-with-Explanation">题解</a>后，有 nlogn 的解法。最初看到的题解是<a href="https://leetcode.com/problems/russian-doll-envelopes/discuss/1436546/Java-O(nlogn)-solution-without-extra-space">这个</a>，但是里边没有解释，下边的代码与之相同。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public int </span><span style="color:#c82728;">maxEnvelopes</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">int[][]</span><span style="color:#4271ae;"> envelopes) </span><span>{
+</span><span>    </span><span style="color:#c99e00;">Arrays</span><span>.</span><span style="color:#c82728;">sort</span><span style="color:#4271ae;">(envelopes, (</span><span style="color:#f07219;">x</span><span style="color:#4271ae;">, </span><span style="color:#f07219;">y</span><span style="color:#4271ae;">) </span><span style="color:#8959a8;">-&gt; </span><span style="color:#4271ae;">{
+</span><span style="color:#4271ae;">        </span><span style="color:#8959a8;">if </span><span style="color:#4271ae;">(x[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">==</span><span style="color:#4271ae;"> y[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">]) {
+</span><span style="color:#4271ae;">            </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> y[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> x[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">];
+</span><span style="color:#4271ae;">        } </span><span style="color:#8959a8;">else </span><span style="color:#4271ae;">{
+</span><span style="color:#4271ae;">            </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> x[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> y[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">];
+</span><span style="color:#4271ae;">        }
+</span><span style="color:#4271ae;">    })</span><span>;
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">int</span><span> len </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">1</span><span>;
+</span><span>    </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">1</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> envelopes.length; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>        </span><span style="color:#8959a8;">int</span><span> v </span><span style="color:#3e999f;">=</span><span> envelopes[i][</span><span style="color:#f07219;">1</span><span>];
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(v </span><span style="color:#3e999f;">&gt;</span><span> envelopes[len </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span>][</span><span style="color:#f07219;">1</span><span>]) {
+</span><span>            envelopes[len</span><span style="color:#3e999f;">++</span><span>] </span><span style="color:#3e999f;">=</span><span> envelopes[i];
+</span><span>        } </span><span style="color:#8959a8;">else </span><span>{
+</span><span>            </span><span style="color:#8959a8;">int</span><span> pos </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">search</span><span style="color:#4271ae;">(envelopes, </span><span style="color:#f07219;">0</span><span style="color:#4271ae;">, len, v)</span><span>;
+</span><span>            envelopes[pos] </span><span style="color:#3e999f;">=</span><span> envelopes[i];
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return</span><span> len;
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">int </span><span style="color:#c82728;">search</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">int[][]</span><span style="color:#4271ae;"> vs, </span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> start, </span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> end, </span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> value) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">while </span><span>(start </span><span style="color:#3e999f;">&lt;</span><span> end) {
+</span><span>        </span><span style="color:#8959a8;">int</span><span> mid </span><span style="color:#3e999f;">=</span><span> start </span><span style="color:#3e999f;">+ </span><span>(end </span><span style="color:#3e999f;">-</span><span> start) </span><span style="color:#3e999f;">/ </span><span style="color:#f07219;">2</span><span>;
+</span><span>        </span><span style="color:#8959a8;">if</span><span>(vs[mid][</span><span style="color:#f07219;">1</span><span>] </span><span style="color:#3e999f;">==</span><span> value) {
+</span><span>            </span><span style="color:#8959a8;">return</span><span> mid;
+</span><span>        } </span><span style="color:#8959a8;">else if </span><span>(vs[mid][</span><span style="color:#f07219;">1</span><span>] </span><span style="color:#3e999f;">&lt;</span><span> value) {
+</span><span>            start </span><span style="color:#3e999f;">=</span><span> mid </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span>;
+</span><span>        } </span><span style="color:#8959a8;">else </span><span>{
+</span><span>            end </span><span style="color:#3e999f;">=</span><span> mid;
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return</span><span> start;
+</span><span>}
+</span></code></pre>
+<h1 id="review">Review</h1>
+<p><a href="https://netflixtechblog.com/netflix-drive-a607538c3055">Netflix Drive</a></p>
+<p>设计一个支持大存储、易用、可扩展的云盘并不容易，Netflix Drive 是 Netflix 针对媒体应用提供的解决方案，并期望称为 Netflix 的所有内容的通用解决方案。Netflix Drive 提供文件API、REST API，支持事件机制。存储层抽象为 metadata store 以及 data store 两部分，分别存储元数据以及实际内容，并且能支持多种存储引擎。在安全方面，支持 POSIX ACLs，从而实现细粒度的权限控制。</p>
+<h1 id="tip">Tip</h1>
+<p>无</p>
+<h1 id="share">Share</h1>
+<p><a href="https://www.infoq.cn/article/KSvDKlM1AXGyB51MNVI5">是的，我们不用 Kubernetes</a></p>
+<p>K8s 已经是容器编排领域事实的标准，众多公司都在使用或者准备使用。但是使用 k8s 的成本并不低，需要花费很多精力、人力来维护。那么使用 k8s 的公司是否真的考虑过 k8s 对于公司业务的帮助吗？</p>
+<p>Ably 公司现在并没有投入到 k8s 的怀抱，在文中 Ably 阐明了他们的观点，使用 k8s 以后，他们当前面临的问题仍然存在，只是由公有云平台转移到了 k8s。使用 k8s 并不能彻底屏蔽云厂商，仍然需要处理不同云平台的差异。</p>
+<p>文章中也提到了另外的一个观点，很大很活跃的社区并不总是能提供帮助，初学者太多导致了在社区中很难就 k8s 问题找到一些有用的信息。虽然社区人很多，但是大部分都是一些浅层的使用者，对于原理并没有深入的了解。按照我的理解，其他的技术社区也是同样的模式，初学者占比大，简单问题很容易找到答案，原理性的文章数量则少很多。热门的技术社区，这个现象可能会更明显。对于新技术都有向往，但并不是所有人都会沉下心来仔细钻研。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

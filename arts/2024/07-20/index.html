@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2024.07.20</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2024.07.20</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2024-07-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">482 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode.cn/problems/minimum-moves-to-spread-stones-over-grid/description/">2850. 将石头分散到网格图的最少移动次数 - 力扣（LeetCode）</a></p>
+<p>empty表示空的格子，即目标。stones表示大于1的格子，同时记录可以移动的数量，深搜即可。尝试剪枝，效果不明显。官方题解里，是在stones里记录多个重复的格子，不单独计算数量。全排列 stones，empty不变，计算距离。</p>
+<p>一篇<a href="https://leetcode.cn/problems/minimum-moves-to-spread-stones-over-grid/solutions/2435313/tong-yong-zuo-fa-zui-xiao-fei-yong-zui-d-iuw8/">题解</a>里提到了最小费用最大流，维基百科链接：<a href="https://zh.wikipedia.org/wiki/%E6%9C%80%E5%B0%8F%E8%B4%B9%E7%94%A8%E6%9C%80%E5%A4%A7%E6%B5%81%E9%97%AE%E9%A2%98">最小费用最大流问题 - 维基百科，自由的百科全书 (wikipedia.org)</a></p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Solution </span><span>{
+</span><span>    </span><span style="color:#8959a8;">public int </span><span style="color:#4271ae;">minimumMoves</span><span>(</span><span style="color:#8959a8;">int[][] </span><span style="color:#f07219;">grid</span><span>) {
+</span><span>        </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#8959a8;">int[]</span><span>&gt; empty </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;(</span><span style="color:#f07219;">9</span><span>);
+</span><span>        </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#8959a8;">int[]</span><span>&gt; stones </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;(</span><span style="color:#f07219;">4</span><span>);
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt; </span><span style="color:#f07219;">3</span><span>; i</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> j </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; j </span><span style="color:#3e999f;">&lt; </span><span style="color:#f07219;">3</span><span>; j</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>                </span><span style="color:#8959a8;">if </span><span>(grid[i][j] </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">0</span><span>) {
+</span><span>                    empty.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new int</span><span style="color:#4271ae;">[]{i, j})</span><span>;
+</span><span>                } </span><span style="color:#8959a8;">else if </span><span>(grid[i][j] </span><span style="color:#3e999f;">&gt; </span><span style="color:#f07219;">1</span><span>) {
+</span><span>                    stones.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new int</span><span style="color:#4271ae;">[]{i, j, grid[i][j] </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span style="color:#4271ae;">})</span><span>;
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">choose</span><span style="color:#4271ae;">(empty, stones, </span><span style="color:#f07219;">0</span><span style="color:#4271ae;">)</span><span>;
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">private int </span><span style="color:#4271ae;">choose</span><span>(</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#8959a8;">int[]</span><span>&gt; </span><span style="color:#f07219;">empty</span><span>, </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#8959a8;">int[]</span><span>&gt; </span><span style="color:#f07219;">stones</span><span>, </span><span style="color:#8959a8;">int </span><span style="color:#f07219;">cur</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(cur </span><span style="color:#3e999f;">&gt;=</span><span> empty.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">()</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">return </span><span style="color:#f07219;">0</span><span>;
+</span><span>        }
+</span><span>        </span><span style="color:#8959a8;">int[]</span><span> focus </span><span style="color:#3e999f;">=</span><span> empty.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(cur)</span><span>;
+</span><span>        </span><span style="color:#8959a8;">int</span><span> size </span><span style="color:#3e999f;">=</span><span> stones.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        </span><span style="color:#8959a8;">int</span><span> min </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Integer</span><span>.MAX_VALUE;
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int[]</span><span> stone </span><span style="color:#3e999f;">:</span><span> stones) {
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(stone[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">&gt; </span><span style="color:#f07219;">0</span><span>) {
+</span><span>                </span><span style="color:#8959a8;">int</span><span> step </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">move</span><span style="color:#4271ae;">(focus, stone)</span><span>;
+</span><span>                stone[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">-= </span><span style="color:#f07219;">1</span><span>;
+</span><span>                step </span><span style="color:#3e999f;">+= </span><span style="color:#c82728;">choose</span><span style="color:#4271ae;">(empty, stones, cur </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">1</span><span style="color:#4271ae;">)</span><span>;
+</span><span>                stone[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">+= </span><span style="color:#f07219;">1</span><span>;
+</span><span>                min </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">min</span><span style="color:#4271ae;">(min, step)</span><span>;
+</span><span>            }
+</span><span>        }
+</span><span>        </span><span style="color:#8959a8;">return</span><span> min;
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">private int </span><span style="color:#4271ae;">move</span><span>(</span><span style="color:#8959a8;">int[] </span><span style="color:#f07219;">dest</span><span>, </span><span style="color:#8959a8;">int[] </span><span style="color:#f07219;">src</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">abs</span><span style="color:#4271ae;">(dest[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> src[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">]) </span><span style="color:#3e999f;">+ </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">abs</span><span style="color:#4271ae;">(dest[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">] </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> src[</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">])</span><span>;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<p><a href="https://pinkiepractices.com/posts/protobuf-field-masks/">Protobuf Field Masks | Pinkie Practices</a></p>
+<p>关于 protobuf Field Masks 使用的一篇文章。对于 Field Masks 之前没有了解。Field Mask 利用了 field name，破坏了 protobuf 的兼容语义，不是好的设计，不推荐使用</p>
+<h2 id="tips">Tips</h2>
+<h2 id="share">Share</h2>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MzAxOTk3NTg5OQ==&amp;mid=2247490735&amp;idx=1&amp;sn=e9acaf820be2b40fdd1fda0a875bab0b">CrowdStrike史诗级蓝屏，到底怎么破？ (qq.com)</a></p>
+<p>7月19日，CrowdStirke 一次更新导致全球范围内windows大面积蓝屏</p>
+<ol>
+<li>code review？</li>
+<li>测试流程？</li>
+<li>灰度发布？</li>
+</ol>
+<p><a href="https://www.crowdstrike.com/blog/technical-details-on-todays-outage/">Technical Details on July 19, 2024 Outage | CrowdStrike</a></p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

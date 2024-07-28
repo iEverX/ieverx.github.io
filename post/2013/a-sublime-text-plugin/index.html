@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>自己写sublime text插件</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">自己写sublime text插件</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2013-03-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/sublime-text/">#Sublime Text</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/sublime-text-2/">#Sublime Text 2</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/cha-jian/">#插件</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">471 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>起因是，自己写Python基本上使用sublime text 2。但是，文件头部的代码</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>#! /usr/bin/env python
+</span><span># -*- coding: utf-8 -*-
+</span></code></pre>
+<p>如果每次都要敲的话，很麻烦。而如果不敲的化，一旦涉及中文，又会报错，就产生了写了一个插件的想法。。问题好久了，直到今天才动手，惭愧一下。。</p>
+<p>思路应该是比较简单，就是判断文件类型，然后在头部插入特定的字符串。于是乎，开始在网上查找sumblime text 2的API还有插件开发教程。这是<a href="http://www.sublimetext.com/docs/2/api_reference.html">API文档</a>，<a href="http://ux.etao.com/posts/549">中文翻译版</a>，看一下Default里面的自带插件，就可以动手了。</p>
+<p>最初的代码中，字符串是硬编码的。后来，则是从模板文件中读取字符串。在这一步，遇到了一个很诡异的问题，是这样的：模板文件保存在templates文件夹下面，在HeadTemplate.py中（我的插件的名字是HeadTemplate），</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>def get_tpl_file(settings, filename):
+</span><span>    template_root = settings.get(&#39;template_root&#39;)
+</span><span>    path = os.path.join(os.path.dirname(__file__), template_root)
+</span><span>    return os.path.join(path, filename)
+</span></code></pre>
+<p>但是这个函数的返回的结果是<code>/home/username/templates/filename</code>，而实际上，我认为应该返回的是<code>/home/username/.config/sublime-text-2/Packages/HeadTemplate/templates/filename</code>。打印<code>os.path.abspath(__file__)</code>，得到的结果是<code>/home/username</code>也就是我的家目录。开始以为是由于隐藏文件夹的缘故，不过试验之后，发现与之无关。为什么会有这个结果，具体原因到现在我也还弄不清楚。不过，解决方案倒是找到了，感谢SErHo的<a href="https://github.com/SerhoLiu/SublimeNFFT">代码</a></p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>PACKAGE_NAME = &#39;HeadTemplate&#39;
+</span><span>PACKAGES_PATH = sublime.packages_path()
+</span><span>
+</span><span>def get_tpl_file(settings, filename):
+</span><span>    template_root = os.path.join(
+</span><span>                    PACKAGES_PATH, 
+</span><span>                    PACKAGE_NAME, 
+</span><span>                    settings.get(&#39;template_root&#39;))
+</span><span>    return os.path.join(template_root, filename)
+</span></code></pre>
+<p>在其他就没有什么了，按部就班的写下来就好了。代码放在了github上，<a href="https://github.com/iEverX/HeadTemplate">https://github.com/iEverX/HeadTemplate</a></p>
+<p>算上空行不到50，却写了一个下午。。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

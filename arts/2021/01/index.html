@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;01</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;01</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-08-07</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">501 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="algorithm">Algorithm</h1>
+<p>题目：<a href="https://leetcode.com/explore/challenge/card/august-leetcoding-challenge-2021/613/week-1-august-1st-august-7th/3871/">N-ary Tree Level Order Traversal</a></p>
+<p>层次遍历多叉树，并且按照层输出。比较简单，一个队列搞定。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt;&gt; </span><span style="color:#c82728;">levelOrder</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">Node</span><span style="color:#4271ae;"> root) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">if </span><span>(root </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">null</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">Collections</span><span>.</span><span style="color:#c82728;">emptyList</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt;&gt; ret </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;();
+</span><span>    </span><span style="color:#c99e00;">Queue</span><span>&lt;</span><span style="color:#c99e00;">Node</span><span>&gt; q </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">LinkedList</span><span>&lt;&gt;();
+</span><span>    q.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(root)</span><span>;
+</span><span>    </span><span style="color:#8959a8;">int</span><span> current </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">1</span><span>;
+</span><span>    </span><span style="color:#8959a8;">while </span><span>(current </span><span style="color:#3e999f;">!= </span><span style="color:#f07219;">0</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">int</span><span> next </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>        </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">Integer</span><span>&gt; level </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;();
+</span><span>        </span><span style="color:#8959a8;">while </span><span>(current</span><span style="color:#3e999f;">-- &gt; </span><span style="color:#f07219;">0</span><span>) {
+</span><span>            </span><span style="color:#c99e00;">Node</span><span> node </span><span style="color:#3e999f;">=</span><span> q.</span><span style="color:#c82728;">remove</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            level.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(node.val)</span><span>;
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(node.children </span><span style="color:#3e999f;">!= </span><span style="color:#f07219;">null</span><span>) {
+</span><span>                next </span><span style="color:#3e999f;">+=</span><span> node.children.</span><span style="color:#c82728;">size</span><span style="color:#4271ae;">()</span><span>;
+</span><span>                </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#c99e00;">Node</span><span> child </span><span style="color:#3e999f;">:</span><span> node.children) {
+</span><span>                    q.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(child)</span><span>;
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>        ret.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(level)</span><span>;
+</span><span>        current </span><span style="color:#3e999f;">=</span><span> next;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return</span><span> ret;
+</span><span>}
+</span></code></pre>
+<h1 id="review">Review</h1>
+<p>文章：<a href="https://www.parity.io/blog/why-rust">Why Rust?</a></p>
+<p>文章介绍了 Rust 相比其他语言的主要优势——严格的正确性检查，避免内存、线程不安全等问题。Rust 在编译期进行检查，从而不会影响运行时性能。</p>
+<h1 id="tip">Tip</h1>
+<p>前几天尝试了一下 podman 以及 podman-compose，简单记录一下</p>
+<ul>
+<li><code>podman-compose up -d</code> 启动报错
+<ul>
+<li>原因是 podman-compose 会创建一个 pod，pod 依赖 infra image，默认是 k8s.gcr.io/pause，然而过呢到 k8s.gcr.io 不通</li>
+<li>解决方案，在 ~/.config/container/containers.conf 修改默认 infra image。注意 mirrorgcrio 不是官方的 mirror<pre data-lang="ini" style="background-color:#f9f9f9;color:#111111;" class="language-ini "><code class="language-ini" data-lang="ini"><span style="color:#8959a8;">[engine]
+</span><span style="color:#f07219;">infra_image </span><span style="color:#3e999f;">= </span><span style="color:#839c00;">&quot;docker.io/mirrorgcrio/pause:3.2&quot;
+</span></code></pre>
+</li>
+</ul>
+</li>
+<li>podman-compose 使用本地文件夹映射 volume 时，不会自动创建，必须手动创建。这点与 docker-compose 不一样</li>
+</ul>
+<h1 id="share">Share</h1>
+<p>文章：<a href="https://www.infoq.cn/article/gh6HUCBsJ32QuCUDaTOs">万字长文讲透低代码</a></p>
+<p>关于低代码的文章。主要观点</p>
+<ul>
+<li>低代码不是无代码</li>
+<li>低代码不是简单的页面拖拽，判断低代码是否专业，可以从六个方面来看
+<ul>
+<li>模型驱动、可视化开发、表达式语言、软件工程、开发集成、脚本语言</li>
+</ul>
+</li>
+<li>低代码不适用于企业开发的说法是不对的</li>
+<li>低代码不是银弹，很多场景并不适用，比如算法要求高的、界面要求高的场景等</li>
+</ul>
+<p>之前只是听过低代码，并没有怎么了解，这篇文章算是有了一个简单的认知。对于文章中表达的观点，目前还没有自己的看法</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

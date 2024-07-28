@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2022.04.22</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2022.04.22</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2022-04-22</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">718 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode-cn.com/problems/checking-existence-of-edge-length-limited-paths/">1697. 检查边长度限制的路径是否存在 - 力扣（LeetCode） (leetcode-cn.com)</a></p>
+<p>无向图，给定两点之间的距离，给定n个查询，每个查询 (x, y, z) 表示查询 x,y 之间是否有一条路径，路径上的每个边的长度都小于 z。</p>
+<p>第一个想法，对于每个查询，广度遍历图，给出结果。最后这个思路超时了，因为复杂度太高。</p>
+<p>自己没有思路，看了题解。整体思路是这样的</p>
+<ul>
+<li>利用<a href="https://zh.wikipedia.org/wiki/%E5%B9%B6%E6%9F%A5%E9%9B%86">并查集</a> 。并查集是一种数据结构，支持
+<ul>
+<li>快速判断两个元素是否在同一个集合</li>
+<li>两个集合可以快速合并成一个</li>
+</ul>
+</li>
+<li>对图的边从小到大排序，每个查询也按照 z 排序</li>
+<li>维护一个并查集，并查集中，如果两个点 A 和 B 在同一个集合，说明 A 和 B 是联通的</li>
+<li>对边和查询，按照边的大小依次访问
+<ul>
+<li>边：端点放到并查集中</li>
+<li>查询：判断 x 和 y 是否在同一集合中</li>
+</ul>
+</li>
+</ul>
+<p>代码如下</p>
+<pre data-lang="go" style="background-color:#f9f9f9;color:#111111;" class="language-go "><code class="language-go" data-lang="go"><span style="color:#8959a8;">func </span><span style="color:#4271ae;">distanceLimitedPathsExist</span><span>(</span><span style="color:#f07219;">n </span><span style="color:#c99e00;">int</span><span>, </span><span style="color:#f07219;">edgeList </span><span>[][]</span><span style="color:#c99e00;">int</span><span>, </span><span style="color:#f07219;">queries </span><span>[][]</span><span style="color:#c99e00;">int</span><span>) []</span><span style="color:#c99e00;">bool </span><span>{
+</span><span>    </span><span style="color:#c82728;">sort</span><span>.</span><span style="color:#c82728;">Slice</span><span>(</span><span style="color:#c82728;">edgeList</span><span>, </span><span style="color:#8959a8;">func</span><span>(</span><span style="color:#f07219;">i</span><span>, </span><span style="color:#f07219;">j </span><span style="color:#c99e00;">int</span><span>) </span><span style="color:#c99e00;">bool </span><span>{
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">edgeList</span><span>[</span><span style="color:#c82728;">i</span><span>][</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">&lt; </span><span style="color:#c82728;">edgeList</span><span>[</span><span style="color:#c82728;">j</span><span>][</span><span style="color:#f07219;">2</span><span>]
+</span><span>    })
+</span><span>
+</span><span>	</span><span style="color:#8e908c;">// 不能直接排序 queries, 否则结果和输入的queries顺序不一致
+</span><span>    </span><span style="color:#c82728;">qids </span><span style="color:#3e999f;">:= </span><span style="color:#4271ae;">make</span><span>([]</span><span style="color:#c99e00;">int</span><span>, </span><span style="color:#4271ae;">len</span><span>(</span><span style="color:#c82728;">queries</span><span>))
+</span><span>    </span><span style="color:#8959a8;">for </span><span style="color:#c82728;">i </span><span style="color:#3e999f;">:= </span><span style="color:#f07219;">0</span><span>; </span><span style="color:#c82728;">i </span><span style="color:#3e999f;">&lt; </span><span style="color:#4271ae;">len</span><span>(</span><span style="color:#c82728;">qids</span><span>); </span><span style="color:#c82728;">i</span><span style="color:#3e999f;">++ </span><span>{
+</span><span>        </span><span style="color:#c82728;">qids</span><span>[</span><span style="color:#c82728;">i</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">i
+</span><span>    }
+</span><span>    </span><span style="color:#c82728;">sort</span><span>.</span><span style="color:#c82728;">Slice</span><span>(</span><span style="color:#c82728;">qids</span><span>, </span><span style="color:#8959a8;">func</span><span>(</span><span style="color:#f07219;">i</span><span>, </span><span style="color:#f07219;">j </span><span style="color:#c99e00;">int</span><span>) </span><span style="color:#c99e00;">bool </span><span>{
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">queries</span><span>[</span><span style="color:#c82728;">qids</span><span>[</span><span style="color:#c82728;">i</span><span>]][</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">&lt; </span><span style="color:#c82728;">queries</span><span>[</span><span style="color:#c82728;">qids</span><span>[</span><span style="color:#c82728;">j</span><span>]][</span><span style="color:#f07219;">2</span><span>]
+</span><span>    })
+</span><span>
+</span><span>    </span><span style="color:#c82728;">u </span><span style="color:#3e999f;">:= </span><span style="color:#c82728;">newUF</span><span>(</span><span style="color:#c82728;">n</span><span>)
+</span><span>	</span><span style="color:#8e908c;">// 可能会有点没有和其他点相连，这里必须把所有点都放进去作为一个集合
+</span><span>    </span><span style="color:#8959a8;">for </span><span style="color:#c82728;">i </span><span style="color:#3e999f;">:= </span><span style="color:#f07219;">0</span><span>; </span><span style="color:#c82728;">i </span><span style="color:#3e999f;">&lt; </span><span style="color:#c82728;">n</span><span>; </span><span style="color:#c82728;">i</span><span style="color:#3e999f;">++ </span><span>{
+</span><span>        </span><span style="color:#c82728;">u</span><span>.</span><span style="color:#c82728;">add</span><span>(</span><span style="color:#c82728;">i</span><span>)
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#c82728;">ret </span><span style="color:#3e999f;">:= </span><span style="color:#4271ae;">make</span><span>([]</span><span style="color:#c99e00;">bool</span><span>, </span><span style="color:#4271ae;">len</span><span>(</span><span style="color:#c82728;">queries</span><span>))
+</span><span>    </span><span style="color:#c82728;">idx </span><span style="color:#3e999f;">:= </span><span style="color:#f07219;">0
+</span><span>    </span><span style="color:#8959a8;">for </span><span style="color:#c82728;">_</span><span>, </span><span style="color:#c82728;">qid </span><span style="color:#3e999f;">:= </span><span style="color:#8959a8;">range </span><span style="color:#c82728;">qids </span><span>{
+</span><span>        </span><span style="color:#8959a8;">for </span><span style="color:#c82728;">idx </span><span style="color:#3e999f;">&lt; </span><span style="color:#4271ae;">len</span><span>(</span><span style="color:#c82728;">edgeList</span><span>) </span><span style="color:#3e999f;">&amp;&amp; </span><span style="color:#c82728;">edgeList</span><span>[</span><span style="color:#c82728;">idx</span><span>][</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">&lt; </span><span style="color:#c82728;">queries</span><span>[</span><span style="color:#c82728;">qid</span><span>][</span><span style="color:#f07219;">2</span><span>] {
+</span><span>            </span><span style="color:#c82728;">u</span><span>.</span><span style="color:#c82728;">unite</span><span>(</span><span style="color:#c82728;">edgeList</span><span>[</span><span style="color:#c82728;">idx</span><span>][</span><span style="color:#f07219;">0</span><span>], </span><span style="color:#c82728;">edgeList</span><span>[</span><span style="color:#c82728;">idx</span><span>][</span><span style="color:#f07219;">1</span><span>])
+</span><span>            </span><span style="color:#c82728;">idx</span><span style="color:#3e999f;">++
+</span><span>        }
+</span><span>        </span><span style="color:#c82728;">ret</span><span>[</span><span style="color:#c82728;">qid</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">u</span><span>.</span><span style="color:#c82728;">connected</span><span>(</span><span style="color:#c82728;">queries</span><span>[</span><span style="color:#c82728;">qid</span><span>][</span><span style="color:#f07219;">0</span><span>], </span><span style="color:#c82728;">queries</span><span>[</span><span style="color:#c82728;">qid</span><span>][</span><span style="color:#f07219;">1</span><span>])
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">ret
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">type </span><span>UF </span><span style="color:#8959a8;">struct </span><span>{
+</span><span>    </span><span style="color:#c82728;">parent </span><span style="color:#8959a8;">map</span><span>[</span><span style="color:#c99e00;">int</span><span>]</span><span style="color:#c99e00;">int
+</span><span>    </span><span style="color:#c82728;">rank </span><span style="color:#8959a8;">map</span><span>[</span><span style="color:#c99e00;">int</span><span>]</span><span style="color:#c99e00;">int
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">func </span><span style="color:#4271ae;">newUF</span><span>(</span><span style="color:#f07219;">n </span><span style="color:#c99e00;">int</span><span>) </span><span style="color:#8959a8;">UF </span><span>{
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">UF</span><span>{
+</span><span>        </span><span style="color:#c82728;">parent</span><span>: </span><span style="color:#4271ae;">make</span><span>(</span><span style="color:#8959a8;">map</span><span>[</span><span style="color:#c99e00;">int</span><span>]</span><span style="color:#c99e00;">int</span><span>, </span><span style="color:#c82728;">n</span><span>),
+</span><span>        </span><span style="color:#c82728;">rank</span><span>: </span><span style="color:#4271ae;">make</span><span>(</span><span style="color:#8959a8;">map</span><span>[</span><span style="color:#c99e00;">int</span><span>]</span><span style="color:#c99e00;">int</span><span>, </span><span style="color:#c82728;">n</span><span>),
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">func </span><span>(</span><span style="color:#f07219;">r </span><span style="color:#8959a8;">UF</span><span>) </span><span style="color:#4271ae;">add</span><span>(</span><span style="color:#f07219;">x </span><span style="color:#c99e00;">int</span><span>) {
+</span><span>    </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">x</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">x
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">func </span><span>(</span><span style="color:#f07219;">r </span><span style="color:#8959a8;">UF</span><span>) </span><span style="color:#4271ae;">unite</span><span>(</span><span style="color:#f07219;">x</span><span>, </span><span style="color:#f07219;">y </span><span style="color:#c99e00;">int</span><span>) {
+</span><span>    </span><span style="color:#c82728;">px </span><span style="color:#3e999f;">:= </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">findset</span><span>(</span><span style="color:#c82728;">x</span><span>)
+</span><span>    </span><span style="color:#c82728;">py </span><span style="color:#3e999f;">:= </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">findset</span><span>(</span><span style="color:#c82728;">y</span><span>)
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">if </span><span style="color:#c82728;">px </span><span style="color:#3e999f;">== </span><span style="color:#c82728;">py </span><span>{
+</span><span>        </span><span style="color:#8959a8;">return
+</span><span>    }
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">if </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">rank</span><span>[</span><span style="color:#c82728;">px</span><span>] </span><span style="color:#3e999f;">&gt; </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">rank</span><span>[</span><span style="color:#c82728;">py</span><span>] {
+</span><span>        </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">py</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">px
+</span><span>    } </span><span style="color:#8959a8;">else if </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">rank</span><span>[</span><span style="color:#c82728;">py</span><span>] </span><span style="color:#3e999f;">&gt; </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">rank</span><span>[</span><span style="color:#c82728;">px</span><span>] {
+</span><span>        </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">px</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">py
+</span><span>    } </span><span style="color:#8959a8;">else </span><span>{
+</span><span>        </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">px</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">py
+</span><span>        </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">rank</span><span>[</span><span style="color:#c82728;">py</span><span>]</span><span style="color:#3e999f;">++
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">func </span><span>(</span><span style="color:#f07219;">r </span><span style="color:#8959a8;">UF</span><span>) </span><span style="color:#4271ae;">findset</span><span>(</span><span style="color:#f07219;">x </span><span style="color:#c99e00;">int</span><span>) </span><span style="color:#c99e00;">int </span><span>{
+</span><span>    </span><span style="color:#8959a8;">if </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">x</span><span>] </span><span style="color:#3e999f;">== </span><span style="color:#c82728;">x </span><span>{
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">x
+</span><span>    }
+</span><span>    </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">x</span><span>] </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">findset</span><span>(</span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">x</span><span>])
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">parent</span><span>[</span><span style="color:#c82728;">x</span><span>]
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">func </span><span>(</span><span style="color:#f07219;">r </span><span style="color:#8959a8;">UF</span><span>) </span><span style="color:#4271ae;">connected</span><span>(</span><span style="color:#f07219;">x</span><span>, </span><span style="color:#f07219;">y </span><span style="color:#c99e00;">int</span><span>) </span><span style="color:#c99e00;">bool </span><span>{
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">findset</span><span>(</span><span style="color:#c82728;">x</span><span>) </span><span style="color:#3e999f;">== </span><span style="color:#c82728;">r</span><span>.</span><span style="color:#c82728;">findset</span><span>(</span><span style="color:#c82728;">y</span><span>)
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<p><a href="https://stackoverflow.blog/2022/04/07/you-should-be-reading-academic-computer-science-papers/">You should be reading academic computer science papers - Stack Overflow Blog</a></p>
+<p>应该读一些论文，而不只是各种教程、stackoverflow问题</p>
+<h2 id="tip">Tip</h2>
+<h2 id="share">Share</h2>
+<p><a href="https://www.infoq.cn/article/FqjNB4Jhf58md8Drxlwx">五年官司终败诉：爬取领英数据“完全合法”，万亿爬虫大军蠢蠢欲动_语言 &amp; 开发_Tina_InfoQ精选文章</a></p>
+<p>关于爬虫是否合法的文章，文章本身没有多少内容，只是阐述了一个事实。</p>
+<p>鉴于国内的一些判例，工作上还是不要涉及爬虫为好，其他方向也有很多，不要去赌</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

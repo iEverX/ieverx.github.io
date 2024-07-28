@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2024.07.26</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2024.07.26</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2024-07-26</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">386 字</span>
+        &middot;
+        <span class="reading_time">大约需要 2 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode.cn/problems/beautiful-towers-i/description/">2865. 美丽塔 I - 力扣（LeetCode）</a></p>
+<p>单调栈。从前往后，记录当前高度下，左边允许的最大的高度和。注意，如果当前高度大于前一个，可以则高度和增加，如果当前高度小于前边，找到第一个小于自己的下标k，高度和为 headSum[k] + (i - k) * h，i为当前坐标。这是一个单调栈</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Solution </span><span>{
+</span><span>    </span><span style="color:#8959a8;">public long </span><span style="color:#4271ae;">maximumSumOfHeights</span><span>(</span><span style="color:#8959a8;">int[] </span><span style="color:#f07219;">heights</span><span>) {
+</span><span>        </span><span style="color:#8e908c;">// height, index, sum
+</span><span>        </span><span style="color:#c99e00;">Deque</span><span>&lt;</span><span style="color:#8959a8;">long[]</span><span>&gt; stk </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">ArrayDeque</span><span>&lt;&gt;();
+</span><span>        stk.</span><span style="color:#c82728;">addFirst</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new long</span><span style="color:#4271ae;">[]{</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">, </span><span style="color:#3e999f;">-</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">, </span><span style="color:#f07219;">0</span><span style="color:#4271ae;">})</span><span>;
+</span><span>        </span><span style="color:#8959a8;">long[]</span><span> sums </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new long</span><span>[heights.length];
+</span><span>        </span><span style="color:#8959a8;">int</span><span> len </span><span style="color:#3e999f;">=</span><span> heights.length;
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> len; i</span><span style="color:#3e999f;">++</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">long</span><span> h </span><span style="color:#3e999f;">=</span><span> heights[i];
+</span><span>            </span><span style="color:#8959a8;">while </span><span>(h </span><span style="color:#3e999f;">&lt;=</span><span> stk.</span><span style="color:#c82728;">peekFirst</span><span style="color:#4271ae;">()</span><span>[</span><span style="color:#f07219;">0</span><span>]) {
+</span><span>                stk.</span><span style="color:#c82728;">removeFirst</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            }
+</span><span>            </span><span style="color:#8959a8;">long[]</span><span> peek </span><span style="color:#3e999f;">=</span><span> stk.</span><span style="color:#c82728;">peekFirst</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            </span><span style="color:#8959a8;">long</span><span> sum </span><span style="color:#3e999f;">=</span><span> peek[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">+</span><span> h </span><span style="color:#3e999f;">* </span><span>(i </span><span style="color:#3e999f;">-</span><span> peek[</span><span style="color:#f07219;">1</span><span>]);
+</span><span>            sums[i] </span><span style="color:#3e999f;">=</span><span> sum;
+</span><span>            stk.</span><span style="color:#c82728;">addFirst</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new long</span><span style="color:#4271ae;">[]{h, i, sum})</span><span>;
+</span><span>        }
+</span><span>
+</span><span>        stk.</span><span style="color:#c82728;">clear</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        stk.</span><span style="color:#c82728;">addFirst</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new long</span><span style="color:#4271ae;">[]{</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">, len, </span><span style="color:#f07219;">0</span><span style="color:#4271ae;">})</span><span>;
+</span><span>        </span><span style="color:#8959a8;">long</span><span> ret </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>;
+</span><span>        </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">=</span><span> len </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span>; i </span><span style="color:#3e999f;">&gt;= </span><span style="color:#f07219;">0</span><span>; i</span><span style="color:#3e999f;">--</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">long</span><span> h </span><span style="color:#3e999f;">=</span><span> heights[i];
+</span><span>            </span><span style="color:#8959a8;">while </span><span>(h </span><span style="color:#3e999f;">&lt;=</span><span> stk.</span><span style="color:#c82728;">peekFirst</span><span style="color:#4271ae;">()</span><span>[</span><span style="color:#f07219;">0</span><span>]) {
+</span><span>                stk.</span><span style="color:#c82728;">removeFirst</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            }
+</span><span>            </span><span style="color:#8959a8;">long[]</span><span> peek </span><span style="color:#3e999f;">=</span><span> stk.</span><span style="color:#c82728;">peekFirst</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            </span><span style="color:#8959a8;">long</span><span> sum </span><span style="color:#3e999f;">=</span><span> peek[</span><span style="color:#f07219;">2</span><span>] </span><span style="color:#3e999f;">+</span><span> h </span><span style="color:#3e999f;">* </span><span>(peek[</span><span style="color:#f07219;">1</span><span>] </span><span style="color:#3e999f;">-</span><span> i);
+</span><span>            stk.</span><span style="color:#c82728;">addFirst</span><span style="color:#4271ae;">(</span><span style="color:#8959a8;">new long</span><span style="color:#4271ae;">[]{h, i, sum})</span><span>;
+</span><span>            ret </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Math</span><span>.</span><span style="color:#c82728;">max</span><span style="color:#4271ae;">(ret, sum </span><span style="color:#3e999f;">+</span><span style="color:#4271ae;"> sums[i] </span><span style="color:#3e999f;">-</span><span style="color:#4271ae;"> h)</span><span>;
+</span><span>        }
+</span><span>        </span><span style="color:#8959a8;">return</span><span> ret;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<ul>
+<li><a href="https://news.ycombinator.com/item?id=41060102">https://news.ycombinator.com/item?id=41060102</a></li>
+<li><a href="https://trufflesecurity.com/blog/anyone-can-access-deleted-and-private-repo-data-github">https://trufflesecurity.com/blog/anyone-can-access-deleted-and-private-repo-data-github</a></li>
+</ul>
+<p>Github fork 网络的底层机制，导致用户删除commit、删除repo、private fork的行为与普通用户的认知不一致，删除的数据仍然可以通过存在的fork访问到。</p>
+<p>Github了解这个问题，并且在文档中做了说明，但问题仍然是问题</p>
+<h2 id="tips">Tips</h2>
+<h2 id="share">Share</h2>
+<p><a href="https://mp.weixin.qq.com/s?__biz=MjM5NjQ5MTI5OA==&amp;mid=2651778446&amp;idx=1&amp;sn=44306b644777a4d939730e7774071541">基本功 | 一文讲清多线程和多线程同步 (qq.com)</a></p>
+<p>多线程和多线程同步介绍的一篇文章，篇幅很长，涉及到一些cpu底层细节，值得一看</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

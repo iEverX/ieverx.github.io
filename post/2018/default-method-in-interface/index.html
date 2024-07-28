@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Default method in interface</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">Default method in interface</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2018-08-31</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/yu-fa/">#语法</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">642 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>Java 中的<code>interface</code>是一组抽象方法的集合，是一组对外的接口。Java 8 之前，在<code>interface</code>中是没有方法体，的，只能在子类实现。如果是所有子类都一致的实现，标准方法是定义一个实现这个接口的抽象类，在抽象类中实现公共方法，子类集成这个抽象类，并实现各子类不同的方法。这样的写法并没有什么问题，只是啰嗦而已。在 Java 8 中，接口内可以实现 defaut method。所有实现改接口的类，如果没有重写这个方法，则使用接口中的实现。针对上面的场景，可以少写一个类。</p>
+<p>此外，接口和抽象类的一个重要区别在于，一个类只能继承一个父类，却可以实现多个接口。在没有 default method 的时候，多个接口表示我们在子类中实现的方法变多了。假如一个接口内只有 default method，那么继承这个接口的类可以不用实现接口的方法，而自动的获得了一个方法。在一些场景下，可以利用这个方法给类增加一些 utils 方法。比如下边的代码，<code>Person</code>只需要继承<code>Jsonable</code>就可以自动的获得<code>toJson</code>方法。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">interface </span><span style="color:#c99e00;">Jsonable </span><span>{
+</span><span>    </span><span style="color:#8959a8;">default </span><span style="color:#c99e00;">String </span><span style="color:#4271ae;">toJson</span><span>() {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">JsonSerializer</span><span>.</span><span style="color:#c82728;">serialize</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">this</span><span style="color:#4271ae;">)</span><span>;
+</span><span>    }
+</span><span>}
+</span><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Person </span><span style="color:#8959a8;">implements </span><span style="color:#839c00;">Jsonable </span><span>{
+</span><span>    </span><span style="color:#8959a8;">private int </span><span>id;
+</span><span>    </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">String </span><span>name;
+</span><span>}
+</span></code></pre>
+<p>一些简单的 utils 方法，就可以不必定义一个 utils 类了。当然这是一种口味的问题，并不是所有人都喜欢这样一种方法的。此外，之所以说简答的 utils 方法可以这样实现，原因在于 java 的 interface 中不能有状态，所以有些是做不了的。比如缓存、log 等。并且现在 java 还是不支持接口中的私有方法，所以写一些复杂的方法在接口中，会暴露不必要的细节。好消息是 Java 9 已经支持了接口中的私有方法。</p>
+<p>default method 是一种 <a href="https://zh.wikipedia.org/wiki/Mixin">mixin</a>，不过功能有限。而一些语言则提供更完善的 mixin 机制，比如 scala 的<code>trait</code>。<code>trait</code>是可以有状态的，从而对子类的的侵入会更少。对于 mixin 还不是很了解，可以参考下边的链接。</p>
+<p>参考：<br />
+<a href="https://opencredo.com/traits-java-8-default-methods">traits-java-8-default-methods</a> <br />
+<a href="https://stackoverflow.com/questions/16410298/what-are-the-differences-and-similarties-between-scala-traits-vs-java-8-interfa">what-are-the-differences-and-similarties-between-scala-traits-vs-java-8-interfaces</a> <br />
+<a href="https://www.zhihu.com/question/20778853">Mixin是什么概念?</a></p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

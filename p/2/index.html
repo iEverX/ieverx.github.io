@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>天外天</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+  
+
+<div class="block-index">
+    <div class="posts">
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2016&#x2F;rust-web-server&#x2F;">用Rust写了一个简单的Web服务器</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2016-09-24</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/rust/">#Rust</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/webfu-wu-qi/">#Web服务器</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <h1 id="rust">Rust</h1>
+<p>最近学了一阵Rust，这个语言的目的是系统编程，卖点是无GC的内存安全。为了实现这一点，Rust引入了所有权、借用、生命周期的概念。可以在编译器检查出可能的内存问题，如野指针、局部变量指针等等。不过这也对写程序造成了一定的困扰，对于move、borrow等如果理解的不是很到位，那必然要和编译器做长期的斗争。</p>
+<h1 id="webfu-wu-qi">Web服务器</h1>
+<h2 id="gu-jia">骨架</h2>
+<p>Web服务器，实际上就是对socket的数据流的处理，监听端口，并对每个新的连接，开启一个新的线程进行处理。代码的骨架基本上是</p>
+<pre data-lang="rust" style="background-color:#f9f9f9;color:#111111;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8959a8;">match </span><span>TcpListener::bind(</span><span style="color:#839c00;">&quot;127.0.0.1&quot;</span><span>, </span><span style="color:#f07219;">9999</span><span>)) {
+</span><span>    </span><span style="color:#c99e00;">Ok</span><span>(listener) </span><span style="color:#3e999f;">=&gt; </span><span>{
+</span><span>        </span><span style="color:#8959a8;">for</span><span> stream </span><span style="color:#3e999f;">in</span><span> listener.</span><span style="color:#4271ae;">incoming</span><span>() {
+</span><span>            </span><span style="color:#8959a8;">match</span><span> stream {
+</span><span>                </span><span style="color:#c99e00;">Err</span><span>(e) </span><span style="color:#3e999f;">=&gt; </span><span>{
+</span><span>                    </span><span style="color:#8e908c;">// error, log, ignore
+</span><span>                },
+</span><span>                </span><span style="color:#c99e00;">Ok</span><span>(s) </span><span style="color:#3e999f;">=&gt; </span><span>{
+</span><span>                    thread::spawn(</span><span style="color:#8959a8;">move </span><span style="color:#3e999f;">|| </span><span style="color:#4271ae;">handle_client</span><span>(s));
+</span><span>                },
+</span><span>            }
+</span><span>        }
+</span><span>        </span><span style="color:#4271ae;">drop</span><span>(listener);
+</span><span>    },
+</span><span>    </span><span style="color:#c99e00;">Err</span><span>(e) </span><span style="color:#3e999f;">=&gt; </span><span>{
+</span><span>        </span><span style="color:#8e908c;">// error, log, ignore
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>其中<code>thread::spawn(move || handle_client(s))</code>，开启新的线程，参数是一个闭包，<code>move</code>关键字表示将闭包所在环境的标量的所有权强行交给闭包。之后重点是<code>handle_client</code>中对于<code>TcpStream</code>的处理，也就是解析请求，并构造响应。读取请求。</p>
+<h2 id="jie-xi-qing-qiu">解析请求</h2>
+<p>一个HTTP的请求，格式是这样的</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>METHOD URI VERSION
+</span><span>Host: xxx
+</span><span>other-header: xxx
+</span><span>
+</span><span>body
+</span></code></pre>
+<p>这个服务器目前只能处理GET和HEAD请求，并且只能处理静态文件，所有很多东西并没有做。比如querystring的解析、请求体的解析等等。各种header也只是解析，并没有真的使用。之后会慢慢完善，函数重点是</p>
+<pre data-lang="rust" style="background-color:#f9f9f9;color:#111111;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8959a8;">fn </span><span style="color:#4271ae;">parse</span><span>(</span><span style="color:#f07219;">stream</span><span>: </span><span style="color:#3e999f;">&amp;</span><span style="color:#8959a8;">mut</span><span> TcpStream) -&gt; </span><span style="color:#c99e00;">Option</span><span>&lt;Request&gt; {
+</span><span>    </span><span style="color:#8959a8;">let mut</span><span> s </span><span style="color:#3e999f;">= </span><span style="color:#c99e00;">Vec</span><span>::new();
+</span><span>    </span><span style="color:#8959a8;">Self</span><span>::get_request(stream, </span><span style="color:#3e999f;">&amp;</span><span style="color:#8959a8;">mut</span><span> s);
+</span><span>    </span><span style="color:#8959a8;">match </span><span style="color:#c99e00;">String</span><span>::from_utf8(s) {
+</span><span>        </span><span style="color:#c99e00;">Ok</span><span>(s) </span><span style="color:#3e999f;">=&gt; </span><span>{
+</span><span>            </span><span style="color:#8e908c;">// parse request line and header
+</span><span>        },
+</span><span>        </span><span style="color:#c99e00;">Err</span><span>(</span><span style="color:#3e999f;">_</span><span>) </span><span style="color:#3e999f;">=&gt; </span><span style="color:#c99e00;">None</span><span>,
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>如果解析失败，返回一个<code>None</code>，这是<code>Request</code>结构的一个静态方法。解析成功则打印日志，并根据请求构造响应。</p>
+<h2 id="gou-zao-xiang-ying">构造响应</h2>
+<p>响应的的格式为</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>VERSION CODE PHRASE
+</span><span>header: xxx
+</span><span>other-header: xxx
+</span><span>
+</span><span>body
+</span></code></pre>
+<p>由于只能处理静态请求，实际上这里就是读取文件并.对于<code>HEAD</code>请求，只计算长度，没有响应体部分。</p>
+<p>目前的相应的结构为</p>
+<pre data-lang="rust" style="background-color:#f9f9f9;color:#111111;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#8959a8;">struct </span><span>Response {
+</span><span>    </span><span style="color:#c82728;">head</span><span>: String,
+</span><span>    </span><span style="color:#c82728;">body</span><span>: String
+</span><span>}
+</span></code></pre>
+<p>通过code、mime、content等拼接字符串，得到响应头部以及响应体。最后通过<code>TcpStream</code>发送出去。</p>
+<p>至此，这个web服务器就算是完成了。</p>
+<h1 id="zui-hou">最后</h1>
+<p>Rust这个语言还是非常不熟，对于lifetime的理解也太行，所以通篇没有用到lifetime标记，遇到字符串都是用的String。另外，Rust目前并没有高性能的非阻塞IO以及异步IO，有一些库在做这方面的尝试。不过对这方面不熟，没有多做尝试。</p>
+<p>最后，项目的地址是<a href="https://github.com/iEverX/rock">https://github.com/iEverX/rock</a></p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2016&#x2F;implement-dependency-injection-by-annotation&#x2F;">利用注解实现依赖注入</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2016-04-12</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/yi-lai-zhu-ru/">#依赖注入</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/zhu-jie/">#注解</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <h1 id="zhun-bei">准备</h1>
+<h2 id="yi-lai-zhu-ru-shi-sha">依赖注入是啥？</h2>
+<p>提到依赖注入（Denpendency Injection，DI），得先讲控制反转（Inversion of Control，IoC）。控制反转是一种设计原则，目的是去除代码的去耦合。通常写程序，我们会在类中实例化所需的对象，比如说</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Car </span><span>{
+</span><span>    </span><span style="color:#c99e00;">Tier </span><span>tier </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Tier</span><span>(</span><span style="color:#839c00;">&quot;A&quot;</span><span>);
+</span><span>}
+</span></code></pre>
+<p>这里，<code>Tier</code>就是<code>Car</code>的一个依赖。像这种代码会造成一个问题，那就是<code>Tier</code>和<code>Car</code>之间是耦合在一起的。假如<code>Tier</code>的实现变了，增加了新的构造函数，原来的无参构造函数不满足<code>Car</code>的需求，那么就还需要修改<code>Car</code>的代码。如果换个方式，把代码改成下面这样</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Car </span><span>{
+</span><span>    </span><span style="color:#c99e00;">Tier </span><span>tier;
+</span><span>    </span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">setTier</span><span>(</span><span style="color:#c99e00;">Tier </span><span style="color:#f07219;">tier</span><span>) {
+</span><span>        </span><span style="color:#c82728;">this</span><span>.tier </span><span style="color:#3e999f;">=</span><span> tier;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>那么就可以通过事先实例化一个<code>Tier</code>对象，通过<code>setTier</code>方法传给<code>Car</code>对象，<code>Car</code>的代码完全不需要修改。这就是控制反转，所谓反转，意思是依赖的控制被反转了。之前，依赖的生成有对象控制，现在依赖的生成由外层代码控制。上面的采用<code>set</code>方法的方式就称为依赖注入，还可以通过构造函数，或者通过接口实现。</p>
+<h2 id="zhu-jie">注解</h2>
+<p>注解（Annotation）是Java在1.5版本提供的特性，通过注解可以给JVM提供额外的信息。这些额外的信息，可以在运行时获取，从而改变代码的行为。</p>
+<h1 id="dai-ma-shi-xian">代码实现</h1>
+<p>为了实现依赖注入，需要有以下几个东西</p>
+<ul>
+<li>标识一个属性通过外部注入的注解</li>
+<li>根据注解注入对象的代码</li>
+<li>一个保存组件的容器，以及生成的组件</li>
+</ul>
+<p>其中最后一点就是Spring中的<code>component-scan</code>功能，不过我不会实现，所以本文的最后一点是手工完成的。</p>
+<h2 id="zhu-jie-1">注解</h2>
+<p>代码很简单</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span>@</span><span style="color:#c82728;">Target</span><span>(</span><span style="color:#c99e00;">ElementType</span><span>.FIELD)
+</span><span>@</span><span style="color:#c82728;">Retention</span><span>(</span><span style="color:#c99e00;">RetentionPolicy</span><span>.RUNTIME)
+</span><span>@</span><span style="color:#c82728;">Documented
+</span><span style="color:#8959a8;">public @interface </span><span style="color:#c99e00;">Inject </span><span>{
+</span><span>    </span><span style="color:#c99e00;">String </span><span style="color:#4271ae;">value</span><span>() </span><span style="color:#8959a8;">default </span><span style="color:#839c00;">&quot;&quot;</span><span>;
+</span><span>}
+</span></code></pre>
+<p>这就OK了，一个注解就是这么简单。这里声明了一个名为<code>Inject</code>的注解，其关键字为<code>@interface</code>。与普通的接口不一样的地方是，不允许有属性，只能有方法，且方法不能有参数。此外，方法后可以跟一个<code>default</code>说明默认值。</p>
+<p>在注解之上的<code>Target</code>，<code>Retention</code>，<code>Documented</code>同样是注解，这些注解称为“元注解”，共有4个，除了以上三个还有一个<code>Inherited</code>。元注解用于对注解进行类型说明。</p>
+<ul>
+<li><code>Target</code>指明注解的使用范围，这里的<code>ElementType.FIELD</code>表明<code>Inject</code>可以注解属性，可选的值还包括<code>TYPE</code>，<code>PARAMETER</code>等</li>
+<li><code>Retention</code>指明注解的保留期限，<code>RUNTIME</code>表明在运行时可以获取注解信息。可选值还有<code>SOURCE</code>和<code>CLASS</code>，分别表示在源码和字节码中保留注解信息</li>
+<li><code>Documented</code>用来指明注解应该被文档化，指示javadoc之类的工具应该生成该注解的文档</li>
+<li><code>Inherited</code>指明注解可以被继承</li>
+</ul>
+<p><code>Inject</code>的定义很简单，其实可以更简单，那就是直接用Java自带的注解，比如<code>Resource</code>。因为注解本身不提供功能，注解功能的实现是由其他代码读取注解信息从而完成的。</p>
+<h2 id="shi-yong-zhu-jie">使用注解</h2>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public class </span><span style="color:#c99e00;">Car </span><span>{
+</span><span>
+</span><span>    @</span><span style="color:#c82728;">Inject
+</span><span>    </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Tier </span><span>tier;
+</span><span>    
+</span><span>    @</span><span style="color:#c82728;">Inject</span><span>(</span><span style="color:#839c00;">&quot;james&quot;</span><span>)
+</span><span>    </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Driver </span><span>driver;
+</span><span>
+</span><span>    </span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">run</span><span>() {
+</span><span>        </span><span style="color:#c99e00;">System</span><span>.out.</span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;A car is running, driver is &quot; </span><span style="color:#3e999f;">+</span><span style="color:#4271ae;"> driver.</span><span style="color:#c82728;">getName</span><span style="color:#4271ae;">() </span><span style="color:#3e999f;">+ </span><span style="color:#839c00;">&quot;, and its tier&#39;s brand is &quot; </span><span style="color:#3e999f;">+</span><span style="color:#4271ae;"> tier.</span><span style="color:#c82728;">getName</span><span style="color:#4271ae;">())</span><span>;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p><code>Tier</code>的注解没有参数，说明给的是默认值，<code>driver</code>的注解加了参数，但是没有指明是哪个参数，这种情况下，默认使用<code>value</code>，当有多个参数时，不允许省略value。</p>
+<h2 id="du-qu-zhu-jie-bing-zhu-ru">读取注解并注入</h2>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">static</span><span> void </span><span style="color:#c82728;">inject</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">Object</span><span style="color:#4271ae;"> obj, </span><span style="color:#c99e00;">Map</span><span style="color:#4271ae;">&lt;</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;">, </span><span style="color:#c99e00;">Object</span><span style="color:#4271ae;">&gt; container) </span><span>{
+</span><span>    </span><span style="color:#c99e00;">Field</span><span style="color:#8959a8;">[]</span><span> fields </span><span style="color:#3e999f;">=</span><span> obj.</span><span style="color:#c82728;">getClass</span><span style="color:#4271ae;">()</span><span>.</span><span style="color:#c82728;">getDeclaredFields</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#c99e00;">Field</span><span> field </span><span style="color:#3e999f;">:</span><span> fields) {
+</span><span>        field.</span><span style="color:#c82728;">setAccessible</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">true</span><span style="color:#4271ae;">)</span><span>;
+</span><span>        </span><span style="color:#c99e00;">Inject</span><span> inject </span><span style="color:#3e999f;">=</span><span> field.</span><span style="color:#c82728;">getAnnotation</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">Inject</span><span style="color:#4271ae;">.</span><span style="color:#c82728;">class</span><span style="color:#4271ae;">)</span><span>;
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(inject </span><span style="color:#3e999f;">!= </span><span style="color:#f07219;">null</span><span>) {
+</span><span>            </span><span style="color:#c99e00;">String</span><span> name </span><span style="color:#3e999f;">=</span><span> inject.</span><span style="color:#c82728;">value</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(name.</span><span style="color:#c82728;">isEmpty</span><span style="color:#4271ae;">()</span><span>) {
+</span><span>                name </span><span style="color:#3e999f;">=</span><span> field.</span><span style="color:#c82728;">getName</span><span style="color:#4271ae;">()</span><span>;
+</span><span>            }
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(</span><span style="color:#3e999f;">!</span><span>container.</span><span style="color:#c82728;">containsKey</span><span style="color:#4271ae;">(name)</span><span>) {
+</span><span>                </span><span style="color:#8959a8;">throw new </span><span style="color:#c99e00;">RuntimeException</span><span>(</span><span style="color:#839c00;">&quot;Object </span><span style="color:#f07219;">\&quot;</span><span style="color:#839c00;">&quot; </span><span style="color:#3e999f;">+</span><span> name </span><span style="color:#3e999f;">+ </span><span style="color:#839c00;">&quot;</span><span style="color:#f07219;">\&quot;</span><span style="color:#839c00;"> cannot be found in container.&quot;</span><span>);
+</span><span>            }
+</span><span>            </span><span style="color:#8959a8;">try </span><span>{
+</span><span>                field.</span><span style="color:#c82728;">set</span><span style="color:#4271ae;">(obj, container.</span><span style="color:#c82728;">get</span><span style="color:#4271ae;">(name))</span><span>;
+</span><span>            } </span><span style="color:#8959a8;">catch </span><span>(</span><span style="color:#c99e00;">IllegalAccessException </span><span style="color:#f07219;">e</span><span>) {
+</span><span>                </span><span style="color:#8e908c;">// ignore
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>这段代码通过反射获取一个类的所有字段，并获取字段上的Inject注解。如果有注解的情况下，依次根据注解的<code>value</code>以及属性的名字获取注入的对象名。并通过发射将对象赋给相应的属性。</p>
+<h2 id="shi-ji-yun-xing">实际运行</h2>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">String</span><span>, </span><span style="color:#c99e00;">Object</span><span>&gt; container </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashMap</span><span>&lt;</span><span style="color:#c99e00;">String</span><span>, </span><span style="color:#c99e00;">Object</span><span>&gt;();
+</span><span>container.</span><span style="color:#c82728;">put</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;james3&quot;</span><span style="color:#4271ae;">, </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Driver</span><span style="color:#4271ae;">())</span><span>;
+</span><span>container.</span><span style="color:#c82728;">put</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;tier&quot;</span><span style="color:#4271ae;">, </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Tier</span><span style="color:#4271ae;">())</span><span>;
+</span><span>
+</span><span style="color:#c99e00;">Car</span><span> car </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Car</span><span>();
+</span><span style="color:#c82728;">inject</span><span style="color:#4271ae;">(car, container)</span><span>;
+</span><span>car.</span><span style="color:#c82728;">run</span><span style="color:#4271ae;">()</span><span>;
+</span></code></pre>
+<p>在这里，通过<code>inject</code>方法将container中的对象根据需要注入到<code>car</code>中，无需<code>car</code>去管理对象的生成。注意到，这里的对象实例化都是有自己手动完成的。而且在实例化<code>car</code>时，依然自己手动调用了<code>inject</code>方法。所以这里简略的实现了一个依赖注入。为了自动实现以上想法，需要把<code>car</code>也放到<code>container</code>中。而<code>container</code>也应自动生成，可以通过扫描指定的包下的类来实现。个人感觉这里比较负责，不是很好写。具体可以参考Spring的实现。</p>
+<h1 id="zong-jie">总结</h1>
+<p>使用注解可以极大的增强代码的灵活性，而且使用注解也并不复杂，通过几个简单地API就可以完全搞定，真的是so easy！</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2016&#x2F;an-introduction-to-parsing-text-in-haskell-with-parsec&#x2F;">Haskell Parsec的简短介绍[译]</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2016-01-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/haskell/">#Haskell</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/parsec/">#Parsec</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/fan-yi/">#翻译</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>本文翻译自<a href="http://unbui.lt/#!/post/haskell-parsec-basics/">http://unbui.lt/#!/post/haskell-parsec-basics/</a>。这是我第一次翻译文章，这篇文章的英文看起来也不是很难，只是想尝试翻一下。由于第一次，许多地方的翻译并没有很通顺，整片文章读起来也是有些奇怪。此外代码中的注释没有翻译。以下是正文。</p>
+<blockquote>
+<p>Parsec的存在使得在Haskell中解析文本非常简单。这篇文章的目的在于给我自己和其他人一个从零开始介绍每个函数，并配有例子的指南和参考。</p>
+</blockquote>
+<p>首先，为什么要用Parsec而不是与之类似于正则表达式之类的东西来解析内容呢？其他语言中，把内容切分成数组，每次用正则表达式处理一部分，这种方式或者类似的其他方式，是一种非常常见的模式。在Haskell中，我们也可以采用这种方式，但是我已经看到了Parsec发出的光，我想把这种更好的方式介绍给你们。</p>
+<p>大多数的指南都是上来就是一个完整的例子，但是我会一个一个的介绍这些不同的函数，以后这篇文章也可以作为一个使用Parsec的备忘（对我自己和所有其他人都是如此）。我尽量保证每个例子是独立的，所以跳过某些部分并不会有问题，但是请注意最开始的基础代码。我也把所有的例子的代码放到了<a href="https://jsdw.github.io/unbuilt-posts/haskell-parsec-basics/examples.hs">这个文件</a>中，可以直接使用<code>:load</code>命令读到<code>ghci</code>中使用。</p>
+<h1 id="ji-chu">基础</h1>
+<p>对于一个从头到尾的文本流，Parsec会尝试用一个规则或者规则的集合去匹配这个输入流。Parsec也是一个monadic，所以我们可以很容易把不同的规则通过<code>do</code>拼凑到一个序列中。一个一般的概念是，一个规则的工作方式是，每次从输入消费一个字符，并判断是否匹配。所以当把几个规则拼凑正一个序列时，每个规则会消费部分输入，直到没有输入、没有规则或者某个规则没有匹配（产生一个error）。</p>
+<p>我们首先从最基本的开始。我qualified引入了<code>Parsec</code>，所以可以直接使用<code>Parsec</code>函数（注：无需使用包名前缀）。同时引入了<code>Control.Applicative</code>，因此稍后可以使用applicative形式的代码。最后给<code>parseTest</code>起了一个简短的别名。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I import qualified so that it&#39;s clear which
+</span><span style="color:#8e908c;">-- functions are from the parsec library:
+</span><span style="color:#8959a8;">import qualified </span><span>Text.Parsec </span><span style="color:#8959a8;">as </span><span>Parsec
+</span><span>
+</span><span style="color:#8e908c;">-- I am the error message infix operator, used later:
+</span><span style="color:#8959a8;">import </span><span>Text.Parsec ((&lt;?&gt;))
+</span><span>
+</span><span style="color:#8e908c;">-- Imported so we can play with applicative things later.
+</span><span style="color:#8e908c;">-- not qualified as mostly infix operators we&#39;ll be using.
+</span><span style="color:#8959a8;">import </span><span>Control.Applicative
+</span><span>
+</span><span style="color:#8e908c;">-- Get the Identity monad from here:
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.Identity (</span><span style="color:#8959a8;">Identity</span><span>)
+</span><span>
+</span><span style="color:#8e908c;">-- alias Parsec.parse for more concise usage in my examples:
+</span><span>parse rule text </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>parse rule </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> text
+</span></code></pre>
+<p>以上就是基本的设定，并定义了一个简单的函数<code>parse</code>，这个函数只是忽略了<code>Parsec.parse</code>的第二个参数（实际上，这个参数是带解析内容的文件名，只用于Parsec显示错误信息是能提供一些其他的信息）。</p>
+<p>Parsec是有一系列的“积木”搭建起来的，每一块都是一个规则本身，或者是与其他规则一起组成的更复杂的规则。接下来我们看看这些基础的积木，以及它们是如何和上面的基本设定一起工作的。</p>
+<h2 id="parsec-char"><code>Parsec.char</code></h2>
+<p>这个函数返回一个规则，该规则根据输入的参数，去匹配输入文本中的当前字符。我们ghci中运行一下。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> someText </span><span style="color:#3e999f;">= </span><span style="color:#839c00;">&quot;Hello Hello Hello World World World&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;H&#39;</span><span>) someText
+</span><span>Right </span><span style="color:#839c00;">&#39;H&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;e&#39;</span><span>) someText
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;H&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;e&quot;
+</span></code></pre>
+<p><code>Parsec.char 'H'</code>返回了一个会匹配单个字符<code>'H'</code>的规则。如果我们用这个规则匹配一个以<code>H</code>开头的字符串，结果是好的。如果尝试任何不是<code>H</code>的字母，就会失败。结果的类型总是<code>Either ParsecError res</code>，如果规则成功，则得到<code>Right result</code>，失败则得到<code>Left error</code>。我们可以试试模式匹配，例子非常简单：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>main </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    </span><span style="color:#8959a8;">let</span><span> result </span><span style="color:#3e999f;">=</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;H&#39;</span><span>) </span><span style="color:#839c00;">&quot;Hello&quot;
+</span><span>    </span><span style="color:#8959a8;">case</span><span> result </span><span style="color:#8959a8;">of
+</span><span>        Right v </span><span style="color:#3e999f;">-&gt;</span><span> putStrLn </span><span style="color:#839c00;">&quot;success!&quot;
+</span><span>        Left err </span><span style="color:#3e999f;">-&gt;</span><span> putStrLn (</span><span style="color:#839c00;">&quot;whoops, error: &quot;</span><span style="color:#3e999f;">++</span><span>show err)
+</span></code></pre>
+<h2 id="parsec-string"><code>Parsec.string</code></h2>
+<p>这个函数返回的是尝试匹配字符串的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello world!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span></code></pre>
+<p>Parser从输入中一个一个的消费字符，直到所有的字符都匹配或者某一个字符与预期不符。因为上面的两个尝试都是以<code>'h'</code>开头，错误信息是遇到了<code>unexpected 'o'</code>。当多个规则串联在一起时，字符的消费(consuming of characters)会变得非常重要。</p>
+<h2 id="parsec-oneof"><code>Parsec.oneOf</code></h2>
+<p>有时我们想要匹配多个字符，这时<code>Parsec.oneOf</code>就会非常方便。与<code>Parsec.char</code>相似，不过参数是<code>[Char]</code>类型：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;allo&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;chewy&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;c&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>oneOf </span><span style="color:#839c00;">&quot;abcde&quot;</span><span>) </span><span style="color:#839c00;">&quot;gnaw&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;g&quot;
+</span></code></pre>
+<p>可以看到，parser会<em>消费</em><code>abcde</code>中的任意一个字符。这里我们可以用区间泪简化，比如可以使用<code>Parsec.oneOf ['a'..'z']</code>来匹配任意小写字母。</p>
+<p>Parsec提供了规则来完成上面的目的，比如，<code>Parsec.anyChar</code>会消费任何字符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse Parsec</span><span style="color:#3e999f;">.</span><span>anyChar </span><span style="color:#839c00;">&quot;blahblah&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse Parsec</span><span style="color:#3e999f;">.</span><span>anyChar </span><span style="color:#839c00;">&quot;=-symbols...&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;=&#39;
+</span></code></pre>
+<p>规则<code>Parsec.letter</code>会消费任意字母，<code>Parsec.lower</code>会消费小写字母，<code>Parsec.digit</code>会消费数字，<code>Parsec.alphaNum</code>则是字母和数字。所有这些可以通过<code>Parsec.oneOf</code>来手动构建，不过这些提供了更好的错误提示信息（也可以在自己的规则里添加，我们稍后会看到）。</p>
+<h2 id="parsec-noneof"><code>Parsec.noneOf</code></h2>
+<p>与上一个相反，这个函数的参数是不允许匹配的字符串，它会匹配任何一个不在参数中的字符。当然也可以使用区间：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>noneOf [</span><span style="color:#839c00;">&#39;0&#39;</span><span style="color:#3e999f;">..</span><span style="color:#839c00;">&#39;9&#39;</span><span>]) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>noneOf [</span><span style="color:#839c00;">&#39;0&#39;</span><span style="color:#3e999f;">..</span><span style="color:#839c00;">&#39;9&#39;</span><span>]) </span><span style="color:#839c00;">&quot;100&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;1&quot;
+</span></code></pre>
+<h2 id="parsec-many-and-parsec-many1"><code>Parsec.many</code> and <code>Parsec.many1</code></h2>
+<p>我们有时候会希望不止解析一个字母，<code>Parsec.many</code>会不断尝试提供的规则，直到失败位为止。即使一次也没有成功，也不会返回失败，只是给出了一个空的结果。看看如何使用这个：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;</span><span>)) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hhhh&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;e&#39;</span><span>)) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;hhhheeelllooo!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hhhheeelllooo&quot;
+</span></code></pre>
+<p>就像我们看到的，<code>Parsec.many</code>从来不会出错，它总是开心的匹配提供的规则0次，然后什么也不返回。它会尽量往前尝试，并且返回他匹配的任何东西。<code>Parsec.many1</code>类似，除了所给的规则至少匹配一次：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;hello!!&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;75 hello&#39;s!&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;7&quot;
+</span><span>expecting letter
+</span></code></pre>
+<p>当想要匹配至少有一个字母或者数字的集合的时候，会非常有用。</p>
+<h2 id="parsec-count"><code>Parsec.count</code></h2>
+<p>当想要匹配某个东西特定的次数时，可以使用<code>Parsec.count</code>。参数是一个数字n和一个规则，期望匹配这个规则相应的次数（或者失败），返回匹配的结果。来个例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>count </span><span style="color:#f07219;">4 </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;ahoythere&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ahoy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>count </span><span style="color:#f07219;">4 </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>letter) </span><span style="color:#839c00;">&quot;aho&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">4</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected end </span><span style="color:#8959a8;">of</span><span> input
+</span><span>expecting letter
+</span></code></pre>
+<h2 id="parsec-manytill"><code>Parsec.manyTill</code></h2>
+<p>这个parser有两参数，尝试匹配的规则以及恰好在这个规则之后的规则。与<code>many</code>一样，第一个规则会匹配0次或者多次，但是如果两个规则都不匹配，会报错。下面的例子尝试匹配字母，并期望后面跟着数字：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;hello12345&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;12345&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>manyTill Parsec</span><span style="color:#3e999f;">.</span><span>letter Parsec</span><span style="color:#3e999f;">.</span><span>digit) </span><span style="color:#839c00;">&quot;hello 12345&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">6</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot; &quot;
+</span><span>expecting digit or letter
+</span></code></pre>
+<p>注意，必须要记住，它会消费（并输出）所有的第一个规则，并且消费第二个规则匹配的任何东西（但是在输出中忽略)。当我们开始把规则串联起来，我们消费了什么，以及下一个规则要处理什么，会变得更加的重要。</p>
+<p>我认为Parsec非常好的一点是，它提供了非常直接及时的错误信息，包括我们开头传的字符串（<code>&quot;(source)&quot;</code>)，错误的行号列号，以及一些指明哪里错了的有用信息。现在我们只处理了单行inxi，但是从单词的角度出发的酷。</p>
+<h1 id="zu-he-gui-ze">组合规则</h1>
+<p>现在我们已经有了基本规则的经验了，接下来我们聊聊怎么把他们组合起来。Parsec，作为一个monadic，允许我们可以使用Haskell的<code>do</code>语法糖来写解析器。下面是一个把上面的简单规则拼凑成一个序列的例子，获取字母数字对并返回：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- This looks for letters, then spaces, then digits.
+</span><span style="color:#8e908c;">-- we then return letters and digits in a tuple.
+</span><span style="color:#4271ae;">myParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    letters </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    digits </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit
+</span><span>    return (letters,digits)
+</span></code></pre>
+<p>注意到我给显式的给了这个parser的类型<code>Parsec.Parsec String () (String,String)</code>。这个类型的参数类型，按按顺序来，是输入类型、想要在parser之间保持的一些状态（这里使用的是unit类型，也就是没有有意义的状态，稍后会快速的介绍一下），以及输出类型。在这个例子中，一个<code>String</code>作为输入，返回一个两个<code>String</code>的元组。在ghci中用<code>:type</code>查看这个规则的类型，会看到他们有<code>ParsecT</code>类型而不是<code>Parsec</code>类型构造的。<code>ParsecT</code>只是一个monad transformer，与<code>Parsec.Parsec</code>有相同的类型，但是有一个参数<code>m</code>来表明其包装的monad。无需多言，这两个类型是一样的：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I have to import the identity monad to use in the ParsecT definition:
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.Identity (</span><span style="color:#8959a8;">Identity</span><span>)
+</span><span>
+</span><span style="color:#4271ae;">myParser1 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">ParsecT String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">Identity</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser1 </span><span style="color:#3e999f;">=</span><span> myParser
+</span><span>
+</span><span style="color:#4271ae;">myParser2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser2 </span><span style="color:#3e999f;">=</span><span> myParser
+</span></code></pre>
+<p>当在<code>Parsec</code>包中查看函数类型时，在脑子里记住这一点，会帮助你理解你在处理什么东西。每个规则都有相似的类型，虽然返回值各个规则都不一样。比如，<code>Parsec.many</code>返回一个所有匹配的数组。可以自己在ghci中看看。</p>
+<p>不管怎么说，我们已经定义了<code>myParser</code>，可以把它传给<code>parse</code>函数了：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;hello 1000&quot;
+</span><span>Right (</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1000&quot;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;woohoooo0!!&quot;
+</span><span>Right (</span><span style="color:#839c00;">&quot;woohoooo&quot;</span><span>,</span><span style="color:#839c00;">&quot;0&quot;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParser </span><span style="color:#839c00;">&quot;1000&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;1&quot;
+</span><span>expecting letter
+</span></code></pre>
+<p>因为我们用的<code>Parsec.many1</code>，要求输入至少有一个字母，其后面跟着一个或者多个空格，最后跟着至少一个数字。我们的规则把这些包装成一个元组（但是也可以把他们包装成一个自定义类型或者任何
+其他形式）。</p>
+<p>假如我们有一系列的字母数字对，被一些分隔符分割，比如逗号。这个例子中，我们想要把他们解析成元组的列表。我们来定义一个解析分隔符的规则</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">mySeparator </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() ()
+</span><span>mySeparator </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;,&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span></code></pre>
+<p>我又添加了显式的类型，因为当我在在测试文件中写独立的调用时，Haskell不能推断出类型。注意，只有最后一行是返回的东西，和签名的类型的是一致。其他之前的parser的返回值被忽略了。当然我们可以在一行显式的<code>return ()</code>，不过<code>Parsec.spaces</code>已经做了这件事。</p>
+<p>这个规则匹配0个或者多个空格，后跟一个逗号，再接着0或多个空格，由于我们不关心这些规则的返回值，我们可以把上面的代码脱糖成一行： </p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>mySeparator </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>spaces </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;,&#39; </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span></code></pre>
+<p>现在有了<code>myParser</code>和<code>mySeparator</code>，每个都是由更小的规则构成的。用同样的方式，我们可以把新的规则组成更大的规则。还是根据上面学到的，来构建一个更冗长的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">--I want to return a list of pairs, this time.
+</span><span style="color:#4271ae;">myPairs </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    mySeparator
+</span><span>    return pair
+</span></code></pre>
+<p>只是简单的用<code>Parsec.many</code>去解析0次或多次<code>myParser</code>后面跟着<code>mySeparator</code>的实例。注意，我用了<code>do</code>的语法糖来构建要给规则，之后把这个规则来传给<code>Parsec.many</code>。下面是脱糖的写法，可以清楚的看<code>do</code>块是<code>Parsec.many</code>的一个参数：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>myPairs </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many (myParser </span><span style="color:#3e999f;">&gt;&gt;= \</span><span>pair </span><span style="color:#3e999f;">-&gt;</span><span> mySeparator </span><span style="color:#3e999f;">&gt;&gt;</span><span> return pair)
+</span></code></pre>
+<p>鉴于<code>Parsec.many</code>返回一个列表（从类型签名的最后可以看出来），这个结果就是一个<code>(String, String)</code>的列表，我们来运行一下：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;hello 1, byebye 2,&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;&quot;
+</span><span>Right </span><span style="color:#f07219;">[]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs </span><span style="color:#839c00;">&quot;hello 1, byebye 2&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">18</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected end </span><span style="color:#8959a8;">of</span><span> input
+</span><span>expecting digit, white space or </span><span style="color:#839c00;">&quot;,&quot;
+</span></code></pre>
+<p>可以看到，使用<code>Parsec.many</code>，解析器发现没有匹配的实例，是不会报错的。但是如果一旦开始匹配输入了，失败（比如最后缺少了一个分隔符）就会导致报错。像这种普遍的分隔符分割项目的模式，有内置的函数专门进行处理。</p>
+<h2 id="parsec-endby"><code>Parsec.endBy</code></h2>
+<p>接受两个参数，一个解析项目的规则，一个解析分隔符的规则。本质上，<code>Parsec.endBy</code>和上面的函数一样，总是期望一个符合规则的字符串，然后一个分隔符，返回一个数组，元素是规则的返回值。</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I want to return a list of pairs as above but using a built in helper:
+</span><span style="color:#4271ae;">myPairs2a </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2a </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>endBy myParser mySeparator
+</span></code></pre>
+<h2 id="parsec-sepby"><code>Parsec.sepBy</code></h2>
+<p>接受和和<code>Parsec.endBy</code>相同的两个参数，但是解析完最后一个项目之后，期望后面不跟着分隔符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- I want to return a list of pairs without a final separator:
+</span><span style="color:#4271ae;">myPairs2b </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2b </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>sepBy myParser mySeparator
+</span></code></pre>
+<p>这个规则不要求最后是一个分隔符（实际上，如果最后是个分隔符会报错(注：第二个例子不是原文的例子)：</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>ghci&gt; parse myPairs2b &quot;hello 1, bye 2&quot;
+</span><span>Right [(&quot;hello&quot;,&quot;1&quot;),(&quot;bye&quot;,&quot;2&quot;)]
+</span><span>ghci&gt; parse myPairs2b &quot;hello 1, bye 2,&quot;
+</span><span>Left &quot;(source)&quot; (line 1, column 16):
+</span><span>unexpected end of input
+</span><span>expecting white space or letter
+</span></code></pre>
+<h1 id="shi-yong-parsec-choicehe-pi-pei-duo-ge-gui-ze-zhong-de-yi-ge">使用<code>Parsec.choice</code>和 <code>&lt;|&gt;</code>匹配多个规则中的一个</h1>
+<p>使用<code>Parsec.choice</code>或者中缀操作符<code>Parsec.&lt;|&gt;</code>（<code>Control.Applicative</code>中也有），我们可以解析不止一个规则，而第一个<strong>成功消费输入</strong>的规则会被使用（即使之后失败了也是如此，会得到一个警告）。我们来看看在实践上，它是怎么去掉我们的myParirs规则对结尾的分隔符的需要的：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">--I want to return a list of pairs with an optional end separator.
+</span><span style="color:#4271ae;">myPairs2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>choice [Parsec</span><span style="color:#3e999f;">.</span><span>eof, mySeparator]
+</span><span>    return pair
+</span></code></pre>
+<p>现在，我们的规则会消费多个字母数字对，每个后面跟着一个文件结束标记（parsec提供的规则）或则我们定义的分隔符，可以使用中缀操作符：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8959a8;">import </span><span>Text.Parsec (&lt;|&gt;)
+</span><span>
+</span><span style="color:#4271ae;">myPairs3 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> [(</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)]
+</span><span>myPairs3 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many </span><span style="color:#3e999f;">$ </span><span style="color:#8959a8;">do
+</span><span>    pair </span><span style="color:#3e999f;">&lt;-</span><span> myParser
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>eof </span><span style="color:#3e999f;">&lt;|&gt;</span><span> mySeparator
+</span><span>    return pair
+</span></code></pre>
+<p>在这里我引入了<code>&lt;|&gt;</code>操作符，所以不用给它加前缀，也没有那么丑了。中缀操作符和<code>Parsec.choices</code>都支持多个选择，比如<code>Parsec.choice [rule1, rule2, rule3]</code> or <code>rule1 &lt;|&gt; rule2 &lt;|&gt; rule3</code>。在两个例子中，序列中第一个消费了输入的规则会被使用。由于接受文件结束标记或者我们自定义的分隔符，结尾不在需要分隔符了：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myPairs2 </span><span style="color:#839c00;">&quot;hello 1, byebye 2,&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse myParis2 </span><span style="color:#839c00;">&quot;hello 1, byebye 2&quot;
+</span><span>Right [(</span><span style="color:#839c00;">&quot;hello&quot;</span><span>,</span><span style="color:#839c00;">&quot;1&quot;</span><span>),(</span><span style="color:#839c00;">&quot;byebye&quot;</span><span>,</span><span style="color:#839c00;">&quot;2&quot;</span><span>)]
+</span></code></pre>
+<p>要记住，第一个消费了输入的规则会被使用，这点很重要。这也许会导致出乎意料的失败。比如下面这个例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<p>随便来个人可能会认为这个parser先尝试匹配<code>&quot;hello&quot;</code>，并且会失败，然后在匹配<code>&quot;howdy&quot;</code>的时候回成功。而实际上，这个解析会完全的失败：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;</span><span>) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span></code></pre>
+<p>这是因为尝试匹配字符串<code>&quot;hello&quot;</code>时，<code>Parsec.string &quot;hello&quot;</code>创建的规则成功消费了<code>'h'</code>，所以这个规则被选择使用，随后在下一个字符匹配失败。下面一个例子会更清楚：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bye&quot;</span><span>) </span><span style="color:#839c00;">&quot;bye&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;bye&quot;
+</span></code></pre>
+<p>这里，第一个规则在成功消费任何输入之前就失败了，所以第二个规则被选择没有任何问题。由于性能的原因，默认的情况下，Parsec不会“向前”看一个规则是否匹配。第一个解决方案（可能也是性能最好的）是将任何输入里相同的部分单独解析，然后再解析余下的部分，避免任何超前查看的行为，如：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39; </span><span style="color:#3e999f;">&gt;&gt;</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;owdy&quot;</span><span>)) </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;owdy&quot;
+</span></code></pre>
+<p>注意，由于忽略了第一个parser（消费了<code>'h'</code>）的结果，所以没有返回整个字符串。如果有必要，这个是很容易改进的，可以把上面的一行标记改成一个更显式的规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">helloOrHowdy </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>helloOrHowdy </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    first </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    rest </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;owdy&quot;
+</span><span>    return (first</span><span style="color:#3e999f;">:</span><span>rest)
+</span></code></pre>
+<p>通过手动决定哪些需要从规则里返回，我们可以通过把初始的字符加到余下的字符串上的方式来返回正确的字符串。现在错误也是基于每个规则尝试消费的部分而不是整个字符串，提升了精确性，但是可能损失了清晰性：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;allo&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;a&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;h&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy </span><span style="color:#839c00;">&quot;hoops&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">2</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;o&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;owdy&quot;
+</span></code></pre>
+<p>第一个错来自<code>Parsec.char</code>，第二个则是<code>Parsec.string</code>。之后我们会展示如何提供自定义的错误信息，但我们先来看看超前查看这种更整洁的解析这些字符串的方式。</p>
+<h2 id="parsec-try"><code>Parsec.try</code></h2>
+<p>当规则变得复杂时，避免超前查看会很快变得笨重。在这些情形下，我们可以命令Parsec尝试一个规则，并且如果规则匹配失败，则回退到之前的状态。<code>Parsec.try</code>就是做的这件事，它会catch任何失败，并且回退。考虑到性能的影响，最好是把超前查看保持在一个尽可能小的范围内，<code>try</code>函数中的可能的解析越少越好。<code>Parsec.try</code>把被包入的规则的报错信息都截获了，因此如果不正确使用的话，可能会导致产生奇怪并且没有任何帮助的错误信息。这个意思是，如果使用得当，我们能够体验到良好的错误信息的优点，我们来试一下：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">helloOrHowdy2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>helloOrHowdy2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>try (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<p>这个会产生正确的解析，通常也会有更好的错误信息，但是既然任何一个解析<code>&quot;hello&quot;</code>的失败都被拦截了，错误信息只会描述<code>choice</code>操作符或者<code>&quot;howdy&quot;</code>的匹配失败，忽略配<code>&quot;hello&quot;</code>的匹配损失败：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;boo!&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;b&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;</span><span> or </span><span style="color:#839c00;">&quot;howdy&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse helloOrHowdy2 </span><span style="color:#839c00;">&quot;hellay&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;e&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;howdy&quot;
+</span></code></pre>
+<h2 id="tong-guo-cao-zuo-fu-zi-ding-yi-cuo-wu-xin-xi">通过<code>&lt;?&gt;</code>操作符自定义错误信息</h2>
+<p>有时候，通常在构建自己的规则是，会想要用自己定义的匹配失败的错误信息。<code>&lt;?&gt;</code>操作符允许把一个自定义错误信息很简单的附加到任何一个规则上。我们来看看实际效果：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;wrongstring&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;w&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;a common greeting&quot;</span><span>) </span><span style="color:#839c00;">&quot;wrongstring&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;w&quot;
+</span><span>expecting a common greeting
+</span></code></pre>
+<p>我们简单的把一个错误信息附加到了一个<code>Parsec.string</code>产生的规则上。<code>&lt;?&gt;</code>的优先级是最低的，以为这任何其他的东西都会优先求值。以把一个新的错误信息附加到由<code>&lt;|&gt;</code>产生的规则链为例，那么当所有的规则都匹配失败了并且<em>没有消费任何输入</em>，这个错误信息才会被使用。只要有一个规则消费了输入，那么这个规则的错误信息将会用来描述整体的失败（当然除了这个规则被<code>try</code>包了起来）。这个基本的例子说明了这个事实：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- this fails without consuming any input:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;apple&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bat&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;boom!&quot;</span><span>) </span><span style="color:#839c00;">&quot;cat&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;c&quot;
+</span><span>expecting boom</span><span style="color:#3e999f;">!
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- this consumes input before failing:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;apple&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;bat&quot; </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;boom!&quot;</span><span>) </span><span style="color:#839c00;">&quot;aunty&quot;
+</span><span>Left </span><span style="color:#839c00;">&quot;(source)&quot;</span><span> (line </span><span style="color:#f07219;">1</span><span>, column </span><span style="color:#f07219;">1</span><span>)</span><span style="color:#3e999f;">:
+</span><span>unexpected </span><span style="color:#839c00;">&quot;u&quot;
+</span><span>expecting </span><span style="color:#839c00;">&quot;apple&quot;
+</span></code></pre>
+<p>如果想要给创建的规则一个自定义的错误信息，可以把规则装进<code>try</code>里，catch这些可能的错误信息，并且提供自己的错误信息。这儿有一个简单的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- here we parse a basic greeting with no custom errors:
+</span><span style="color:#4271ae;">greeting </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>greeting </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;olla&quot; </span><span style="color:#3e999f;">&lt;|&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;ello&quot;
+</span><span>    return </span><span style="color:#839c00;">&quot;greeting&quot;
+</span><span>
+</span><span style="color:#8e908c;">--parse the same greeting, but wrap in try and add custom error:
+</span><span style="color:#4271ae;">greeting2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">() </span><span style="color:#8959a8;">String
+</span><span>greeting2 </span><span style="color:#3e999f;">= </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>try greeting </span><span style="color:#3e999f;">&lt;?&gt; </span><span style="color:#839c00;">&quot;a greeting!&quot;
+</span></code></pre>
+<p>这种做做法对于更重要的规则并不推荐，因为来自子规则的精确的错误信息会被更一般且较少帮助信息的错误信息替换掉。然而，当构建小的规则时，提供自己的错误信息会比<code>Parsec</code>提供的更有描述性。</p>
+<h1 id="li-yong-applicativehan-shu-zuo-dao-geng-jian-ji-de-jie-xi">利用applicative函数做到更简洁的解析</h1>
+<p>模块<code>Control.Applicative</code>引入了几个函数，多数是中缀操作符，在正确的场合，这些可以让规则更简洁可读。很明显我明已经使用过了这样的一个操作符<code>&lt;|&gt;</code>。Applicative函数常常使得代码变短，因为他们都是与point-free相关的，也就是不显式的引用传入的参数。</p>
+<p>我们来把最初的parser改成applicative形式，看看每个操作符干了什么：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- lets start again with our first parser to parse a letter/digit pair:
+</span><span style="color:#4271ae;">myParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    letters </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>spaces
+</span><span>    digits </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit
+</span><span>    return (letters,digits)
+</span><span>
+</span><span style="color:#8e908c;">-- in applicative style:
+</span><span style="color:#4271ae;">myParserApp </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp </span><span style="color:#3e999f;">= </span><span style="color:#4271ae;">(,) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt;</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>spaces *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span><span>
+</span><span style="color:#8e908c;">-- could also be written as:
+</span><span style="color:#4271ae;">myParserApp2 </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp2 </span><span style="color:#3e999f;">=</span><span> liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) (Parsec</span><span style="color:#3e999f;">.</span><span>spaces *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span><span>
+</span><span style="color:#8e908c;">-- or even (swapping *&gt; for the more familiar &gt;&gt;):
+</span><span style="color:#4271ae;">myParserApp </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">String</span><span>,</span><span style="color:#8959a8;">String</span><span>)
+</span><span>myParserApp2 </span><span style="color:#3e999f;">=</span><span> liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>letter) (Parsec</span><span style="color:#3e999f;">.</span><span>spaces </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>many1 Parsec</span><span style="color:#3e999f;">.</span><span>digit)
+</span></code></pre>
+<p>我们来一个一个看看主要的applicative操作符，看看它们到底干了什么事：</p>
+<h2 id="he"><code>&lt;$&gt;</code>和<code>&lt;*&gt;</code></h2>
+<p>这个操作符本质上是<code>fmap</code>。左操作数是一个函数，右操作数是一个规则，并把规则的结果在返回之前传给这个函数（当规则匹配成功时，如果匹配失败，则是得到一个解析错误）。如果想要把这个函数应用到多个参数，用<code>&lt;*&gt;</code>分割参数。来看看ghci中的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- apply the result to a tuple constructor:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (</span><span style="color:#4271ae;">(,) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right (</span><span style="color:#839c00;">&#39;a&#39;</span><span>,</span><span style="color:#839c00;">&#39;b&#39;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- put the result into an array:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse ((</span><span style="color:#3e999f;">\</span><span>a b </span><span style="color:#3e999f;">-&gt;</span><span> [a,b]) </span><span style="color:#3e999f;">&lt;$&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>*</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ab&quot;
+</span></code></pre>
+<p>整洁的一点就是无论需要多少个参数，都可以在通过在后面加一个<code>&lt;*&gt;</code>来串联起来。</p>
+<h2 id="liftax"><code>liftAx</code></h2>
+<p>上面的一个前缀版本，<code>liftAx</code>接受<em>x</em>个后续参数，并把他们传给第一个。没有中缀版本那么灵活，但是有时会更加可读。这是一个和上面完全一样的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- apply the result to a tuple constructor:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (liftA2 </span><span style="color:#4271ae;">(,)</span><span> (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span>) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>)) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right (</span><span style="color:#839c00;">&#39;a&#39;</span><span>,</span><span style="color:#839c00;">&#39;b&#39;</span><span>)
+</span><span>ghci</span><span style="color:#3e999f;">&gt; </span><span style="color:#8e908c;">-- put the result into an array:
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (liftA2 (</span><span style="color:#3e999f;">\</span><span>a b </span><span style="color:#3e999f;">-&gt;</span><span> [a,b]) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span>) (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>)) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;ab&quot;
+</span></code></pre>
+<h2 id="he-1"><code>&lt;*</code>和<code>*&gt;</code></h2>
+<p>有时会想要匹配一下规则，除了其中的一个，其余的结果都扔掉。这两个操作符接受两个规则，并且返回尖括号指向的规则的结果。例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span>) </span><span style="color:#839c00;">&quot;ab&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span></code></pre>
+<p>同样可以串联起来，这样可以忽略几个规则：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;a&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;b&#39;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;a&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;b&#39;</span><span> *</span><span style="color:#3e999f;">&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;c&#39;</span><span>) </span><span style="color:#839c00;">&quot;abc&quot;
+</span><span>Right </span><span style="color:#839c00;">&#39;c&#39;
+</span></code></pre>
+<p>当想要做一些类似去空格什么的或者从一些片段中提取某个片段的时候，这个经常会会特别方便。</p>
+<h2 id=""><code>&lt;$</code></h2>
+<p>匹配右边的规则，并且如果左边的规则匹配成功，则返回左边的结果。我们来看看做这个事情的一些等价的方式：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (</span><span style="color:#839c00;">&quot;greeting!&quot; </span><span style="color:#3e999f;">&lt;$ </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot; </span><span style="color:#3e999f;">&gt;&gt;</span><span> return </span><span style="color:#839c00;">&quot;greeting!&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span><span>ghci</span><span style="color:#3e999f;">&gt;</span><span> parse (return </span><span style="color:#839c00;">&quot;greeting!&quot; </span><span style="color:#3e999f;">&lt;</span><span>* Parsec</span><span style="color:#3e999f;">.</span><span>string </span><span style="color:#839c00;">&quot;hello&quot;</span><span>) </span><span style="color:#839c00;">&quot;hello&quot;
+</span><span>Right </span><span style="color:#839c00;">&quot;greeting!&quot;
+</span></code></pre>
+<p>可以看到，这些不同的方式都没有减少代码。我自己会选用更明显的第二种方式，虽然它比第一种长了一些，但是你们自己随意。</p>
+<h1 id="chu-li-zhuang-tai">处理状态</h1>
+<p>最近我了解到可以在parser之间保持状态。当需要跟踪某个事情时，这非常有用，比如缩进的层数。这是一个非常简单的利用状态数字母的例子：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8e908c;">-- matches char &#39;h&#39;, incrementing int state by 1
+</span><span style="color:#8e908c;">-- each time one is seen.
+</span><span style="color:#4271ae;">hCountParser </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String Int </span><span style="color:#f07219;">()
+</span><span>hCountParser </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    c </span><span style="color:#3e999f;">&lt;- </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>getState
+</span><span>    </span><span style="color:#8959a8;">let</span><span> c&#39; </span><span style="color:#3e999f;">=</span><span> c</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>putState c&#39;
+</span><span>    return </span><span style="color:#f07219;">()
+</span><span>
+</span><span style="color:#8e908c;">-- parse as many h&#39;s as we can, then return the state
+</span><span style="color:#8e908c;">-- to see how many there were
+</span><span>Parsec</span><span style="color:#3e999f;">.</span><span>runParser (Parsec</span><span style="color:#3e999f;">.</span><span>many hCountParser </span><span style="color:#3e999f;">&gt;&gt; </span><span>Parsec</span><span style="color:#3e999f;">.</span><span>getState) </span><span style="color:#f07219;">0 </span><span style="color:#839c00;">&quot;&quot; &quot;hhhhhhhhhhhhellooo&quot;
+</span></code></pre>
+<p>对于<code>get</code>and<code>set</code>，我们可以用<code>Parsec.modifyState</code>来原地修改状态。一个hCountParser简单的版本：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">hCountParser&#39; </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">Parsec String Int </span><span style="color:#f07219;">()
+</span><span>hCountParser&#39; </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    Parsec</span><span style="color:#3e999f;">.</span><span>modifyState (</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1</span><span>)
+</span><span>    return </span><span style="color:#f07219;">()
+</span></code></pre>
+<p>值得注意的是，作为一个monad transformer，我们也有这样一个选择，把parser和类似于<code>State</code>  monad的东西结合，来保存状态。这种方式与monad transformer的做事方式更一致。使用<code>State</code> monad，则是下面这样：</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#8959a8;">import </span><span>Control.Monad       (</span><span style="color:#4271ae;">lift</span><span>)
+</span><span style="color:#8959a8;">import </span><span>Control.Monad.State </span><span style="color:#8959a8;">as </span><span>S
+</span><span>
+</span><span style="color:#4271ae;">hCountParser&#39;&#39; </span><span style="color:#8959a8;">:: Parsec</span><span>.</span><span style="color:#8959a8;">ParsecT String </span><span style="color:#f07219;">()</span><span> (</span><span style="color:#8959a8;">S</span><span>.</span><span style="color:#8959a8;">State Int</span><span>) </span><span style="color:#f07219;">()
+</span><span>hCountParser&#39;&#39; </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">do
+</span><span>    char </span><span style="color:#839c00;">&#39;h&#39;
+</span><span>    lift </span><span style="color:#3e999f;">$</span><span> modify (</span><span style="color:#3e999f;">+</span><span style="color:#f07219;">1</span><span>)
+</span><span>
+</span><span style="color:#8e908c;">-- after running our parser transformer, we get back our unevaluated inner state, which
+</span><span style="color:#8e908c;">-- contains our parser result and state (&#39;h&#39; count). We only want the state so
+</span><span style="color:#8e908c;">-- we use execState rather than runState or evalState to execute and unwrap the state monad,
+</span><span style="color:#8e908c;">-- providing an initial state to start the ball rolling.
+</span><span>S</span><span style="color:#3e999f;">.</span><span>execState (Parsec</span><span style="color:#3e999f;">.</span><span>runParserT (Parsec</span><span style="color:#3e999f;">.</span><span>many hCountParser2) </span><span style="color:#f07219;">() </span><span style="color:#839c00;">&quot;&quot; &quot;hhhhhhhhhhhhellooo&quot;</span><span>) </span><span style="color:#f07219;">0
+</span></code></pre>
+<h1 id="zong-jie">总结</h1>
+<p>我们已经了解了一些内置的函数和规则，之后又看了看如何通过组合规则来构建大的规则，包括在多个规则之中选择、通过<code>try</code>来超前查看，最后添加了向自己的规则添加自定义的错误信息，并且快速的尝试了一下保存状态。有了以上的经验，接下来应该会很容易了！</p>
+<p>我建议在ghci下，通过别名引入<code>Parsec</code>模块（或者qualified引入）并且使用tab键来获得<code>Parsec</code>提供的所有东西，详细考察<code>Parsec</code>的函数。对这些函数使用<code>:type</code>，会让你对其有更深的理解，同样也是我探索这么多的函数的基础。<em>Real World Haskell</em>的这一章（<a href="http://book.realworldhaskell.org/read/using-parsec.html">英文版</a>，<a href="http://cnhaskell.com/chp/16.html">中文版</a>）也是非常好的教程，并且有更为大量的实际例子，虽然其中的一小部分已经过时了。</p>
+<p>我希望这篇文章能给你提供帮助。如果我漏掉了什么，请留下你的评论，让我知道！</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2015&#x2F;just-talk&#x2F;">年末瞎扯淡</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2015-12-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dai-ma-zhi-wai/">#代码之外</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/hu-yan-luan-yu/">#胡言乱语</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>前几天糊里糊涂的就开完题了，开题之前就知道不做这个题目。现在对于论文很烦，不知道怎么搞。根本就不是写论文的料。</p>
+<p>Angular2的beta版出来了，今天照着quickstart和tutorial，敲了一会儿。1和2的差别相当的大，完全推翻了原来的风格。这个跨度比Python的2和3打了好几倍。Angular支持TypeScript，感觉和ES6的风格很像，除了有类型声明，都有写React的感觉了。</p>
+<p>下午在忙一个活，是个商城的后台系统。任务是在某个报表里添加一个搜索条件。开头以为不好弄，因为我以为还要改这个搜索调用的存储过程。过程中发现貌似不用改，难度瞬间下降，以为分分钟的事。但是，事情往往和自己想的不一样啊。不加条件执行的没有问题，加了条件就没有结果，但是在数据库里直接执行SQL没有问题，调试了才发现，超时了。然后我设置了120秒的超时时间。OK，搞定。但是呢，还有另一个报表，也需要改。不过就想，没压力啊，根本就是一个逻辑。不过结果并非如此啊，这个存储过程的比刚才的多了几个参数，但问题是多的几个参数，在写代码的时候，已经把这几个参数添加到另一个参数里了。相当于是这几个条件执行了两遍，也不知道数据库是不是能优化。之前已经把超时设置了120秒，这次我又设置了600秒，因为在数据库里执行，用了6分多钟，日了狗了。</p>
+<p>实验室的一个项目，要用Meteor，然后学了学。这玩意儿是个全端的框架，一套代码同时运行在服务器端和客户端。卖点在实时，数据库的变动，实时反映在客户端。写这个，思路和以前的不一样，完全是一套自己的东西，所以公司里用的不是很多。挺好玩的一个东西。</p>
+<p>以上是昨天写的，今天基本啥都没干，看了两场球，世俱杯，恒大打广岛三箭，巴萨打河床，可惜恒大输了，巴萨发挥正常。</p>
+<p>不知道写啥，就这样算了吧，还能看场皇马的联赛。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2015&#x2F;implement-haskell-map-function-in-cpp&#x2F;">在C++中实现Haskell的map函数</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2015-09-19</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/haskell/">#Haskell</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/c/">#C++</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>C++11中引入了lambda，类似如下的语法</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>[value](</span><span style="color:#8959a8;">int</span><span> x) -&gt; </span><span style="color:#c82728;">int </span><span>{ </span><span style="color:#8959a8;">return</span><span> x </span><span style="color:#3e999f;">*</span><span> x; }
+</span></code></pre>
+<p>其中，<code>[]</code>中的部分，是捕获外界变量，<code>()</code>中的部分则是参数，<code>-&gt;</code>表明返回类型，<code>{}</code>中是函数体。</p>
+<p>正好这几天在看Haskell，于是想要在C++中实现Haskell中的<code>map</code>函数。Haskell中，<code>map</code>的的效果与下面的代码效果相同，</p>
+<pre data-lang="haskell" style="background-color:#f9f9f9;color:#111111;" class="language-haskell "><code class="language-haskell" data-lang="haskell"><span style="color:#4271ae;">map </span><span style="color:#8959a8;">::</span><span> (</span><span style="color:#c82728;">a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">b</span><span>) </span><span style="color:#8959a8;">-&gt;</span><span> [</span><span style="color:#c82728;">a</span><span>] </span><span style="color:#8959a8;">-&gt;</span><span> [</span><span style="color:#c82728;">b</span><span>]
+</span><span>map _ </span><span style="color:#f07219;">[] </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">[]
+</span><span>map f (x</span><span style="color:#3e999f;">:</span><span>xs) </span><span style="color:#3e999f;">=</span><span> f x</span><span style="color:#3e999f;">:</span><span> map f xs
+</span></code></pre>
+<p>实际上是一个列表中的所有元素都用给定的函数进行计算，其结果保存为一个新的列表。</p>
+<p>我期望最终的<code>map</code>函数，可以进行这样的调用</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8e908c;">// lambda，多态
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">([](</span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> x) { </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> x </span><span style="color:#3e999f;">*</span><span style="color:#4271ae;"> x; }, int_vec)</span><span>;
+</span><span>vector&lt;</span><span style="color:#8959a8;">bool</span><span>&gt; br </span><span style="color:#4271ae;">map</span><span>([](</span><span style="color:#8959a8;">double</span><span> n) { </span><span style="color:#8959a8;">return</span><span> n </span><span style="color:#3e999f;">&gt; </span><span style="color:#f07219;">0</span><span>; }, </span><span style="color:#f07219;">double_vec</span><span>);
+</span><span>
+</span><span style="color:#8e908c;">// 函数指针
+</span><span style="color:#8959a8;">int </span><span style="color:#4271ae;">f</span><span>(string </span><span style="color:#f07219;">s</span><span>) { </span><span style="color:#8959a8;">return</span><span> s.</span><span style="color:#c82728;">length</span><span>() }
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir2 </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">(f, string_vec)</span><span>;
+</span><span>
+</span><span style="color:#8e908c;">// functor
+</span><span style="color:#8959a8;">struct </span><span>F {
+</span><span>	</span><span style="color:#8959a8;">int </span><span style="color:#4271ae;">operator()</span><span>(</span><span style="color:#8959a8;">int </span><span style="color:#f07219;">n</span><span>) {
+</span><span>		</span><span style="color:#8959a8;">return</span><span> n </span><span style="color:#3e999f;">% </span><span style="color:#f07219;">5</span><span>;
+</span><span>	}
+</span><span>}
+</span><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; ir3 </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">map</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">F</span><span style="color:#4271ae;">(), int_vec)</span><span>;
+</span></code></pre>
+<p>我第一次想到的函数声明是这个样子的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template</span><span>&lt;</span><span style="color:#8959a8;">typename</span><span> T, </span><span style="color:#8959a8;">typename</span><span> R&gt;
+</span><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(R </span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(T)</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>这个声明的问题在于，<code>R f(T)</code>是个函数指针，不接受lambda函数和functor，让人很无奈。于是尝试将类型改为function&lt;R(T)&gt;，也就是下面这样（之后省略template说明）</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(function&lt;R(T)&gt; </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>现在3中方式都可以了，但是问题是，需要强制类型转换。这就比较痛苦了。至此陷入了困境。然后我想C++标准库库中是有可以传入lambda的函数的。于是我打开了<code>algorithm</code>，里面有个<code>for_each</code>函数，其声明是这样的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template</span><span>&lt;</span><span style="color:#8959a8;">class</span><span> _InIt,
+</span><span>	</span><span style="color:#8959a8;">class</span><span> _Fn1&gt; </span><span style="color:#8959a8;">inline
+</span><span>	_Fn1 </span><span style="color:#4271ae;">for_each</span><span>(_InIt </span><span style="color:#f07219;">_First</span><span>, _InIt </span><span style="color:#f07219;">_Last</span><span>, _Fn1 </span><span style="color:#f07219;">_Func</span><span>)
+</span></code></pre>
+<p>也就是将函数类型作为多模板参数，于是我也将我的声明修改了一下</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;R&gt; </span><span style="color:#4271ae;">map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>);
+</span></code></pre>
+<p>然后又报错了，C++编译器无法推断出R的类型。</p>
+<p>其实从Haskell的<code>map</code>的类型可以看出来，我们并不需要3个模板参数，输入类型T，输出类型R，函数类型F，是有关系的，<code>F(T) = R</code>，最开始，我是使用T和R来表示F，并不是很成功。从它们的关系来看，使用F和T表示R，相比之下，要比用F，R表示T来的直白的多。现在的问题是，如何使用C++的语法来表示R。</p>
+<p>C++11中有个<code>decltype</code>，可以用来表示一个类型。如下</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8e908c;">// 声明一个x类型的y
+</span><span style="color:#8959a8;">decltype</span><span>(x) y </span><span style="color:#3e999f;">=</span><span> x;
+</span><span style="color:#8e908c;">// 与下面一行功能相同
+</span><span style="color:#8959a8;">auto</span><span> y </span><span style="color:#3e999f;">=</span><span> x;
+</span><span>
+</span><span style="color:#8e908c;">// 表明函数的返回类型
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f</span><span>(</span><span style="color:#8959a8;">int </span><span style="color:#f07219;">t</span><span>) -&gt; </span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">foo</span><span style="color:#4271ae;">(t)</span><span>);
+</span></code></pre>
+<p>最后一行，则使用了<code>decltype</code>来指明函数的返回类型和<code>foot(t)</code>的类型一样。那么，我们就可以写出<code>map</code>的函数声明了</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f_map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; vector&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt;
+</span></code></pre>
+<p>其中<code>decltype(f(T()))</code>，<code>T()</code>是T类型的无参构造函数。当然也可以是用<code>*begin(list)</code>或者<code>*list.end()</code>等等，<code>decltype</code>与<code>sizeof</code>类似，不会对操作数进行求值。</p>
+<p>最终的完整函数是这这样的</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">typename</span><span> T, </span><span style="color:#8959a8;">typename</span><span> F&gt;
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">f_map</span><span>(F </span><span style="color:#f07219;">f</span><span>, vector&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; vector&lt;</span><span style="color:#8959a8;">decltype </span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt; {
+</span><span>	vector</span><span style="color:#3e999f;">&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)</span><span style="color:#3e999f;">&gt;</span><span> result;
+</span><span>	</span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">auto</span><span> it </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">begin</span><span style="color:#4271ae;">(list)</span><span>; it </span><span style="color:#3e999f;">!= </span><span style="color:#c82728;">end</span><span style="color:#4271ae;">(list)</span><span>; </span><span style="color:#3e999f;">++</span><span>it) {
+</span><span>		result.</span><span style="color:#c82728;">push_back</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#3e999f;">*</span><span style="color:#4271ae;">it)</span><span>);
+</span><span>	}
+</span><span>	</span><span style="color:#8959a8;">return</span><span> result;
+</span><span>}
+</span></code></pre>
+<p>现在的实现的是map，当时我还想实现更加一般化的<code>fmap</code></p>
+<pre data-lang="hs" style="background-color:#f9f9f9;color:#111111;" class="language-hs "><code class="language-hs" data-lang="hs"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Functor </span><span style="color:#c82728;">f </span><span style="color:#8959a8;">where
+</span><span>	</span><span style="color:#4271ae;">fmap </span><span style="color:#8959a8;">::</span><span> (</span><span style="color:#c82728;">a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">b</span><span>) </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">f a </span><span style="color:#8959a8;">-&gt; </span><span style="color:#c82728;">f b
+</span></code></pre>
+<p><code>fmap</code>并没有一个统一的实现，对于列表而言，<code>fmap</code>的实现就是<code>fmap = map</code>。注意，这里<code>Functor</code>和C++中的<code>Functor</code>不是一个概念。</p>
+<p>当然Haskell中的<code>Functor</code>在C++中不存在，我只是想写一个这种模式，比如对于一些容器，如<code>set</code>，<code>map</code>等等，可以进行<code>map</code>操作（实际上，这些容器，可以被定义为Haskell中的<code>Functor</code>）。但最后我放弃了，因为在C++中，这些容器并不具体有共同的基类，我可以写出函数声明，但是实现却无法统一。</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">template </span><span>&lt;</span><span style="color:#8959a8;">typename</span><span style="color:#3e999f;">...</span><span>&gt; </span><span style="color:#8959a8;">class</span><span> C, </span><span style="color:#8959a8;">typename</span><span> F, </span><span style="color:#8959a8;">typename</span><span> T&gt;
+</span><span style="color:#8959a8;">auto </span><span style="color:#4271ae;">mymap </span><span>(F </span><span style="color:#f07219;">f</span><span>, C&lt;T&gt; </span><span style="color:#f07219;">list</span><span>) -&gt; C&lt;</span><span style="color:#8959a8;">decltype</span><span>(</span><span style="color:#c82728;">f</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">T</span><span style="color:#4271ae;">())</span><span>)&gt;;
+</span></code></pre>
+<p>其实标准库中已经有了类似的函数，就是<code>transform</code>，不过<code>transform</code>并不返回值，而是通过一个指针，修改外部的变量</p>
+<pre data-lang="cpp" style="background-color:#f9f9f9;color:#111111;" class="language-cpp "><code class="language-cpp" data-lang="cpp"><span>vector&lt;</span><span style="color:#8959a8;">int</span><span>&gt; result;
+</span><span style="color:#c82728;">transform</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">begin</span><span style="color:#4271ae;">(input), </span><span style="color:#c82728;">end</span><span style="color:#4271ae;">(input), </span><span style="color:#c82728;">back_inserter</span><span style="color:#4271ae;">(result),
+</span><span style="color:#4271ae;">		[](</span><span style="color:#8959a8;">int</span><span style="color:#4271ae;"> x) { </span><span style="color:#8959a8;">return</span><span style="color:#4271ae;"> x </span><span style="color:#3e999f;">+ </span><span style="color:#f07219;">3</span><span style="color:#4271ae;">; })</span><span>;
+</span></code></pre>
+<p><code>result</code>就是map后返回的结果。</p>
+<p>总体来说，由于C++和Haskell的设计理念并不相同，Haskell中的<code>fmap</code>无法（至少我无法）完全在C++中实现，而<code>map</code>由于限制较少，其实现没有问题。此外，C++的标准库中其实提供的了许多与Haskell中功能的相似的函数，但是名字并不相同，而且细节略有差异。C++的容器操作，一般是需要提供指明起止位置的iterator，对一个范围进行操作。而Haskell由于值不可修改，因此均是对所有元素进行操作的，最后返回新值。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2015&#x2F;first-glance-of-react-and-redux&#x2F;">React和Redux初探</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2015-07-24</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/qian-duan/">#前端</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/react/">#React</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/redux/">#Redux</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>React是Facebook开发的一套前端框架，与Angular等前端MVC框架不一样的是，React关注于构建UI，其相当于MVC中的V。而React最让人欣喜的一点在于，其使用了声明的方式开发UI，这使得基于组件（Component）的前端开发变得非常直接。然而仅仅使用React，还远远不能构建一个App，还需要有数据存储和逻辑处理，这当然可以使用MVC架构。不过，Facebook认为，MVC架构中，当Model和View增多以后，双向的数据流导致系统的复杂性增加。因而Facebook提出了一个Flux。可以认为Flux是一套应用框架，与MVC不同的是，其数据流是单向的，结构如下图所示 <img src="/post/2015/flux-simple-f8-diagram-explained-1300w.png" alt="" />
+由于数据的单向流动，无须处理<code>view-&gt;model</code>的逻辑，因此系统的结构比较清晰。</p>
+<h1 id="react">React</h1>
+<p>对于如下的html代码，</p>
+<pre data-lang="html" style="background-color:#f9f9f9;color:#111111;" class="language-html "><code class="language-html" data-lang="html"><span style="color:#5d9be5;">&lt;</span><span style="color:#c82728;">div class</span><span style="color:#5d9ae5;">=</span><span style="color:#839c00;">&quot;post&quot;</span><span style="color:#5d9be5;">&gt;
+</span><span>    </span><span style="color:#5d9be5;">&lt;</span><span style="color:#c82728;">h1 style</span><span style="color:#5d9ae5;">=</span><span style="color:#839c00;">&quot;font-size</span><span style="color:#5d9ae5;">: </span><span style="color:#f07219;">1.6rem</span><span style="color:#839c00;">&quot;</span><span style="color:#5d9be5;">&gt;</span><span>Post Title</span><span style="color:#5d9be5;">&lt;/</span><span style="color:#c82728;">h1</span><span style="color:#5d9be5;">&gt;
+</span><span>    </span><span style="color:#5d9be5;">&lt;</span><span style="color:#c82728;">div class</span><span style="color:#5d9ae5;">=</span><span style="color:#839c00;">&quot;post-content&quot;</span><span style="color:#5d9be5;">&gt;</span><span>Some Content</span><span style="color:#5d9be5;">&lt;/</span><span style="color:#c82728;">div</span><span style="color:#5d9be5;">&gt;
+</span><span style="color:#5d9be5;">&lt;/</span><span style="color:#c82728;">div</span><span style="color:#5d9be5;">&gt;
+</span></code></pre>
+<p>我们可以使用这样的React代码来构建</p>
+<pre data-lang="js" style="background-color:#f9f9f9;color:#111111;" class="language-js "><code class="language-js" data-lang="js"><span style="color:#8e908c;">// app.js
+</span><span style="color:#8959a8;">var </span><span style="color:#c82728;">Post </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">React</span><span style="color:#4271ae;">.createClass</span><span>({
+</span><span>    </span><span style="color:#4271ae;">render</span><span>: </span><span style="color:#8959a8;">function</span><span>() {
+</span><span>        </span><span style="color:#8959a8;">return </span><span>(
+</span><span>            </span><span style="color:#3e999f;">&lt;</span><span style="color:#c82728;">div className</span><span style="color:#3e999f;">=</span><span style="color:#839c00;">&#39;post&#39;</span><span style="color:#3e999f;">&gt;
+</span><span>                </span><span style="color:#3e999f;">&lt;</span><span style="color:#c82728;">PostTitle text</span><span style="color:#3e999f;">=</span><span style="color:#839c00;">&#39;Post Title&#39; </span><span style="color:#3e999f;">/&gt;
+</span><span>                </span><span style="color:#3e999f;">&lt;</span><span style="color:#c82728;">PostContent text</span><span style="color:#3e999f;">=</span><span style="color:#839c00;">&#39;Some Content&#39; </span><span style="color:#3e999f;">/&gt;
+</span><span>            </span><span style="color:#3e999f;">&lt;/</span><span style="color:#c82728;">div</span><span style="color:#3e999f;">&gt;
+</span><span>        );
+</span><span>    }
+</span><span>});
+</span><span style="color:#8959a8;">var </span><span style="color:#c82728;">PostTitle </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">React</span><span style="color:#4271ae;">.createClass</span><span>({
+</span><span>    </span><span style="color:#4271ae;">render</span><span>: </span><span style="color:#8959a8;">function</span><span>() {
+</span><span>        </span><span style="color:#8959a8;">var </span><span style="color:#c82728;">style </span><span style="color:#3e999f;">= </span><span>{fontSize: </span><span style="color:#839c00;">&#39;1.6rem&#39;</span><span>};
+</span><span>        </span><span style="color:#8959a8;">return </span><span>&lt;h1 style={</span><span style="color:#c82728;">style</span><span>}&gt;{this.props.</span><span style="color:#c82728;">text</span><span>}</span><span style="color:#3e999f;">&lt;/</span><span style="color:#c82728;">h1</span><span style="color:#3e999f;">&gt;
+</span><span>    }
+</span><span>});
+</span><span style="color:#8959a8;">var </span><span style="color:#c82728;">PostContent </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">React</span><span style="color:#4271ae;">.createClass</span><span>({
+</span><span>    </span><span style="color:#4271ae;">render</span><span>: </span><span style="color:#8959a8;">function</span><span>() {
+</span><span>        </span><span style="color:#8959a8;">return </span><span>&lt;div className=</span><span style="color:#839c00;">&#39;post-content&#39;</span><span>&gt;{this.props.</span><span style="color:#c82728;">text</span><span>}</span><span style="color:#3e999f;">&lt;/</span><span style="color:#c82728;">div</span><span style="color:#3e999f;">&gt;
+</span><span>    }
+</span><span>});
+</span><span style="color:#c82728;">React</span><span style="color:#4271ae;">.render</span><span>(
+</span><span>    </span><span style="color:#3e999f;">&lt;</span><span style="color:#c82728;">Post </span><span style="color:#3e999f;">/&gt;</span><span>,
+</span><span>    </span><span style="color:#4271ae;">document.getElementById</span><span>(</span><span style="color:#839c00;">&#39;root&#39;</span><span>);
+</span><span>);
+</span></code></pre>
+<p>对应的html文件，则是</p>
+<pre data-lang="html" style="background-color:#f9f9f9;color:#111111;" class="language-html "><code class="language-html" data-lang="html"><span style="color:#5d9be5;">&lt;</span><span style="color:#c82728;">div id</span><span style="color:#5d9ae5;">=</span><span style="color:#839c00;">&quot;root&quot;</span><span style="color:#5d9be5;">&gt;&lt;/</span><span style="color:#c82728;">div</span><span style="color:#5d9be5;">&gt;
+</span><span style="color:#5d9be5;">&lt;</span><span style="color:#c82728;">script type=</span><span style="color:#839c00;">&quot;text/jsx&quot; </span><span style="color:#c82728;">src=</span><span style="color:#839c00;">&quot;app.js&quot;</span><span style="color:#5d9be5;">&gt;&lt;/</span><span style="color:#c82728;">script</span><span style="color:#5d9be5;">&gt;
+</span></code></pre>
+<p>上面的<code>app.js</code>文件并不是Javascript纯粹代码，而是夹杂了一些类似HTML的代码。这是JSX代码，并不能被浏览器执行，因此需要预先编译成js代码。</p>
+<p>从代码中，可以看到，React将原本的html代码拆成了三个组件，其中<code>Post</code>由<code>PostTitle</code>和<code>PostContent</code>两个组件构成。最后再通过<code>React.render</code>方法，将组件挂载到dom上。每个组件中，都有一个<code>render</code>方法，表示组件将要渲染的dom结构。与HTML相比，只是可以使用<code>{}</code>将参数传入到组件中，而组件则可以通过<code>props</code>获取属性。这种结构，称之为Virtual Dom，在返回的结果中，<code>div</code>, <code>h1</code>等和自己定义的<code>Post</code>，<code>PostTitle</code>等类似，都是Virtual Dom，只不过<code>div</code>这种HTML本身已有的组件，其渲染结果就是与其对应的HTML标签。React约定，自己定义的组件使用大写字母开头，已有HTML标签为小写字母开头。并非所有HTML标签和属性都被React支持，可以在在<a href="https://facebook.github.io/react/docs/tags-and-attributes.html">这里</a>查看支持的标签和属性。其中，<code>class</code>和<code>for</code>分别使用<code>className</code>和<code>htmlFor</code>，因为这两个都是js的关键字。</p>
+<h1 id="redux">Redux</h1>
+<p>由于Flux还是属于新生事物，各种Flux实现多如牛毛，比如Reflux、Fluxxor等等，Redux也是其中的一种。Redux借鉴了函数式的编程思想，对于状态的改变，其实是如下的函数</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>f(state, action) =&gt; next_state
+</span></code></pre>
+<p>这种函数在Redux里称为Reducer, 而Flux中的Store则是多个由Reducer组成。这样，对于一个Action以及当前的状态，可以转移到下一个状态，从而更新View。</p>
+<p>我根据其github的breaking-changes-1.0分支(<a href="https://github.com/gaearon/redux/tree/breaking-changes-1.0">地址</a>)的例子，大致明白了现在的API，但是仍有非常多的东西不是很清楚，需要等到正式版放出之后，查看文档才能明白了。</p>
+<p>至于Redux相比其他Flux实现有什么优点，其实我说不上来，最初吸引我的其实不是Redux，而是<a href="http://react-china.org/t/reacteurope-conf/1662">这篇文章</a>，当时也根本不了解Flux（现在其实也不了解。。），就稀里糊涂的看了Redux的例子。</p>
+<h1 id="qian-duan">前端</h1>
+<p>感觉目前的前端越来越复杂，Javascript的应用也越来越多。甚至都有了以后找个前端工作的念头，谁知道呢。。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2015&#x2F;writing-a-web-framwork&#x2F;">写一个Web框架</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2015-05-24</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/python/">#Python</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/web-framework/">#Web Framework</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>在知乎上偶然看到了廖雪峰老师的网站上的Python教程，<a href="http://www.liaoxuefeng.com/wiki/001374738125095c955c1e6d8bb493182103fac9270762a000/001397616003925a3d157284cd24bc0952d6c4a7c9d8c55000">Python实战</a>，目的是从头开始写一个博客。这个从头开始是，自己造轮子，包括ORM、Web框架。对于写好框架之后的写博客等前端部分，我没有什么兴趣，而最前面的几个，都是我不清楚具体实现的，跟着教程一步一步往下走。说明一点，教程用的Python2，我用的是Python3，所以有些地方是略有区别的。</p>
+<p>第一部分是编写数据API，这个部分比较简单，只要了解Python的装饰器，写的过程中，查一下mysql-connector-pyhton的文档，没有什么难度。</p>
+<p>第二部分ORM，想要写一个功能比较完整的ORM，比较不容易。但是如果目标仅仅是可用，能够实现基本功能，难度并不太大。网站下的评论，说这一章有难度，主要都是集中在Python的metaclass，也就是元类上。我自己对元类也是不懂，查到了这篇文章，<a href="http://blog.jobbole.com/21351/">深刻理解Python中的元类(metaclass)</a>，英文原文是Stack Overflow上的一个回答，<a href="http://stackoverflow.com/questions/100003/what-is-a-metaclass-in-python">What is a metaclass in Python?</a>。</p>
+<p>我自己的理解，元类就是创建类的类，它控制一个类如何被创建。在Python中，有个Built-in的<code>type</code>类，可以像函数一样调用，当传给它三个函数时，就会创建一个新的类型</p>
+<pre data-lang="python" style="background-color:#f9f9f9;color:#111111;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">A</span><span>:
+</span><span>    t </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">1
+</span><span>A </span><span style="color:#3e999f;">= </span><span style="color:#4271ae;">type(</span><span style="color:#839c00;">&#39;A&#39;</span><span style="color:#4271ae;">, (</span><span style="color:#c99e00;">object</span><span style="color:#4271ae;">,), {</span><span style="color:#839c00;">&#39;t&#39;</span><span style="color:#4271ae;">:</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">})
+</span></code></pre>
+<p>上面代码中，两块代码的作用是一样的。传递给<code>type</code>的三个参数，分别是类型名，父类型(必须为元组)，类变量和类方法的字典。可以认为，如果不指定元类，那么<code>type</code>则充当类型的元类。而如果想要控制一个类型的创建，就需要自定义元类，通过元类来创建对象。文章中也说了，元类不一定是类，任意可以可以被调用(callable)的对象都可以作为元类。</p>
+<p>Python中有个<code>__new__</code>方法，这个方法的目的控制一个对象的创建，通过重写<code>__new__</code>就可以对一个类型创建进行自定义。比如教程里的<code>ModelMetaclass</code></p>
+<pre data-lang="python" style="background-color:#f9f9f9;color:#111111;" class="language-python "><code class="language-python" data-lang="python"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">ModelMetaclass</span><span>(</span><span style="color:#839c00;">type</span><span>):
+</span><span>    </span><span style="color:#8959a8;">def </span><span style="color:#4271ae;">__new__</span><span>(</span><span style="color:#f07219;">mcs</span><span>, </span><span style="color:#f07219;">name</span><span>, </span><span style="color:#f07219;">bases</span><span>, </span><span style="color:#f07219;">attrs</span><span>):
+</span><span>        </span><span style="color:#8959a8;">if </span><span>name </span><span style="color:#3e999f;">== </span><span style="color:#839c00;">&#39;Model&#39;</span><span>:
+</span><span>            </span><span style="color:#8959a8;">return </span><span style="color:#4271ae;">super(ModelMetaclass, mcs).__new__(name, bases, attrs)
+</span><span>        mapping </span><span style="color:#3e999f;">= </span><span>[x: y </span><span style="color:#8959a8;">for </span><span>x, y </span><span style="color:#8959a8;">in </span><span style="color:#4271ae;">attrs.</span><span style="color:#c82728;">items</span><span style="color:#4271ae;">() </span><span style="color:#8959a8;">if </span><span style="color:#4271ae;">isinstance(y, Field)</span><span>]
+</span><span>        table </span><span style="color:#3e999f;">= </span><span>attrs[</span><span style="color:#839c00;">&#39;__table__&#39;</span><span>]
+</span><span>        real_attrs </span><span style="color:#3e999f;">= </span><span>{
+</span><span>            </span><span style="color:#839c00;">&#39;__mapping__&#39;</span><span>: mapping,
+</span><span>            </span><span style="color:#839c00;">&#39;__table__&#39;</span><span>: table,
+</span><span>        }
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#4271ae;">super(ModelMetaclass, mcs).__new__(name, bases, real_attrs)
+</span></code></pre>
+<p>其中<code>mapping</code>是名称和类型的映射，通过这个元类，作为基类的<code>Model</code>，其创建过程保持不动，而实际的与数据库表相映射的类型，在创建时，其类变量均被放进<code>mapping</code>中。实际进行实例化时，给定的实际上是实例变量，其数据库属性可以在mapping中找到，也就是实现了数据库类型的和Python类型的映射。在ORM里，这一步是最重要的。此外，在赋值时，可以通过<code>mapping</code>来检验变量类型与定义时的数据库类型是否匹配。</p>
+<p>至于后面的Web框架，我还没有写完，不过根据网站上的代码架构，在适当填补一些需要的代码，比如路由表等，应该就没有大问题。当然，我在写的过程中，遇到了一些麻烦，比如对于跳转的实现不理解，现在好像明白了，实现跳转，只需要在<code>response</code>中设置<code>Location</code>的头部就行了，不过现在没有环境，不能确认是否是这样实现。</p>
+<p>另外就是，由于网站上只给出了一个大致的架构，自己写出类的框架和网站github上给出的，可能会有比较大的不同。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2014&#x2F;solution-of-django-session-invalid-on-apache&#x2F;">Django Session在Apache服务器失效的问题的解决记录</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2014-08-29</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/django/">#Django</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/apache/">#Apache</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/svn/">#SVN</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>实验室项目，用Django写的Web端，需要登陆功能，因为Django自带的登陆比较庞大，自己写了一个了，没有权限等一些列东西，比较easy的，其中，require_signin这个装饰器是这样的</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>def require_signin(f):
+</span><span>@wraps(f)
+</span><span>def deco(request, *args, **kwargs):
+</span><span>    if &#39;user&#39; in request.session:
+</span><span>        return f(request, *args, **kwargs)
+</span><span>    url = &#39;%s?next=%s&#39; % (LOGIN_URL, request.path)
+</span><span>    return redirect(url)
+</span><span>return deco
+</span></code></pre>
+<p>在本地开发的时候，没有任何问题。但是上传到服务器的时候，其中的<code>'user' in request.session</code>总是返回<code>False</code>，打印了<code>session.keys()</code>来看，确实是空的。以为是数据库访问的问题（session的后端是数据库），将本地和服务器的配置文件分开了，结果仍然如此，至此陷入困境。在网上搜索，偶然发现apache的<code>MaxRequestsPerChild</code>设置选项可能和其相关，因为之前为了使提交到SVN的代码能够立刻生效，将这个值设置为了1，这导致了每次请求重开进程，而session在进程之间应该不能保存的（不知道是不是有办法设置为可以保存），将这个值改大就会正常了。</p>
+<p>之后就有了一个新问题，提交到SVN之后，改动不会在服务器立即显示出来，需要手动重启服务器，这就很不方便。可以利用SVN的post-commit hook来重启服务器。SVN的hooks是在提交的时候，执行一些特定的操作，post-commit hook就是在提交之后，执行操作，windows下，可以使用批处理文件，其他语言如Python等也可以，但是现在这个是一个easy的任务，不必祭出Python，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>/path/to/apache/bin/httpd.exe -k restart
+</span></code></pre>
+<p>这一句就足够了。利用hooks，可以实现很多功能，如果程序的部署，要求输入“提交信息”等，很强大的工具。git当然也有</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2014&#x2F;activemq-note&#x2F;">ActiveMQ笔记</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2014-07-17</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/activemq/">#ActiveMQ</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/xiao-xi-dui-lie/">#消息队列</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/bi-ji/">#笔记</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>实验室的项目需要使用ActiveMQ，目的是为了进行一些耗时间的处理时，不会阻塞程序的主流程。调研ActiveMQ的工作就交给我来做了。</p>
+<p>我们使用ActiveMQ，需要达到的目的有这么几个</p>
+<ul>
+<li>主流程发送消息，不阻塞</li>
+<li>可用于集群</li>
+<li>故障恢复</li>
+<li>负载均衡</li>
+</ul>
+<p>从网上看了一些资料，ActiveMQ可以满足我们的要求</p>
+<h1 id="first-step">First Step</h1>
+<p>从<a href="http://activemq.apache.org">ActiveMQ官网</a>下载即可，目前的最新版本是5.10.0。我下载了Windows版本，进入bin目录，运行</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>activemq start
+</span></code></pre>
+<p>即可启动一个ActiveMQ的Broker。注意，需要设置环境变量<code>JAVA_HOME</code>。</p>
+<h1 id="fa-song-jie-shou-xiao-xi">发送接收消息</h1>
+<p>这一步应该是初接触ActiveMQ最想要做的事情。我们首先需要一个消息的发送者，同时需要一个消息的接受者。不多说，直接贴代码</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>// Sender.java
+</span><span>import javax.jms.Connection;
+</span><span>import javax.jms.ConnectionFactory;
+</span><span>import javax.jms.DeliveryMode;
+</span><span>import javax.jms.Destination;
+</span><span>import javax.jms.JMSException;
+</span><span>import javax.jms.MessageProducer;
+</span><span>import javax.jms.Session;
+</span><span>import javax.jms.TextMessage;
+</span><span>
+</span><span>import org.apache.activemq.ActiveMQConnection;
+</span><span>import org.apache.activemq.ActiveMQConnectionFactory;
+</span><span>
+</span><span>public class Sender {
+</span><span>    private static final String HOST = &quot;tcp://localhost:61616&quot;; // ActiveMQ的监听地址，
+</span><span>    
+</span><span>    public static void main(String[] args) throws InterruptedException {
+</span><span>        ConnectionFactory factory; // JMS连接的工厂
+</span><span>        Connection conn = null; // JMS连接
+</span><span>        Session session; // JMS会话
+</span><span>        Destination destination; // 目的地，对于PTP模式，目的地是Queue；对于订阅模式，目的地是Topic
+</span><span>        MessageProducer producer; // 生产者
+</span><span>        
+</span><span>        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD, HOST);
+</span><span>        
+</span><span>        try {
+</span><span>            conn = factory.createConnection();
+</span><span>            conn.start(); // 必须显式调用start方法
+</span><span>            session = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
+</span><span>            
+</span><span>            destination = session.createQueue(&quot;Test&quot;);
+</span><span>            producer = session.createProducer(destination);
+</span><span>            producer.setDeliveryMode(DeliveryMode.PERSISTENT); // 设置消息持久化
+</span><span>            for (int i = 0;; i+=2) {
+</span><span>                send(session, producer, i);
+</span><span>                Thread.sleep(1000);
+</span><span>            }
+</span><span>        } catch (JMSException e) {
+</span><span>            // TODO Auto-generated catch block
+</span><span>            e.printStackTrace();
+</span><span>        } finally {
+</span><span>            if (conn != null) {
+</span><span>                try {
+</span><span>                    conn.close();
+</span><span>                } catch (JMSException e) {
+</span><span>                    // TODO Auto-generated catch block
+</span><span>                    e.printStackTrace();
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>    
+</span><span>    static void send(Session session, MessageProducer producer, int label) {
+</span><span>        try {
+</span><span>            String s = &quot;消息: &quot; + label;
+</span><span>            TextMessage msg = session.createTextMessage(s);
+</span><span>            System.out.println(&quot;sending: &lt;&quot; + s + &quot;&gt;&quot;);
+</span><span>            producer.send(msg);
+</span><span>            session.commit(); // 提交之后，消息才会发送。之后立即进入下一个事务
+</span><span>        } catch (JMSException e) {
+</span><span>            
+</span><span>        }
+</span><span>        
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>
+</span><span>// Reciever.java
+</span><span>import javax.jms.Connection;
+</span><span>import javax.jms.ConnectionFactory;
+</span><span>import javax.jms.Destination;
+</span><span>import javax.jms.JMSException;
+</span><span>import javax.jms.MessageConsumer;
+</span><span>import javax.jms.Session;
+</span><span>import javax.jms.TextMessage;
+</span><span>
+</span><span>import org.apache.activemq.ActiveMQConnection;
+</span><span>import org.apache.activemq.ActiveMQConnectionFactory;
+</span><span>
+</span><span>public class Reciever {
+</span><span>    
+</span><span>    private static final String HOST = &quot;tcp://localhost:61616&quot;;
+</span><span>    
+</span><span>    public static void main(String[] args) throws InterruptedException {
+</span><span>        ConnectionFactory factory;
+</span><span>        Connection conn = null;
+</span><span>        Session session = null;
+</span><span>        Destination destination = null;
+</span><span>        MessageConsumer consumer;
+</span><span>        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD, HOST);
+</span><span>        try {
+</span><span>            conn = factory.createConnection();
+</span><span>            conn.start();
+</span><span>            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+</span><span>            destination = session.createQueue(&quot;Test&quot;);
+</span><span>            consumer = session.createConsumer(destination);
+</span><span>            
+</span><span>            for (;;) {
+</span><span>                try {
+</span><span>                    TextMessage msg = (TextMessage)consumer.receive(1000);
+</span><span>                    if (msg != null) {
+</span><span>                        System.out.println(&quot;recieved: &quot; + msg.getText());
+</span><span>                    }
+</span><span>                    Thread.sleep(3000);
+</span><span>                } catch (IllegalStateException e) {
+</span><span>                    
+</span><span>                }
+</span><span>            }
+</span><span>            
+</span><span>        } catch (JMSException e) {
+</span><span>            // TODO Auto-generated catch block
+</span><span>            e.printStackTrace();
+</span><span>        } finally {
+</span><span>            if (conn != null) {
+</span><span>                try {
+</span><span>                    conn.close();
+</span><span>                } catch (JMSException e) {
+</span><span>                    // TODO Auto-generated catch block
+</span><span>                    e.printStackTrace();
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>两段代码，非常容易，这里都是使用点对点（PTP）方式，一个消息只能由一个接受者接收并处理。其中使用过的API都是JMS的标准接口，可以查看<a href="http://docs.oracle.com/javaee/7/api/">JMS的API doc</a>来获取更多信息。注释中，有一句“设置消息持久化”，所谓的消息持久化，是指将消息保存介质中，即使broker突然死掉了，重新启动broker之后，也可以获得之前的未处理的消息，持久化的方式在配置文件一节会说到</p>
+<h1 id="pei-zhi-wen-jian">配置文件</h1>
+<p>有了初步认识之后，再来看看配置文件。我主要关注<code>broker</code>这个节点，这个节点的属性<code>brokerName</code>应该是唯一的，<code>dataDirectory</code>指定了当前broker存放数据（比如持久化的消息）的目录。</p>
+<h2 id="persistenceadapterjie-dian">persistenceAdapter节点</h2>
+<p>这个节点配置消息持久化的方式，有AMQ、KahaDB、JDBC、LevelDB四种，从5.4版本起，KahaDB作为默认持久化方式。其中，JDBC是将消息持久化到数据库，KahaDB和LevelDB是基于文件的本地数据库，而AMQ则是一种文件存储形式。具体可以参考<a href="http://blog.csdn.net/xyw_blog/article/details/9128219">ActiveMQ持久化方式</a>。</p>
+<h2 id="transportconnectors">transportConnectors</h2>
+<p>这个节点配置客户端连接到ActiveMQ Broker的方式。ActiveMQ支持多种连接方式，包括tcp、vm、amqp、stomp、mqtt等多种。一个连接是一个<code>transportConnector</code>节点，每个Broker可以配置多个连接，连接最重要的是<code>uri</code>属性，其指明了客户端连接Broker时的地址。具体请参见官方文档<a href="http://activemq.apache.org/configuring-transports.html">Configuring Transports</a>。</p>
+<h1 id="ji-qun">集群</h1>
+<p>集群分为两种，一种是Master Slave Cluster，另一种是Broker Cluster。</p>
+<h2 id="master-slave-cluster">Master Slave Cluster</h2>
+<p>主从模式，可以完成故障恢复，但是没有负载均衡的能力，即同一时刻只有一个Broker（Master）在处理，其他的Broker等待（只是复制Master的状态，但是不进行任何处理）。主从模式又可以分为三种</p>
+<h3 id="pure-master-savle-cluster">Pure Master Savle Cluster</h3>
+<p>这是最简单的方式，这种方式下，只能有一个Slave Broker。Master无需额外配置，Slave可以采用如下的配置文件</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker masterConnectorURI=&quot;tcp://masterhost:61617&quot; shutdownOnMasterFailure=&quot;false&quot;&gt; 
+</span><span>    ...
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://slavehost:61616&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>&lt;/broker&gt;
+</span></code></pre>
+<p>其中，<code>masterConnectorURI</code>指明了Master，<code>shutdownOnMasterFailure</code>指明在Master失效后，Slave是停止还是成为新的Master继续运行。</p>
+<p>在客户端连接的时候，应该采用<code>failover://(tcp://masterhost:61617,tcp://slavehost:61616)?randomize=false</code>作为URL连接ActiveMQ</p>
+<h3 id="shared-file-system-master-slave">Shared File System Master Slave</h3>
+<p>共享文件系统的主从模式，这个模式是多个Broker使用相同的目录作为消息持久化的存储地址，利用文件锁实现主从模式。获得文件锁的Broker是当前的Master，Master失效后，其余的Slave中，获得文件锁的Broker成为新的Master。所有Broker的配置文件中，都需要做如下配置</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;persistenceAdapter&gt;
+</span><span>    &lt;kahaDB directory=&quot;/activemq/data&quot;/&gt;
+</span><span>&lt;/persistenceAdapter&gt; 
+</span></code></pre>
+<p>其中<code>directory</code>属性值必须保持相同，可以采用其他的持久化方式</p>
+<h3 id="jdbc-master-slave">JDBC Master Slave</h3>
+<p>和Shared File System Master Salve相同，只不过是持久化方式改为了数据库，配置如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker ...&gt;
+</span><span>    &lt;persistenceAdapter&gt;
+</span><span>        &lt;jdbcPersistenceAdapter dataSource=&quot;#mysql-ds&quot;/&gt; 
+</span><span>    &lt;/persistenceAdapter&gt; 
+</span><span>&lt;/broker&gt;
+</span><span>&lt;bean id=&quot;mysql-ds&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;
+</span><span>    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;
+</span><span>    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/test?relaxAutoCommit=true&quot;/&gt;
+</span><span>    &lt;property name=&quot;username&quot; value=&quot;username&quot;/&gt;
+</span><span>    &lt;property name=&quot;password&quot; value=&quot;passward&quot;/&gt;
+</span><span>    &lt;property name=&quot;poolPreparedStatements&quot; value=&quot;true&quot;/&gt;
+</span><span>&lt;/bean&gt; 
+</span></code></pre>
+<p>其中<code>dataSource</code>指定了数据库源，需要在配置文件中设置一个<code>id</code>与之相等的<code>bean</code>配置详细的数据库信息。</p>
+<h2 id="broker-cluster">Broker Cluster</h2>
+<p>多个Broker组成网络，这种集群有负载均衡的能力，采用这种方式的集群，在一个Broker失效后，会连接到另外一个Broker上，但是失效的Broker上的消息，在该Broker恢复之前，不能被其他Broker获得并处理。失效的Broker恢复之后，持久化消息恢复，非持久化消息将会丢失。</p>
+<p>这种集群有动态发现和静态发现两种配置方式。区别是，静态发现需要配置在配置文件中制定所有的Broker的地址，而动态发现则无需指明，由Broker自己去发现其他的Broker。</p>
+<p>静态配置文件如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt;
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://localhost:61616&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>    &lt;networkConnectors&gt;
+</span><span>        &lt;networkConnector uri=&quot;static:(tcp://localhost:61616,tcp://remotehost:61616)&quot;/&gt;
+</span><span>    &lt;/networkConnectors&gt;
+</span><span>&lt;/broker&gt; 
+</span></code></pre>
+<p>此时客户端连接时，应使用<code>failover://static://(tcp://localhost:61616,tcp://remotehost://61616)</code>作为URL。</p>
+<p>动态配置文件如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt;
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://localhost:61616&quot; discoveryUri=&quot;multicast://default&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>    &lt;networkConnectors&gt;
+</span><span>        &lt;networkConnector uri=&quot;multicast://default&quot;/&gt;
+</span><span>    &lt;/networkConnectors&gt;
+</span><span>&lt;/broker&gt; 
+</span></code></pre>
+<p>此时客户端在连接到ActiveMQ时，应使用<code>discovery://(multicast://default)</code>作为URL。</p>
+<h1 id="zong-jie">总结</h1>
+<p>ActiveMQ作为一个高性能的消息队列，可以满足我们的使用需求，并且，其配置使用都还算简单，没有门槛，这是我最喜欢的地方。</p>
+<p>最后，集群一节中，大量参考了<a href="http://wenku.baidu.com/view/6989622de2bd960590c67760.html">Ac​t​i​v​e​M​Q​集​群​的​使​用​与​配​置</a>一文，有关更多的集群配置内容，可以参考。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;machine-learning-reading-note-1st&#x2F;">《机器学习》读书笔记一</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-09-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/ji-qi-xue-xi/">#机器学习</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/du-shu-bi-ji/">#读书笔记</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>机器学习已经取得了巨大的成就，语音识别、自动驾驶、人机对弈等等，这些都说明了机器学习的强大之处。而自己研究生阶段的读研方向，已经基本确定，就是数据挖掘和机器学习，趁现在还有时间，可以先自己学一下（暑假总想看，结果每次都是看一会儿就打开电脑，然后就没有然后了。。。）</p>
+<p>选这本书，是因为这本书适合入门，比较简单。而这个系列博客就是自己的笔记了，当个备忘录，或许还会有一些自己的想法在里面</p>
+<p>OK，Go</p>
+<h1 id="xue-xi-wen-ti-de-biao-zhun-miao-shu">学习问题的标准描述</h1>
+<p><em>学习</em>的定义如下，这里的“学习”和我们日常生活中的“学习”意义并不完全相同</p>
+<blockquote>
+<p>对于某类任务 T 和性能度量 P，如果一个计算机程序在 T 上以 P 衡量的性能随着经验 E 而自我完善，那么我们称这个计算机程序从经验 E 中学习</p>
+</blockquote>
+<p>也就是说，为了很好的定义一个学习问题，必须明确三个特征：<em>任务的种类 T</em>，<em>衡量任务提高的标准 P</em>，<em>经验的来源 E</em>，书上给了一些例子，这里只写出关于西洋跳棋的例子</p>
+<p>对于西洋跳棋问题</p>
+<ul>
+<li>任务T：下西洋跳棋</li>
+<li>性能标准P：比赛中击败对手的百分比</li>
+<li>训练经验E：和自己对弈</li>
+</ul>
+<p>我们当然可以提出不同于以上的T、P、E，这些都没有问题，只要有足够的理由即可。</p>
+<h1 id="she-ji-yi-ge-xue-xi-xi-tong">设计一个学习系统</h1>
+<p>用的就是西洋跳棋的例子，问题是这样的，我们需要设计一个下西洋跳棋的程序，让这个程序在世界锦标赛与人类选手进行比赛，用其获胜的百分比作为性能的衡量标准。</p>
+<p>如前面所说，一个学习问题有三个特征，现在任务 T 已经确定了和性能标准 P 已经确定，还有一个经验 E 需要确定。对于经验E，有三个关键的属性：</p>
+<ul>
+<li>训练经验能否为系统的决策提供直接或者间接的反馈<br />
+对于西洋跳棋，直接的样例如各种棋盘状态和相应的正确的走子，间接的样例如过去的对弈序列和最终的胜负。间接样例中，非终局的走子必须通过最终对弈的输赢来判断，这又涉及到信用分配问题，也就是每次走子对最终结果的贡献（这是一个非常困难的问题）</li>
+<li>学习器在多大的程度上控制训练序列
+学习器依赖施教者选取棋盘状态和正确走子，或者提出自己认为模糊的棋盘状态并向施教者询问，或者完全自主控制训练。而完全自主训练，也可以分为每次训练一个全新的棋盘状态，或者从已知的最有效的走子路线稍作变化</li>
+<li>训练样例能多好的表示实例分布
+训练样例和实例分布在绝大多数情况下书不同的，而系统最终的性能是通过实例分布来衡量的。目前多数的机器学习理论都依赖于训练样例与实例分布一致这一假设，但是在实践中需要清楚，这一假设经常不成立</li>
+</ul>
+<p>在这个例子中，我们选择程序自己和自己对弈，因为，训练经验可以为系统提供间接的反馈（因为自己和自己对弈，对于对弈之中的棋盘状态，不能确定其最佳走子，而只能提供给系统一次对弈的走子路线以及结果），完全自主的训练（这个显然，自己和自己下棋，当然不需要外界的施教者），训练样例不能完全的表示实例分布（这个是当然的，甚至不能较好的表示实例分布，这取决于自我对弈的选择棋盘状态的策略）</p>
+<p>现在，学习问题已经确定，不过，对于实现这个系统而言，这显然还不够，因为我们需要的操作上的定义，而不是理论的定义。因此现在需要选择：</p>
+<ul>
+<li>要学习的知识的确切类型</li>
+<li>对于这个目标知识的表示</li>
+<li>一种学习机制</li>
+</ul>
+<h2 id="xuan-ze-mu-biao-han-shu">选择目标函数</h2>
+<p>这一步是决定要学习的知识的确切类型以及执行程序如何使用这些知识。我们的目标其实是在西洋跳棋的合法走子中选择最佳的走子，这种任务代表了一类学习任务：已知一个巨大的搜索空间（合法的走子），但是最佳的搜索策略未知。很多最优化问题都可归于此。</p>
+<p>我们学习的目标其实就是一个对于一个给定的棋盘状态，能够作出最佳走子选择的一个函数，这里称之为 ChooseMove，可以表示为$$ChooseMove：B \to M$$。现在我们已经把我们的提高任务 T 的性能 P 的问题简化为了寻找 ChooseMove 这样的一个特定函数。但是这个 ChooseMove 函数的学习是非常困难的，因为提供给系统的是间接的经验，从一个棋盘状态选择一个最佳走子，就像之前所说，会涉及到信用分配问题。</p>
+<p>而另外的一个选择是，对于每个棋盘状态，给出一个打分，最后我们就可以通过打分来决定一个棋盘状态的最佳走法。相比于ChooseMove，这应该是一个更简单的目标函数。这里称之为 V，表示为 $$V: B \to \mathscr R $$</p>
+<p>现在任务就是确定这个函数 V，虽然任何一个能够对较好的棋盘状态打出较高分的函数都可以，我们还是应该确定一个特定的函数 V，我以为，这个函数应该越简单越好。</p>
+<p>书中是如下定义，对于集合 B 中的任意一个棋盘状态 b</p>
+<p>$$
+V(b) = 
+\begin{cases}
+100, &amp; \text{若 $b$ 是最终的胜局} \
+-100, &amp; \text{若 $b$ 是最终的负局} \
+0, &amp; \text{若 $b$ 是最终的和局} \
+V(b'), &amp; \text{$b'$ 是从 $b$ 开始双方都采取最有对弈后可到达的终局}
+\end{cases}
+$$</p>
+<p>可以看出，这是一个递归性的定义，也正是因此，其运算效率不高。对于最后一种情况，决定 V(b) 需要向前搜索到达终局的所有路线，这显然不现实。因此这个定义是一个<em>不可操作</em>的定义。这种情况下，学习任务被简化为发现一个理想的目标函数 V 的可操作描述。通常完美的学习一个 V 的可操作定义是非常困难的，因此，事实上，我们一般仅仅希望我们的学习算法得到一个近似的目标函数，故而学习目标函数的过程通常称之为函数逼近。下面将会用$$\hat V $$表示学习到的函数。</p>
+<h2 id="xuan-ze-mu-biao-han-shu-de-biao-shi">选择目标函数的表示</h2>
+<p>$$\hat V $$的选择有很多，一般有两个方面要考虑：一是我们总希望选取一个非常有表征能力的描述，以尽最大可能的逼近理想函数 V；另一方面，表征能力越强的描述需要越多的训练数据。书中为了简化，选择了一种非常的简单的表示方法，即</p>
+<p>$$\hat V(b) = w_0 + w_1x_1 + w_2x_2 + w_3x_3 + w_4x_4 w_5x_5 + w_6x_6 $$</p>
+<p>其中，</p>
+<ul>
+<li>$$ x_1 $$：棋盘上黑子的数量</li>
+<li>$$ x_2 $$：棋盘上红子的数量</li>
+<li>$$ x_3 $$：棋盘上黑王的数量</li>
+<li>$$ x_4 $$：棋盘上红王的数量</li>
+<li>$$ x_5 $$：棋盘被红子威胁上黑子的数量</li>
+<li>$$ x_6 $$：棋盘上黑子威胁的红子的数量</li>
+<li>$$ w_0 \text{到} w_6 $$：权，由学习算法来选择，学习的目标就是确定这些权</li>
+</ul>
+<h2 id="xuan-ze-han-shu-bi-jin-suan-fa">选择函数逼近算法</h2>
+<p>首先，每个训练样例都是一个有序偶，$$ &lt;b, V_{train}(b)&gt; $$，表示棋盘状态以及对应的训练值。之后，需要估计训练值，对于非终局的棋盘状态，要确定其评分并不容易，最终的结果并不能确定一个中间状态的好坏，这很容易理解。虽然如此，确有一个比较简单的办法可以取得不错的效果，这个方法可以如下表示</p>
+<p>$$ V_{train}(b) \leftarrow \hat V(Successor(b)), \text{$successor(b)$ 表示 $b$ 之后再次轮到程序走棋时的棋盘状态} $$</p>
+<p>虽然不容易理解，不过在数学上已经证明，这种方法可以近乎完美的收敛到$$ V_{train} $$ 的估计值</p>
+<p>接下来要做的就是调整权值，选择最适合权。什么叫做最适合呢？这是需要定义，也就是定义最佳拟合，一种常用的方法是把最佳的假设定义为是训练值和假设预测除的值之间的误差的平方和最小，即最小误差平方逼近，公式如下</p>
+<p>$$ E \equiv \sum_{&lt;b, V_{train}(b)&gt; \in training\ examples }(V_{train}(b) - \hat V(b))^2 $$</p>
+<p>现在需要一种算法，在新的训练样例来到的时候，能够更新权值，并且对估计的训练数据中的差错有较好的健壮性。LMS（least mean squares，最小均方法）就是一个这样的算法。对于每一个训练样例，LMS会将权值调整到减小误差的方向。其算真如下</p>
+<p>对于每一个训练样例 $$ &lt;b, V_{train}(b)&gt; $$</p>
+<ul>
+<li>使用当前的权值计算 $$ \hat V(b) $$</li>
+<li>对于每一个权值，进行如下更新 $$ w_i \leftarrow w_i + \eta(V_{train}(b) - \hat V(b))x_i,\ i \in {0, 1, 2, 3, 4, 5, 6 } $$，其中 $$ \eta $$是一个小的常数，如0.1，用来调整权值更新的幅度</li>
+</ul>
+<p>在一定的条件下，LMS可以证明收敛到 $$ V_{train} $$ 的最小误差平方逼近</p>
+<h2 id="zui-zhong-she-ji">最终设计</h2>
+<p>最后的，我们的设计是一个循环的圈（书上有图，这里不画了，用语言描述以下），是这样的一个循环</p>
+<p>新问题（初始棋局）—&gt; [执行系统] — 解答路线（对弈历史）—&gt; [鉴定器] —训练样例（有序偶序列）—&gt; [泛化器] — 假设 —&gt; [实验生成器] — 新问题</p>
+<ul>
+<li>执行系统：用学会的目标函数解决任务，生成解答</li>
+<li>鉴定器：以执行系统输出的解答作为输入，输出一系列的训练样例</li>
+<li>泛化器：根据鉴定器输出的训练样例学习新的目标函数，新的目标函数可以覆盖这些样例以及一些样例之外的情形</li>
+<li>实验生成器：以当前的假设作为输入，输出一个新的问题供执行系统取探索</li>
+</ul>
+<p>许多机器学习系统都可以用这四个模块刻画。</p>
+<p>对于西洋跳棋问题来说，如果目标函数真的可以表示为这些特定参数的线性组合，那么程序学习到这个目标函数的可能性很大，也就是说程序的正确性会很好，否则最多可以学到一个合理近似，毕竟一个程序无法学习这个程序根本无法表达的东西（比如目标函数是个二次函数，而这个函数只能表示一次函数，当然不能学习到这个二次的函数）。</p>
+<h1 id="ji-qi-xue-xi-de-yi-xie-guan-dian">机器学习的一些观点</h1>
+<p>在机器学习方面，一个有效的观点是机器学习问题经常可以归结于一个搜索问题，即对非常大的假设空间进行搜索，以确定最佳拟合观察到的数据和学习器已有知识的假设。意思就是在这个非常大的假设空间进行搜索，寻找到特定的假设，这个假设能够最佳的拟合观察到的数据与学习器已有的知识。。好吧，这句话比较绕口，是一个语法问题。。。</p>
+<p>好了，第一次终于写完了，是到目前为止写的最长的一篇博客。。基本上照搬书上的东西，不过由于要写出来，相比于之前读本章，读得更加透彻了，毕竟写出来，不能通篇都是错的的东西。。</p>
+<p>为了写数学公式，特意给博客加上了MathJax支持，还换了Markdown的解析器。。。不知道下一篇是什么时候呢。。。</p>
+
+                </div>
+            </div>
+        
+    </div>
+    
+        
+    <div class="pagination">
+        <span class="prev">
+                <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;">&xlArr; 上一页</a>
+            
+        </span>
+        <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;p&#x2F;3&#x2F;">下一页 &xrArr;</a>
+            
+        </span>
+    </div>
+
+
+
+    
+</div>
+
+
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

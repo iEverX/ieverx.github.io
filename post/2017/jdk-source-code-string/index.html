@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>JDK源码阅读之String</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">JDK源码阅读之String</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2017-07-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jdk/">#JDK</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/yuan-ma/">#源码</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/string/">#String</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">1150 字</span>
+        &middot;
+        <span class="reading_time">大约需要 6 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>这几天看了看Java的<code>String</code>的实现。Java中的所有的<code>String</code>字面量都是<code>String</code>类的实例。
+文件注释中写到了，字面量生命<code>String s = &quot;abc&quot;</code>和</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">char[]</span><span> data </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new char</span><span>[]{</span><span style="color:#839c00;">&#39;a&#39;</span><span>, </span><span style="color:#839c00;">&#39;b&#39;</span><span>, </span><span style="color:#839c00;">&#39;c&#39;</span><span>};
+</span><span style="color:#c99e00;">String</span><span> s </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">String</span><span>(data)
+</span></code></pre>
+<p>效果是一样的。这应该是JVM来实现的。</p>
+<h1 id="jie-kou">接口</h1>
+<p><code>String</code>实现了三个接口，分别是<code>Serializable</code>，<code>Comparable&lt;String&gt;</code>和<code>CharSequence</code>。
+<code>Serializable</code>用于序列化，<code>Comparable&lt;String&gt;</code>用于比较，
+<code>CharSequence</code>则是<code>String</code>的一个更通用的抽象。</p>
+<h1 id="shu-xing">属性</h1>
+<p><code>String</code>最重要的属性是<code>private final char value[]</code>，<code>value</code>中存放着<code>String</code>的实际内容。
+此外，Java的<code>char</code>的长度是16bit，两个字节。
+另外一个属性是<code>private int hash</code>，是<code>String</code>得哈希值，默认为0。<code>hash</code>在调用<code>hashCode()</code>时计算，
+因此不是<code>final</code>。</p>
+<h1 id="gou-zao-fang-fa">构造方法</h1>
+<p><code>String</code>的构造方法分为几类</p>
+<ul>
+<li>无参构造方法，得到的就是空的字符串</li>
+<li>参数是<code>String</code>的，直接对<code>value</code>和<code>hash</code>赋值</li>
+<li><code>char[]</code>相关的，这类方法进行越界检查，由于<code>String</code>是不可变的，还会复制数组</li>
+<li><code>int[]</code>相关的，这里的参数是Unicode的codePoint，因为Unicode是4字节的，所以使用了<code>int</code>。
+对于基本平面（BMP）的字符，只需要<code>char</code>即可。对于辅助平面的字符，一个codePoint，需要两个<code>char</code>才能存下。</li>
+<li><code>byte[]</code>相关的，所有从<code>byte[]</code>转为<code>String</code>的，都需要指明编码格式。
+曾经有过不需要指明编码格式的方法，但是现在已经<code>Deprecated</code>了，因为有bug。</li>
+<li><code>StringBuilder</code>和<code>StringBuffer</code>，具体实现上都是复制数组，<code>StringBuffer</code>加了锁</li>
+<li><code>String(char[] value, boolean share)</code>，这是一个特殊的构造方法，这个方法可访问性是包内可见。
+为了性能上的考量，实现上不做数组复制，只是简单的赋值。调用的时候，<code>share</code>一定是<code>true</code>。</li>
+</ul>
+<h1 id="fang-fa">方法</h1>
+<p>所有方法方法中，涉及到可能产生新的字符串的，都会先检查参数，是否可以直接返回自身。</p>
+<ul>
+<li><code>length</code>直接返回<code>value.length</code></li>
+<li><code>isEmpty</code>判断<code>value.length == 0</code></li>
+<li><code>hasCode</code>返回<code>hash</code>，如果没有计算过，用times31算法计算，并保存结果</li>
+<li><code>equals</code>，不比较<code>hashCode</code>，直接按序比较字符</li>
+<li>其他比较相关的方法，
+<ul>
+<li>定义了内部静态类<code>CaseInsensitiveCompartator</code>，用于处理大小写不敏感的比较</li>
+<li>基本上都是从前向后遍历</li>
+<li><code>compareTo</code>方法是按照Unicode字典序比较的，有不同则返回不同的字符的差，否则返回长度的差</li>
+</ul>
+</li>
+<li><code>indexOf(int ch, int fromIndex)</code>
+<ul>
+<li><code>indexOf(ch) == indexOf(ch, 0)</code></li>
+<li>先判断ch，如果是负值（非法值）或者BMP字符，从前到后扫一遍</li>
+<li>否则是辅助平面字符，从前到后扫，比较前导代理以及后尾代理</li>
+</ul>
+</li>
+<li><code>indexOf(String s, int fromIndex)</code>
+<ul>
+<li>实现上，先找到第一个字符，然后比较余下字符。不断循环</li>
+<li>效率上比较低下，<a href="https://stackoverflow.com/questions/19543547/why-jdks-string-indexof-does-not-use-kmp">stackoverflow</a>有个讨论，我觉得还是有道理的</li>
+</ul>
+</li>
+<li><code>contains</code>，判断<code>indexOf() &gt; -1</code></li>
+<li><code>matches</code>，调用<code>Pattern.matches</code></li>
+<li><code>split(String regex, int limit)</code>
+<ul>
+<li><code>limit</code>表示分割后的数组的长度，若0，表示不限制结果的个数。默认为0</li>
+<li>实现上，如果<code>regex</code>是简单的字符串
+<ul>
+<li>单个字符，并且不是正则表达式的元字符</li>
+<li>两个字符，第一个是<code>'\\'</code>，并且第二个不是ascii字母和数字</li>
+<li>从前到后扫，调用<code>indexOf</code></li>
+</ul>
+</li>
+<li>否则调用Pattern</li>
+<li>空的字符串会返回</li>
+<li>但是，<code>split</code>方法有个坑，就是最后一个分隔符后面如果没有其他字符，那么是没有最后一个空字符串的
+<ul>
+<li><code>&quot;hello,,yes,&quot;.split(&quot;,&quot;) == [&quot;hello&quot;, &quot;&quot;, &quot;yes&quot;]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>join</code>，静态方法，调用<code>StringJoiner</code>
+<ul>
+<li><code>null</code>会按照<code>&quot;null&quot;</code>处理</li>
+</ul>
+</li>
+<li><code>concat(str)</code>，不检查参数，如果为<code>null</code>会报异常，如果<code>str.length != 0</code>，开辟新的数组。
+<ul>
+<li>只调用一次数组复制，</li>
+</ul>
+</li>
+<li><code>substring</code>，检查之后复制数组。之前某个版本好像是没有复制数组，导致了内存泄漏</li>
+<li><code>trim</code>，实现上是去除了前后的所有ascii码小于等于20的字符</li>
+<li><code>replace</code>
+<ul>
+<li>字符替换，如果相同或者未发现，直接返回，否则遍历</li>
+<li>字符串替换，调用<code>Pattern</code></li>
+</ul>
+</li>
+<li>大小写转换相关方法的实现，考虑的东西比较多，实现比较复杂。涉及了<code>Locale</code>，未知名则使用系统默认的。
+不同的语种，大小写规则不太一样，调用了<code>ConditionalSpecialCasing</code>进行实际的转换</li>
+<li><code>toString</code>，返回自己</li>
+<li><code>toCharArray</code>，调用<code>System.arraycopy</code>产生新的数组</li>
+<li><code>valueOf</code>系列
+<ul>
+<li><code>char[]</code>，调用构造函数</li>
+<li><code>Object</code>，<code>&quot;nul&quot;</code>或者<code>toString()</code></li>
+<li>内置类型，直接调用响应的<code>toString()</code></li>
+</ul>
+</li>
+<li><code>native intern()</code>，将自身添加到字符串池</li>
+</ul>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Synchronized的内存屏障</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">Synchronized的内存屏障</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2017-08-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/bing-fa/">#并发</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">1544 字</span>
+        &middot;
+        <span class="reading_time">大约需要 8 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h1 id="wen-ti">问题</h1>
+<p>在V2EX上看到这样<a href="https://www.v2ex.com/t/384263">一个问题</a>，具体来说，就是下面这份代码，注释和不注释，为什么运行会有不同</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public class </span><span style="color:#c99e00;">MyRun </span><span style="color:#8959a8;">implements </span><span style="color:#839c00;">Runnable </span><span>{
+</span><span>
+</span><span>	</span><span style="color:#8959a8;">private boolean </span><span>stop;
+</span><span>
+</span><span>	</span><span style="color:#4271ae;">MyRun</span><span>(</span><span style="color:#8959a8;">boolean </span><span style="color:#f07219;">status</span><span>) {
+</span><span>		</span><span style="color:#c82728;">this</span><span>.stop </span><span style="color:#3e999f;">=</span><span> status;
+</span><span>	}
+</span><span>
+</span><span>	@</span><span style="color:#c82728;">Override
+</span><span>	</span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">run</span><span>() {
+</span><span>		</span><span style="color:#8959a8;">while</span><span>(</span><span style="color:#3e999f;">!</span><span>stop) {
+</span><span>			</span><span style="color:#8e908c;">// System.out.println(&quot;running&quot;);
+</span><span>		}
+</span><span>		</span><span style="color:#c99e00;">System</span><span>.out.</span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;stop&quot;</span><span style="color:#4271ae;">)</span><span>;
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">setStop</span><span>(</span><span style="color:#8959a8;">boolean </span><span style="color:#f07219;">stop</span><span>) {
+</span><span>		</span><span style="color:#c82728;">this</span><span>.stop </span><span style="color:#3e999f;">=</span><span> stop;
+</span><span>	}
+</span><span>}
+</span><span>
+</span><span style="color:#8e908c;">// 测试代码
+</span><span style="color:#c99e00;">MyRun</span><span> myRun </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">MyRun</span><span>(</span><span style="color:#f07219;">false</span><span>);
+</span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Thread</span><span>(myRun).</span><span style="color:#c82728;">start</span><span style="color:#4271ae;">()</span><span>;
+</span><span style="color:#c99e00;">Thread</span><span>.</span><span style="color:#c82728;">sleep</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">1000</span><span style="color:#4271ae;">)</span><span>; </span><span style="color:#8e908c;">// 等待线程执行
+</span><span>myRun.</span><span style="color:#c82728;">setStop</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">true</span><span style="color:#4271ae;">)</span><span>;
+</span></code></pre>
+<p>这个代码目的就是通过主线程修改变量，控制子线程的运行。
+为了这个目的，很显然<code>stop</code>需要添加<code>volitale</code>关键字，表明<code>stop</code>是多线程可见的。
+那么，子线程在读取<code>stop</code>的时候，会从先把主内存的变量同步到自己的工作内存，然后再使用，
+因而可以拿到最新的<code>stop</code>的值。</p>
+<p>抛开<code>volatile</code>不谈，单独这份代码，注释和不注释下，运行结果也有很大差异。</p>
+<ul>
+<li>注释的情况下，子线程没有得到<code>stop</code>的最新值，其工作内存中的<code>stop</code>一直是<code>false</code>，因此程序死循环。
+这和预期情况一致。</li>
+<li>不注释的情况下，程序会一直输出<code>running</code>，知道1秒后，输出<code>stop</code>。显然子线程获得到了<code>stop</code>的最新值。
+这里的我就不太理解了，为什么呢？</li>
+</ul>
+<h1 id="syncronized"><code>syncronized</code></h1>
+<p>最开始我以为是IO引起的用户态内核态切换，会导致从主存中同步，不过查了一圈资料，这个猜想是错误的。</p>
+<p><code>println</code>函数在jdk里的实现是这样的</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public</span><span> void </span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> x) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">synchronized </span><span>(</span><span style="color:#c82728;">this</span><span>) {
+</span><span>        </span><span style="color:#c82728;">print</span><span style="color:#4271ae;">(x)</span><span>;
+</span><span>        </span><span style="color:#c82728;">newLine</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>里面有个<code>synchronized</code>，估计就是和这个有关了。</p>
+<p>手头有本《深入理解Java虚拟机》（简称书），里边关于Java的内存模型，
+有这样的说法</p>
+<blockquote>
+<p>同步块的可见性是由“对一个变量执行unlock操作之前，必须先把此变量同不会主内存中（执行store、wirte操作）”这条规则获得的。</p>
+</blockquote>
+<p>但是这个说法和这里用法不一样，因为书中说法，意思是退出同步块之前，要把<code>synchronized</code>的对象同步会主内存。
+而本问题中，同步块锁住的对象<code>this</code>，是指<code>System.out</code>这个对象，并不是<code>myRun</code>。</p>
+<p>在<a href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html#synchronization">JSR 133 FAQ</a>中，有如下说法</p>
+<blockquote>
+<p>Before we can enter a synchronized block, we acquire the monitor, which has the effect of invalidating the local processor cache so that variables will be reloaded from main memory. We will then be able to see all of the writes made visible by the previous release.</p>
+</blockquote>
+<p>这说明<code>synchronzed</code>可以是使本地CPU缓存失效，从而从主内存中读取最新的变量值。
+但是后面的有一个<em>Important Note</em>，表明只有释放和获取的是同一把锁，才能保证<strong>happen before</strong>关系，
+又让我对这段胡的理解产生了疑问。
+在stackoverflow上，有一个关于这段话的<a href="https://stackoverflow.com/questions/1850270/memory-effects-of-synchronization-in-java">提问</a>，但是并没有让我更明白。</p>
+<p>之后又去看Java语言规范中关于内存模型的部分。
+在<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.1">Java语言规范17.1节</a>，关于<code>synchronized</code>块，有如下说明</p>
+<blockquote>
+<p>attempts to perform a lock action on that object's monitor and does not proceed further until the lock action has successfully completed</p>
+</blockquote>
+<p>这里的一个重点是<strong>lock action</strong>，这章中只说明lock的意思是locking a monitor，并没有具体的解释。
+书中写到Java内存模型有8个操作，其中一个就是<code>lock</code>，但是Java语言规范中并没有相关说明。
+最后在<a href="https://docs.oracle.com/javase/specs/jvms/se6/html/Threads.doc.html">Java6的虚拟机规范第8章</a>中，才找到对其的说明，并有一个对于本问题的重要的规则</p>
+<blockquote>
+<p>Let T be any thread, let V be any variable, and let L be any lock. There are certain constraints on the operations performed by T with respect to V and L:</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>Between a lock operation by T on L and a subsequent use or store operation by T on a variable V, an assign or load operation on V must intervene; moreover, if it is a load operation, then the read operation corresponding to that load must follow the lock operation, as seen by main memory. (Less formally: a lock operation behaves as if it flushes all variables from the thread's working memory, after which the thread must either assign them itself or load copies anew from main memory.)</li>
+</ul>
+</blockquote>
+<p>这个规则说明，<code>synchronized</code>可以保证其工作内存中的变量都是最新版本。对于本问题，对<code>System.out</code>的锁，
+更新了工作内存中的值，从而退出循环。</p>
+<p>不过，在Java7和Java8的虚拟机规范中，这一章被移除了，并将相应的内容放到了Java语言规范中，
+也就是上文所引用的<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.1">第17章</a>中。但是我并没有在其中找到与这个规则具有相同意义的规则。
+不知道哪里漏了。</p>
+<h1 id="bian-ti">变体</h1>
+<p>把问题中的<code>run</code>方法改一下，变成</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public</span><span> void </span><span style="color:#c82728;">run</span><span style="color:#4271ae;">() </span><span>{
+</span><span>    </span><span style="color:#8959a8;">while</span><span>(</span><span style="color:#3e999f;">!</span><span>stop) {
+</span><span>        </span><span style="color:#8959a8;">try </span><span>{
+</span><span>            </span><span style="color:#c99e00;">Thread</span><span>.</span><span style="color:#c82728;">sleep</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">)</span><span>;
+</span><span>        } </span><span style="color:#8959a8;">catch </span><span>(</span><span style="color:#c99e00;">InterruptedException </span><span style="color:#f07219;">e</span><span>) {
+</span><span>            e.</span><span style="color:#c82728;">printStackTrace</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#c99e00;">System</span><span>.out.</span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;stop&quot;</span><span style="color:#4271ae;">)</span><span>;
+</span><span>}
+</span></code></pre>
+<p>实际上也是会最后输出<code>stop</code>的。但是Java语言规范中明确表示，</p>
+<blockquote>
+<p>It is important to note that neither Thread.sleep nor Thread.yield have any synchronization semantics. In particular, the compiler does not have to flush writes cached in registers out to shared memory before a call to Thread.sleep or Thread.yield, nor does the compiler have to reload values cached in registers after a call to Thread.sleep or Thread.yield.</p>
+</blockquote>
+<p>也就是说<code>Thread.sleep</code>是不需要刷新工作内存的。
+但是这里仍然打印了<code>stop</code>，说明在某种情况下，线程冲主内存同步了变量。
+由于这并不是Java的规范，所以这是和JVM的具体实现相关，因此并不能依赖于这一点。</p>
+<h1 id="zong-jie">总结</h1>
+<p>Java的内存模型之前看过，但是并不是非常清楚。这次前后查了好多，也有了更多的理解。
+并且还有个问题并没有搞清楚，Java8的规范里，哪条规则能够明确的推导出Java6关于lock的规则。
+这个就慢慢再看吧</p>
+<h1 id="updated">Updated</h1>
+<p>原贴下有贴出了<a href="http://www.cnblogs.com/cookiezhi/p/5774583.html">一个链接</a>，感觉说得刚靠谱。JVM虚拟机做了优化，会尽可能的保障工作内存与主内存的同步。
+这样就解释了<code>synchronized</code>和<code>sleep</code>时，线程能够获取到最新变量。</p>
+<p>想想还是太naive了，还是要多学多看啊</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

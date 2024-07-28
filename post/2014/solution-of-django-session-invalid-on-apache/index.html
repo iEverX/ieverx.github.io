@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Django Session在Apache服务器失效的问题的解决记录</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">Django Session在Apache服务器失效的问题的解决记录</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2014-08-29</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/django/">#Django</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/apache/">#Apache</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/svn/">#SVN</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">473 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>实验室项目，用Django写的Web端，需要登陆功能，因为Django自带的登陆比较庞大，自己写了一个了，没有权限等一些列东西，比较easy的，其中，require_signin这个装饰器是这样的</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>def require_signin(f):
+</span><span>@wraps(f)
+</span><span>def deco(request, *args, **kwargs):
+</span><span>    if &#39;user&#39; in request.session:
+</span><span>        return f(request, *args, **kwargs)
+</span><span>    url = &#39;%s?next=%s&#39; % (LOGIN_URL, request.path)
+</span><span>    return redirect(url)
+</span><span>return deco
+</span></code></pre>
+<p>在本地开发的时候，没有任何问题。但是上传到服务器的时候，其中的<code>'user' in request.session</code>总是返回<code>False</code>，打印了<code>session.keys()</code>来看，确实是空的。以为是数据库访问的问题（session的后端是数据库），将本地和服务器的配置文件分开了，结果仍然如此，至此陷入困境。在网上搜索，偶然发现apache的<code>MaxRequestsPerChild</code>设置选项可能和其相关，因为之前为了使提交到SVN的代码能够立刻生效，将这个值设置为了1，这导致了每次请求重开进程，而session在进程之间应该不能保存的（不知道是不是有办法设置为可以保存），将这个值改大就会正常了。</p>
+<p>之后就有了一个新问题，提交到SVN之后，改动不会在服务器立即显示出来，需要手动重启服务器，这就很不方便。可以利用SVN的post-commit hook来重启服务器。SVN的hooks是在提交的时候，执行一些特定的操作，post-commit hook就是在提交之后，执行操作，windows下，可以使用批处理文件，其他语言如Python等也可以，但是现在这个是一个easy的任务，不必祭出Python，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>/path/to/apache/bin/httpd.exe -k restart
+</span></code></pre>
+<p>这一句就足够了。利用hooks，可以实现很多功能，如果程序的部署，要求输入“提交信息”等，很强大的工具。git当然也有</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

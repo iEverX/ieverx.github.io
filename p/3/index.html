@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>天外天</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+  
+
+<div class="block-index">
+    <div class="posts">
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;a-bit-about-mongoengine&#x2F;">尝试MongoEngine</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-08-10</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/mongodb/">#MongoDB</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/python/">#Python</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>MongoEngine之于MongoDB来说，就类似于SQLAlchemy之于关系型数据库，是ODM。许多人对于MongoDB之类的文档型数据库，不愿意用ODM，认为会拖累速度，而且似乎是又回到了关系型数据库。对于此，我只能说，我是支持使用ODM的，因为我确实感觉到ODM给我的编程提供了许多便利。</p>
+<p>回到MongoEngine，使用MongoEngine，首先要有定义数据库模式，如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>from mongoengine import *
+</span><span>
+</span><span>class User(Document):
+</span><span>    id = SequenceField(primary_key=True)
+</span><span>    name = StringField(unique=True)
+</span><span>
+</span><span>class Reply(EmbeddedDocument):
+</span><span>    user = ReferenceField(&#39;User&#39;, required=True)
+</span><span>    content = StringField()
+</span><span>    time = DateTimeField(default=dt.utcnow())
+</span><span>
+</span><span>class Article(Document):
+</span><span>    title = StringField(required=True)
+</span><span>    author = ReferenceField(&#39;User&#39;, dbref=True)
+</span><span>    content = StringField()
+</span><span>    replies = ListField(EmbeddedDocumentField(Reply))
+</span><span>    create_time = DateTimeField(default=dt.utcnow())
+</span><span>    update_time = DateTimeField()
+</span></code></pre>
+<p>以上的几个类，就完全可以表示一个博客系统的数据库模式，包括了用户、文章、和回复。其中User和Article是两个独立的实体，而回复则是文章的一个属性，所以回复不是一个完整的实体，因此是一个EmbeddedDocument的类型，表示内嵌文档。而Document类的子类会在MongoDB中建立一个collection。这样，以上的模型最终的collection是两个，user和article。关于正常模型，还有几点要说的地方</p>
+<ul>
+<li>SequenceField是一个自增字段。MongoDB本身不提供自增字段，其实现方法一般是findAndModify方法，看这里<a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Create an Auto-Incrementing Sequence Field</a></li>
+<li>ReferenceField表示一个引用，类似于关系型数据库的外键，其中dbref默认为False，表示在建立的模型中，这个字段只保存对应的文档记录的主键，为True则表示存储为dbref（关于dbref，可以看着里<a href="http://docs.mongodb.org/manual/reference/database-references/">Database References</a>），查询的时候，MongoEngine会自动帮你把这个字段的东西取出来</li>
+<li>DateTimeField，MongoDB中的时间没有时区，所以保存为UTC时间是最好的选择</li>
+</ul>
+<p>之后，查询就比较简单了，比如在首页，想要显示全部的文章，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>articles = Article.objects
+</span></code></pre>
+<p>就是全部的文章的生成器，排序或者限定结果数量，可以这样</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>articles = Article.objects.order_by(&#39;-create_time&#39;).skip(10).limit(10)
+</span></code></pre>
+<p>这表示取按创建时间降序排列的第10到第20篇文章。而现在，如果要显示作者的信息，则可以用<code>article.author.name</code>来表示作者的名字，<code>article</code>是<code>Article</code>类的实例。而添加回复，也很简单</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>r = Reply(user=User(id=1)) # 必须用主键表明User，或者可以从数据中选择一个User的实例
+</span><span>r.content = &#39;xxxxxxxxxx&#39;
+</span><span>article.replies.append(r) # 如果原本没有回复，article.replies是[]
+</span><span>article.save()
+</span></code></pre>
+<p>MongoEngine简化了程序员的劳动，相比于直接用PyMongo操纵MongoDB，程序员可以把一些重复性的代码直接交给MongoEngine，自己只需关心数据的逻辑即可。之前用SQL的时候，感觉ORM好麻烦，不灵活，结果数据层搞得一团糟。而且，貌似MongoEngine带来的性能损失是在可接受范围内，不会对程序的性能造成太大影响。当然，如果觉得自己完全可以驾驭PyMongo，自己写数据模型，当然也是没问题的。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;close-a-bunch-of-process-on-linux&#x2F;">Linux下关闭多个进程</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-04-12</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/linux/">#Linux</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/shell/">#shell</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>很多时候，需要同时关闭一系列的有着相同的关键字的进程，比如说，开着十多个网页的chrome死掉了这种情况。。</p>
+<p>在Linux下面，敲几个命令就OK了，以下每行都可以，有些区别</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>ps -e | grep chorme | cut -c 1-5 | xargs kill -9
+</span><span>ps -e | awk &#39;$4==&quot;chrome&quot; {print $1}&#39; | xargs kill -9
+</span></code></pre>
+<p><code>ps -e</code>的输出如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>12040 ?        00:00:00 kworker/1:1
+</span><span>12041 ?        00:00:00 kworker/0:0
+</span><span>12052 ?        00:00:09 chrome
+</span><span>12119 ?        00:00:00 kworker/3:0
+</span></code></pre>
+<p>这个命令输出了当前的所有进程信息，最前面的就是进程的pid。第四列是进程的名称</p>
+<p><code>grep chrome</code>就是查找含有<code>chrome</code>的行并输出。<code>cut -c 1-5</code>意思是对输入的每一行取第1到5个字符(恰好是进程的pid)输出。两个命令合起来，就是输出进程名含有<code>chrome</code>的进程的pid。</p>
+<p><code>awk '$4==&quot;chrome&quot; {print $1}'</code>做了同样的事，不过这个命令输出的是进程名恰好是<code>chrome</code>的进程的pid，而不仅仅是包含。</p>
+<p><code>xargs kill -9</code>这个命令，输入以换行或者空白分割之后，作为参数执行一遍或者多遍后面跟随的命令</p>
+<p>最后感叹一下，shell很强大！</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;install-gitlab&#x2F;">安装GitLab</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-04-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/git/">#git</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/gitlab/">#GitLab</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/linux/">#Linux</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>在V2EX上面看了一个如何管理自己的代码的帖子，里面有个回答是使用gitlab，于是搜了一下。。可以这么说，gitlab是开源的github，可以在自己的电脑上搭一个私人的git托管服务，相当不错。对于自己来说，其实就是折腾啦，可以不用把所有的代码都扔到github上面，但是有个不好就是在自己的机器上面，一旦系统挂了，代码就没了。。</p>
+<p>安装就是跟着官方的<a href="https://github.com/gitlabhq/gitlabhq/blob/5-0-stable/doc/install/installation.md">安装文档</a>，一路下来就可以了，由于网络速度以及各种其他问题，我装了两天。需要提醒的一点是，文档里面，安装路径是<code>/home/git/gitlab</code>，建议不要修改，因为有些地方是硬编码了这个路径的，如果修改可能会导致网站不能跑起来。</p>
+<p>在安装过程中的需要<code>bundle install</code>的地方，由于众所周知的原因，建议把Gemfile中的地址修改为<code>http://ruby.taobao.org</code>，加快速度。</p>
+<p>在安装过程中，我遇到的一些问题:</p>
+<ul>
+<li>在Gemfile中有些这样的写法<code>require: :xxx</code>，如果<code>bundle install</code>出现问题，可以把这种写法改成<code>:require =&gt; xxx</code>。这个原因是ruby 的版本太老不支持新的语法（但是我的ruby是最新的也报错了。。）</li>
+<li>在执行<code>bundle install</code>时，提示需要 ruby的版本大于1.9.2，而实际上我的机器上ruby是1.9.3，这时执行<code>sudo apt-get install gem</code>之后重新执行改命令</li>
+<li>安装数据库时，未修改配置文件，导致登录数据库错误。这个只要修改了配置文件即可，注意应该修改<code>production</code>中的配置</li>
+</ul>
+<p>安装完成后，有个管理员账户</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>email:    admin@local.host
+</span><span>password: 5iveL!fe
+</span></code></pre>
+<p>如果要增加用户，只能通过管理员账户新建用户，不能自由注册，毕竟gitlab是私人的托管服务，面向的是小型的团队。</p>
+<p>装完之后用了一下，虽然和github很像，功能也比较齐全，和github还是有所不同。建立一个新的项目的时候，不会自动建立新的repo而是需要自己手动建立并push。。当然还有其他区别，在此不一一列举了</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;a-sublime-text-plugin&#x2F;">自己写sublime text插件</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-03-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/sublime-text/">#Sublime Text</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/sublime-text-2/">#Sublime Text 2</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/cha-jian/">#插件</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>起因是，自己写Python基本上使用sublime text 2。但是，文件头部的代码</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>#! /usr/bin/env python
+</span><span># -*- coding: utf-8 -*-
+</span></code></pre>
+<p>如果每次都要敲的话，很麻烦。而如果不敲的化，一旦涉及中文，又会报错，就产生了写了一个插件的想法。。问题好久了，直到今天才动手，惭愧一下。。</p>
+<p>思路应该是比较简单，就是判断文件类型，然后在头部插入特定的字符串。于是乎，开始在网上查找sumblime text 2的API还有插件开发教程。这是<a href="http://www.sublimetext.com/docs/2/api_reference.html">API文档</a>，<a href="http://ux.etao.com/posts/549">中文翻译版</a>，看一下Default里面的自带插件，就可以动手了。</p>
+<p>最初的代码中，字符串是硬编码的。后来，则是从模板文件中读取字符串。在这一步，遇到了一个很诡异的问题，是这样的：模板文件保存在templates文件夹下面，在HeadTemplate.py中（我的插件的名字是HeadTemplate），</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>def get_tpl_file(settings, filename):
+</span><span>    template_root = settings.get(&#39;template_root&#39;)
+</span><span>    path = os.path.join(os.path.dirname(__file__), template_root)
+</span><span>    return os.path.join(path, filename)
+</span></code></pre>
+<p>但是这个函数的返回的结果是<code>/home/username/templates/filename</code>，而实际上，我认为应该返回的是<code>/home/username/.config/sublime-text-2/Packages/HeadTemplate/templates/filename</code>。打印<code>os.path.abspath(__file__)</code>，得到的结果是<code>/home/username</code>也就是我的家目录。开始以为是由于隐藏文件夹的缘故，不过试验之后，发现与之无关。为什么会有这个结果，具体原因到现在我也还弄不清楚。不过，解决方案倒是找到了，感谢SErHo的<a href="https://github.com/SerhoLiu/SublimeNFFT">代码</a></p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>PACKAGE_NAME = &#39;HeadTemplate&#39;
+</span><span>PACKAGES_PATH = sublime.packages_path()
+</span><span>
+</span><span>def get_tpl_file(settings, filename):
+</span><span>    template_root = os.path.join(
+</span><span>                    PACKAGES_PATH, 
+</span><span>                    PACKAGE_NAME, 
+</span><span>                    settings.get(&#39;template_root&#39;))
+</span><span>    return os.path.join(template_root, filename)
+</span></code></pre>
+<p>在其他就没有什么了，按部就班的写下来就好了。代码放在了github上，<a href="https://github.com/iEverX/HeadTemplate">https://github.com/iEverX/HeadTemplate</a></p>
+<p>算上空行不到50，却写了一个下午。。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;traversing-dom-tree-with-javascript&#x2F;">Javascript遍历DOM树</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-03-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/javascript/">#Javascript</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jquery/">#jQuery</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dom/">#DOM</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/liquid/">#Liquid</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>这个博客是利用Jekyll在github pages上搭建的，显示在首页的文章，如果用<code>{{ post.content | truncate: 200 }}</code>，原有的格式不能完全保持，且有时在最后会有乱码。而<code>{{ post.content | truncatewords: 50 }}</code>也有不能保持格式的问题，而且对于中文来说，word的概念大概就变成了句子，截取的长度不能确定。本来<a href="https://github.com/MattHall/truncatehtml">truncatehtml</a>这个插件可以解决格式保持的问题，但是出于安全的考虑，github pages不允许运行插件，所以。。。</p>
+<p>这个问题有很长时间了，今天闲的没事，用js写了一下。就是遍历DOM树，叠加文本节点的长度，当长度达到既定长度时，其后所有的节点修改style为<code>display: none</code>，用jQuery就是<code>hide()</code>，具体到自己的博客，代码如下，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$(function() {
+</span><span>    function traverse($node, len, maxCount) {
+</span><span>      var reachMaxCount = len &gt; maxCount;
+</span><span>      if (reachMaxCount) {
+</span><span>        $node.hide();
+</span><span>      }
+</span><span>      var $contents = $node.contents();
+</span><span>      for (var i = 0; i &lt; $contents.length; ++i) {
+</span><span>        if (reachMaxCount) {
+</span><span>          $contents.eq(i).hide();
+</span><span>          continue;
+</span><span>        }
+</span><span>        if ($contents[i].nodeType == 3) { // TextNode
+</span><span>          var tmp = len;
+</span><span>          var s = $contents[i].nodeValue;
+</span><span>          len += s.length;
+</span><span>          reachMaxCount = len &gt; maxCount;
+</span><span>          if (reachMaxCount) {
+</span><span>            $contents[i].nodeValue = s.substring(0, maxCount - tmp);
+</span><span>          }
+</span><span>        }
+</span><span>        else if ($contents[i].nodeType == 1) { // Element
+</span><span>          len = traverse($contents.eq(i), len, maxCount);
+</span><span>        }
+</span><span>      }
+</span><span>      return len;
+</span><span>    }
+</span><span>
+</span><span>    $(&#39;.post_at_index&#39;).each(function() {
+</span><span>      traverse($(this), 0, {{ site.description_length }});
+</span><span>      var thisUrl = $(this).siblings().first().children().attr(&#39;href&#39;);
+</span><span>      $(this).after(&#39;\n&lt;a href=&quot;&#39; + thisUrl + &#39;&quot; rel=&quot;nofollow&quot;&gt;&#39; + &#39;Read More ...&lt;/a&gt;&#39;);
+</span><span>    });
+</span><span>});
+</span></code></pre>
+<p>对于js，我都会使用jQuery，这个同样如此，需要jQuery的支持。在最后加上了了read more，指向页面。写完之后，发现代码不长，不过却花了我一个下午的时间，主要是对js太不熟悉了，上网各种查，开始是用的<code>children()</code>这个方法，但是这个不能处理很好，后来改成了<code>contents()</code>，不过已经浪费了很长时间了。。</p>
+<p>另外吐槽一下Liquid这个模板，规避标签太麻烦了，比如要打一个</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{{ some tag }}
+</span><span>{% some tag %}
+</span></code></pre>
+<p>需要如下这样才行，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{{&#39;{&#39;}}% raw %}{{ some tag }}{{&#39;{&#39;}}% endraw %}
+</span><span>{{&#39;{&#39;}}% raw %}{% some tag %}{{&#39;{&#39;}}% endraw %}
+</span><span>或者
+</span><span>{{&#39;{&#39;}}{ some tag }}
+</span><span>{{&#39;{&#39;}}% some tag %}
+</span></code></pre>
+<p>其他的模板带语言，要输出自身的控制标签确实都不容易，但是Liquid已经不是不容易，而是复杂了。。我感觉，如果有两个停止解析的标志，比如说</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>{! here is not parsed !}
+</span><span>{@ here is not parsed @}
+</span></code></pre>
+<p>那么，如果有如果有显示<code>{! !}</code>，只需要<code>{@ {! !} @}</code>，目前，Liquid有标签<code>raw</code>和<code>literal</code>可以使用，但是我的试验结果是<code>literal</code>和<code>raw</code>似乎不太协调，不知什么原因，渲染结果总是与预想的结果不一致。。看了Liquid的issue，发现有可能是Jekyll的问题，也不清楚到底是怎么回事，不去想了。。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;custom-jinja2-module-in-webpy&#x2F;">web.py中自定义jinja2模块</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-03-03</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/python/">#Python</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jinja2/">#jinja2</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/webkai-fa/">#web开发</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/web-py/">#web.py</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>web.py是一个轻量级的Python web开发框架，不过自带的模板自己很不习惯，就换成了jinja2。web.py已经封装了jinja2的接口，很简单</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>from web.contrib.template import render_jinja
+</span><span>render = render_jinja(&#39;templates&#39;, encoding=&#39;utf-8&#39;)
+</span></code></pre>
+<p>之后就和自带模板一样使用了。web.py中使用jinja2的源代码如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>class render_jinja:
+</span><span>    &quot;&quot;&quot;Rendering interface to Jinja2 Templates
+</span><span>    
+</span><span>    Example:
+</span><span>
+</span><span>        render= render_jinja(&#39;templates&#39;)
+</span><span>        render.hello(name=&#39;jinja2&#39;)
+</span><span>    &quot;&quot;&quot;
+</span><span>    def __init__(self, *a, **kwargs):
+</span><span>        extensions = kwargs.pop(&#39;extensions&#39;, [])
+</span><span>        globals = kwargs.pop(&#39;globals&#39;, {})
+</span><span>
+</span><span>        from jinja2 import Environment,FileSystemLoader
+</span><span>        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+</span><span>        self._lookup.globals.update(globals)
+</span><span>        
+</span><span>    def __getattr__(self, name):
+</span><span>        # Assuming all templates end with .html
+</span><span>        path = name + &#39;.html&#39;
+</span><span>        t = self._lookup.get_template(path)
+</span><span>        return t.render
+</span></code></pre>
+<p>在<code>__getattr__</code>函数中，<code>path = name + '.html'</code>使得只能访问同级目录下的模板。同时，还不方便使用自定义函数。在其基础之上，稍作修改即可，如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>class RenderJinja2:
+</span><span>
+</span><span>    postfix = (&#39;.html&#39;, &#39;&#39;, &#39;htm&#39;, &#39;tpl&#39;)
+</span><span>
+</span><span>    def __init__(self, *a, **kwargs):
+</span><span>        extensions = kwargs.pop(&#39;extensions&#39;, [])
+</span><span>        globals = kwargs.pop(&#39;globals&#39;, {})
+</span><span>        registers = kwargs.pop(&#39;registers&#39;, {})
+</span><span>
+</span><span>        self._lookup = Environment(loader=FileSystemLoader(*a, **kwargs), extensions=extensions)
+</span><span>        self._lookup.globals.update(globals)
+</span><span>        self._lookup.globals.update(registers)
+</span><span>
+</span><span>    def render(self, path, **kwargs):
+</span><span>        for fix in self.postfix:
+</span><span>            realpath = path + fix
+</span><span>            try:
+</span><span>                t = self._lookup.get_template(realpath)
+</span><span>                return t.render(**kwargs)
+</span><span>            except:
+</span><span>                pass
+</span><span>        raise TemplateNotFound
+</span><span>
+</span><span>    def __getattr__(self, name):
+</span><span>        path = name + &#39;.html&#39;
+</span><span>        t = self._lookup.get_template(path)
+</span><span>        return t.render
+</span></code></pre>
+<p>现在，自定义的函数、变量可以通过register这个字典传入，渲染时也有两种方式，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span># 通过register传入自定义的函数或者变量，这里为了方便，使用了locals()
+</span><span>render = RenderJinja2(&#39;path/to/templats&#39;, encoding=&#39;utf-8&#39;, registers=locals())
+</span><span>
+</span><span># 渲染时
+</span><span>render.render(&#39;path&#39;, **kwargs) # 新加的render
+</span><span>render.post(**kwargs) # 原先的方式，通过 __getattr__
+</span></code></pre>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;highlight-code-with-google-code-prettify&#x2F;">Jekyll中使用google-code-prettify高亮代码</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-02-27</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dai-ma-gao-liang/">#代码高亮</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/google-code-prettify/">#google-code-prettify</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>这个博客，到现在换了好几个代码高亮的工具，之前的SyntaxHIghlighter虽然漂亮，无奈加载太慢，只能舍弃了。现在用的这个是google-code-prettfy，效果也相当不错。最重要的是，非常小，加载速度比SyntaxHighlighter快得多，而且，可以直接使用markdown的语法去写代码。</p>
+<p>首先需要两个文件，prettify.js和prettify.css，自己去官网去下。把这两个放到模板中，如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;link href=&quot;{{ ASSET_PATH }}/google-code-prettify/desert.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; media=&quot;all&quot;&gt;
+</span><span>&lt;script type=&quot;text/javascript&quot; src=&quot;{{ ASSET_PATH }}/google-code-prettify/prettify.js&quot;&gt;&lt;/script&gt;
+</span></code></pre>
+<p>考虑到加载速度，最好js写到文档末尾，body闭合标签之前，css写到头部</p>
+<p>之后，还需要加上如下代码，用于识别并高亮代码块，这个需要使用jQuery</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$(function() {
+</span><span>  window.prettyPrint &amp;&amp; prettyPrint();
+</span><span>});
+</span></code></pre>
+<p>现在，就可以使用<code>&lt;pre&gt;&lt;/pre&gt;</code>标签进行高亮了，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;pre class=&quot;prettyPrint&quot;&gt;
+</span><span>// code here
+</span><span>&lt;/pre&gt;
+</span></code></pre>
+<p>但这样会有些问题，就是在书写html代码的时候，html标签会被浏览器认为是标签而不是代码的字符。而markdown的语法写的代码其实已经解决了这个问题，所以，我们可以利用如下的js代码，来避免自己用<code>&lt;pre&gt;&lt;/pre&gt;</code>写代码所出现的问题，同样需要jQuery支持</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>$(function() {
+</span><span>  $(&#39;pre&#39;).addClass(&#39;prettyprint linenums&#39;).attr(&#39;style&#39;, &#39;overflow:auto&#39;);
+</span><span>});
+</span></code></pre>
+<p>这样之后，就没有问题了，可以直接用markdown的前置4空格来写代码了。其中<code>addClass('prettyprint linenums')</code>的<code>linenums</code>是添加行号的意思。默认只显示第5、10、15...行，可以在css文件中li的格式添加<code>list-style-type: decimal;</code>，以显示全部行号</p>
+<p>另外，如果博客中有用bootstrap，其中对<code>pre</code>有如下几句</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>white-space:pre;white-space:pre-wrap;word-break:break-all;word-wrap:break-word;
+</span></code></pre>
+<p>这会使得pre中的代码自动换行，而不是溢出形成滚动条。如果不希望如此，可以注释掉。就看个人的喜好了。如果是滚动条，默认的滚动太难看，可以修改一下样式，看一下<a href="http://www.javascript100.com/?p=756">这篇文章</a></p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;use-syntaxhighlighter-highlighting-code-in-jekyll-2nd&#x2F;">在Jekyll中用SyntaxHighlighter高亮代码2</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-01-14</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/syntaxhighlighter/">#SyntaxHighlighter</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dai-ma-gao-liang/">#代码高亮</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>之前有一篇博客是关于在Jekyll中利用SyntaxHighlighter去高亮代码的。不过那篇博客中的方法需要每次都加载所有的js文件，加载速度比较慢。其实，可以利用js动态加载js来实现对于不同的语言加载不同的语法分析文件，从而提高js文件的加载速度。废话不多说了，上代码</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;script language=&#39;javascript&#39;&gt;
+</span><span>    $(function () {
+</span><span>
+</span><span>        var stdname = {
+</span><span>            &#39;bash&#39;: &#39;Bash&#39;,
+</span><span>            &#39;sh&#39;: &#39;Bash&#39;,
+</span><span>            &#39;c&#39;: &#39;Cpp&#39;,
+</span><span>            &#39;cpp&#39;: &#39;Cpp&#39;,
+</span><span>            &#39;cs&#39;: &#39;CSharp&#39;,
+</span><span>            &#39;css&#39;: &#39;Css&#39;,
+</span><span>            &#39;java&#39;: &#39;Java&#39;,
+</span><span>            &#39;js&#39;: &#39;JScript&#39;,
+</span><span>            &#39;php&#39;: &#39;Php&#39;,
+</span><span>            &#39;py&#39;: &#39;Python&#39;,
+</span><span>            &#39;python&#39;: &#39;Python&#39;,
+</span><span>            &#39;rb&#39;: &#39;Ruby&#39;,
+</span><span>            &#39;sql&#39;: &#39;Sql&#39;,
+</span><span>            &#39;vb&#39;: &#39;Vb&#39;,
+</span><span>            &#39;xml&#39;: &#39;Xml&#39;,
+</span><span>            &#39;html&#39;: &#39;Xml&#39;,
+</span><span>            &#39;perl&#39;: &#39;Perl&#39;
+</span><span>        };
+</span><span>
+</span><span>        var used = {};
+</span><span>
+</span><span>        var $t = $(&#39;pre[class^=brush]&#39;);
+</span><span>        if ($t.length &gt; 0) {
+</span><span>            $(&#39;body&#39;).append(&#39;&lt;script src=&quot;/static/js/syntaxhighlighter/shCore.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;&#39;);
+</span><span>        }
+</span><span>        $t.each(function() {
+</span><span>            var lang = stdname[$.trim($(this).attr(&#39;class&#39;).substring(6))];
+</span><span>            if (used[lang]) {
+</span><span>                return;
+</span><span>            }
+</span><span>            used[lang] = true;
+</span><span>            $(&#39;body&#39;).append(&#39;&lt;script type=&quot;text/javascript&quot; src=&quot;/static/js/syntaxhighlighter/shBrush&#39; + lang + &#39;.js&quot;&gt;&lt;/script&gt;&#39;);
+</span><span>        });
+</span><span>        if ($t.length &gt; 0) {
+</span><span>            $(&#39;body&#39;).append(&#39;&lt;script language=&quot;javascript&quot;&gt;SyntaxHighlighter.all();&lt;/script&gt;&#39;);
+</span><span>        }
+</span><span>    });
+</span><span>&lt;/script&gt;
+</span></code></pre>
+<p>把以上这段代码放在Jekyll模板页的body的最后面即可。</p>
+<p>这段代码需要jQuery，我的是1.8.2，不知道低版本的是否可以。此外，shCore.css，shThemeDefault.css文件不是动态加载，所以，这两个文件仍然需要直接放在模板页的头部。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2013&#x2F;on-the-end-of-the-term&#x2F;">写在学期末</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2013-01-08</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/gan-xiang/">#感想</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/da-xue/">#大学</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/bian-cheng-sheng-ya/">#编程生涯</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>今天，软工的答辩结束。至此，这个学期的课，除了软工的第二次结对编程还要写代码、编译还要检查之外，这个学期就没有其他的事情了。说现在是放假状态也无不可。</p>
+<p>就像10月的那篇博客所说，这个学期事情很多。不过那时候并没有切身感受，所有的多与不多，不过自己推断而已。。现在学期结束，那感受就真实了。</p>
+<p>先说软工吧，说实话，软工的团队项目做的就是翔一样，而且还累得要死。。其实，说实话，我们做的功能并不复杂，也不是很难，但是就是做不好。。我们做的是一个大项目中的一小块，是用户管理。。想想，用户管理分为哪几块？先不说涉及到网站具体内容的地方，那就是登录、注册、密码重置、信息修改四个地方吧，但是关键是要做好，用户体验要好。现在做完了，说说自己的理解</p>
+<ol>
+<li>界面简洁大方<br />
+这个完全是界面设计的事情，就不说了</li>
+<li>错误信息提示足够详细，而且足够及时<br />
+这一点如果要做到，js和ajax必不可少</li>
+<li>用户操作简单，没有门槛<br />
+流程简单要，要没有特别注意的地方。这一点也需要js支持</li>
+<li>用户信息保护<br />
+密码加密</li>
+<li>系统的安全<br />
+防止脚本攻击、SQL注入。激活邮件、重置密码邮件链接不能被伪造</li>
+</ol>
+<p>其次说一下数据库，相比较软工和编译，数据库的大作业真的可以说是So easy！用了三天，当然还是遇到了困难。表前前后后改了好几趟，而且有些地方用的id让事情变得比较复杂。。还有一个困难就是DataGridView这个控件的使用，这个问题困住了我们一个晚上！！然后，然后就没有然后了。。或者是，然后就开始写编译了。。</p>
+<p>最好说一下编译，这是我这辈子以来，写得最大的一个工程，也是最难的一个。写完数据库，就开始写编译了，那时候，距离最后期限还有4天，我只写完了词法分析和语法语义分析中的常量说明部分。最重要也最麻烦的四元式生成还没有写，汇编更不知道是什么东西。。但是没有办法，作业还是得交啊。。那就问同学，上网查，自己想。。知道截止日期那一天，自己的数组的汇编还没有搞定，错误处理也没搞定。。庆幸的是，编译的截止日期推迟了32小时，我擦，心情大爽！最后的32个小时，总算是把功能搞定了。。不过优化却是无论如何没时间写了。。为了写出这个编译器，和XYQ一起熬夜，72个小时睡了10小时不到。。着绝对是我这辈子最“光明”的时间。。还想着之后就能好好睡觉了。。结果也确实睡了一个好觉，从早上8点多道下午2点多。。之后是数据库的检查，然后第二天是软工的最终复审。。都赶在这几天了！</p>
+<p>XYQ一直再说，如果早写一个星期，也不至于被逼得这么惨。。这话再理，不过这个学期伊始，我就说过，不要把大作业都留到最后，结果说了等于白说。。嗯，其实，有一个大作业说是提前写完的，就是Ruby了。。网站在<a href="http://share.evercoding.net">http://share.evercoding.net</a>，自己感觉交个大作业是没问题了。。</p>
+<p>然后。。2012世界未末日，不知道什么时候才是真的世界末日</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2012&#x2F;use-syntaxhighlighter-highlighting-code-in-jekyll&#x2F;">在Jekyll中用SyntaxHighlighter高亮代码</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2012-11-30</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/syntaxhighlighter/">#SyntaxHighlighter</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/dai-ma-gao-liang/">#代码高亮</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>前几天把博客里的代码高亮改成[SyntaxHighligher][]了，感觉好了很多，看着也舒服，关键是复制代码的时候，行号连着代码在一行复制了。主要参考了官网给的这个链接<a href="http://www.cyberack.com/2007/07/adding-syntax-highlighter-to-blogger.html">Adding a Syntax Highlighter to your Blogger blog</a>。Jekyll的灵活性应该比Blogger更大，而且直接贴改代码，所以对于Jekyll这个方法是合适的。下面是具体的过程</p>
+<p>在Jekyll的模板页里的head里面，添加如下代码，选自己需要的语言的刷子就好</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;link href=&#39;/static/css/syntaxhighlighter/shCore.css&#39; rel=&#39;stylesheet&#39; type=&#39;text/css&#39;/&gt;
+</span><span>&lt;link href=&#39;/static/css/syntaxhighlighter/shThemeDefault.css&#39; rel=&#39;stylesheet&#39; type=&#39;text/css&#39;/&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shCore.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;!-- The Following is styles for different language  --&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushBash.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushCpp.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushCSharp.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushCss.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushJava.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushJScript.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushPhp.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushPython.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushRuby.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushSql.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushVb.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushXml.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;/static/js/syntaxhighlighter/shBrushPerl.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script language=&#39;javascript&#39;&gt;
+</span><span>  SyntaxHighlighter.all();
+</span><span>&lt;/script&gt;
+</span></code></pre>
+<p>其中，src里面是文件的目录，把从官网上下载的对应的js文件和css文件放到对应的目录即可。其实也可以直接引用官网的js文件，比如这样（以下代码来自我参考的网址，去掉了一些不需要的代码）</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;link href=&#39;http://alexgorbatchev.com/pub/sh/current/styles/shCore.css&#39; rel=&#39;stylesheet&#39; type=&#39;text/css&#39;/&gt;
+</span><span>&lt;link href=&#39;http://alexgorbatchev.com/pub/sh/current/styles/shThemeDefault.css&#39; rel=&#39;stylesheet&#39; type=&#39;text/css&#39;/&gt;
+</span><span>&lt;script src=&#39;http://alexgorbatchev.com/pub/sh/current/scripts/shCore.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script src=&#39;http://alexgorbatchev.com/pub/sh/current/scripts/shBrushCpp.js&#39; type=&#39;text/javascript&#39;&gt;&lt;/script&gt;
+</span><span>&lt;script language=&#39;javascript&#39;&gt;
+</span><span>    SyntaxHighlighter.all();
+</span><span>&lt;/script&gt;
+</span></code></pre>
+<p>不过，这样会导致没有联网的时候，自己写博客预览的时候看不到代码的高亮效果。</p>
+<p>之后，写代码的时候，不要使用markdown的语法，直接用pre抱起来就好了。就比如这样</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;pre class=&quot;brush: cpp&quot;&gt;
+</span><span>&lt;/pre&gt;
+</span></code></pre>
+<p>效果就和以上一样了。这个应该比pygments更好看吧。不过目前加载速度比较慢，以后再改吧</p>
+
+                </div>
+            </div>
+        
+    </div>
+    
+        
+    <div class="pagination">
+        <span class="prev">
+                <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;p&#x2F;2&#x2F;">&xlArr; 上一页</a>
+            
+        </span>
+        <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;p&#x2F;4&#x2F;">下一页 &xrArr;</a>
+            
+        </span>
+    </div>
+
+
+
+    
+</div>
+
+
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

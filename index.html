@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>天外天</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+  
+
+<div class="block-index">
+    <div class="posts">
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2021&#x2F;idea-in-wsl&#x2F;">在 wsl 里运行 Intellij Idea</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2021-04-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/wsl/">#wsl</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/intelij-idea/">#Intelij Idea</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>自从 wsl2 出来之后，就一直想把一些开发环境挪到 wsl 里，但是颇有波折。Intellij Idea 对于 wsl 的支持不太好，直到 2021.1，才比较好的支持打开 wsl 中的项目。不过问题还是比较多</p>
+<ul>
+<li>pom文件的编辑非常卡，即使尝试设置 IDE 使用 wsl 里的 maven，repository 以及 settings.xml 都是用 wsl 里的配置，依然很卡</li>
+<li>下载依赖也比较慢</li>
+<li>在 wsl 的根目录下会生成一个文件夹 <code>C:</code>，cd 进去，是一个 <code>AppData</code> 路径，似乎是 Intellij Idea 在 wsl 的 home 目录下，按照 Windows 的路径创建一些文件</li>
+</ul>
+<p>本身 wsl 访问 Windows 文件是比较慢的，在第一次尝试的时候就是因为直接访问了 /mnt/c/ 目录下的 maven 仓库，导致索引慢得发指，这一次完全使用了 wsl 的路径，仍然是很慢。不太清楚是不是 Intellij Idea 的问题。</p>
+<p>相比之下，使用 vscode 在 wsl 里开发的体验就好了很多，同时 vscode 还支持使用 container 的环境，比 Intellij Idea 高了不知到多少。然鹅，写 Java 断断是不能用vsocde 的。事情就这样的放下了，想着等啥时候 jetbrains 把这事情整明白了再说。直到某一天，看到 V2EX 上某个用户说，可以用 wsl 跑 gui，然后使用 linux 的 ide，一下子打开了一片天。</p>
+<p>直接用「gui wsl」为关键词搜索，<a href="https://techcommunity.microsoft.com/t5/windows-dev-appconsult/running-wsl-gui-apps-on-windows-10/ba-p/1493242">第一篇</a><sup class="footnote-reference"><a href="#1">1</a></sup>就是标准答案，按照过程一步步来，最后就OK了。文章里提到了3个 X server 软件，我只用了第一个 VcXsrv，其他两个并没有试，也不太需要。搞好之后，尝试 guid 应用时，直接下载 linux 版的 intellij 是最方便的，不用 apt 安装 gedit，因为安装 gedit 还挺费时间的，不如直接下载来得快。</p>
+<p>我装好之后，使用上是没有问题的，但是ide的字体比较模糊，是由于高分辨率的问题导致的，可以参考<a href="https://egoist.moe/wsl2-gui">这篇文章</a>。设置一下应用的模式，并且在 wsl 里设置<code>GDK_SCALE=2</code>环境变量，环境变量的作用<a href="https://wiki.archlinux.org/index.php/HiDPI_(%E7%AE%80%E4%BD%93%E4%B8%AD%E6%96%87)#GDK_3_(GTK+_3)">看这里</a>。这个文章里还提到了要设置<code>LIBGL_ALWAYS_INDIRECT=1</code>，不需要的，原因可以参考 <a href="https://unix.stackexchange.com/questions/1437/what-does-libgl-always-indirect-1-actually-do">stackexchange 上的问题</a>。</p>
+<p>ide 只能从 wsl 的命令行启动，第一次需要从程序目录下的 idea.sh 启动。启动后，ide 的 Tools -&gt; Create Command Line Launcher 命令会创建一个可行执行程序，路径是 /usr/local/bin/idea，之后可以直接命令行敲 <code>idea</code> 启动。启动默认是前台，如果想要该，用 <code>idea &amp;</code>启动，还想要要取消日志输出什么的，和普通的命令行程序没有区别，重定向就OK。不熟悉的看这个<a href="https://unix.stackexchange.com/questions/302164/how-to-run-intellj-idea-from-current-directory">链接</a>，给了一整套机制。然鹅，即使使用 nohup 启动，进程是绑定到一个会话的，我通常是用 microsoft terminal，打开 idea 的 tab 一旦关闭，ide 也会随之关上。解决方案就是 tmux，关于 tmux 就不在本文多说了，文章很多很多了，而且我也不熟🤣</p>
+<p>参考：</p>
+<ul>
+<li><a href="https://techcommunity.microsoft.com/t5/windows-dev-appconsult/running-wsl-gui-apps-on-windows-10/ba-p/1493242">https://techcommunity.microsoft.com/t5/windows-dev-appconsult/running-wsl-gui-apps-on-windows-10/ba-p/1493242</a></li>
+<li><a href="https://egoist.moe/wsl2-gui">https://egoist.moe/wsl2-gui</a></li>
+</ul>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2019&#x2F;read-design-data-intensive-applications&#x2F;">《设计数据密集型应用》读完啦</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2019-07-13</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/du-shu/">#读书</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/fen-bu-shi/">#分布式</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>Disign Data-Intensive Application，大名鼎鼎的 DDIA，中文名就是设计数据密集型应用。这本书我买的时间是去年的6月18号，大约一个多星期之前，终于是读完啦，算是整整一年吧。买的是影印版，英文，应该是第一次读完一整本的比较厚的英文技术书籍。</p>
+<p>读书的进度也比较奇怪，在去年9月份左右，前两个部分就读完了，当时一直有一种就是想读的感觉。之后又突然懈怠了，停滞了许久。知道今年上半年陆续读了一些，终于在最近达成目标。</p>
+<p>做服务端开发，如果想要深入，有些技术就必然绕不过去，就比如本书所涉及的数据存储、数据处理以及分布式系统。之前也想深入了解一下分布式系统，看了些相关文章、博客，但是并没有系统的学习，因此理解层次比较浅，缺乏全局的认识，也容易看过就丢。而这本书，虽然并不是着眼于分布式系统，却从数据的角度，讲了分布式系统涉及的概念和理论。</p>
+<p>本书从应用的可靠性、扩展性、可维护性开始，到大数据应用的伦理结束，分为三个部分共十二章。</p>
+<h1 id="part-1-foundations-of-data-system">Part 1. Foundations of Data System</h1>
+<p>第一个部分是数据系统的基础，包括 4 章，分别是关于数据系统的数据定义以及关注点、数据模型、存储引擎、序列化。</p>
+<h2 id="shu-ju-xi-tong-de-san-da-wen-ti">数据系统的三大问题</h2>
+<p>一个典型的数据系统（Data System）可以由几个基本块构成，</p>
+<ul>
+<li>存储数据，因而之后自己或者其他应用可以找到这些数据（数据库）</li>
+<li>记住高代价操作的结果，从而可以加速读取（缓存）</li>
+<li>允许用户通过关键字搜索，或者其他方式过滤数据（索引）</li>
+<li>向其他应用发消息，从而异步处理（流处理）</li>
+<li>定期处理大量数据（批处理）</li>
+</ul>
+<p>而数据数据系统最关注的三个问题，则是</p>
+<ul>
+<li>Reliablity，可靠性：即使在故障（adversity）情况（软硬件故障）甚至人为失误的情况下，系统依然能正确地（correctly） 工作（在期望的性能下，正确的执行功能）</li>
+<li>Scalabiity，扩展性：在系统逐渐庞大（grows)（数据量、流量或者复杂性）的过程中，有合理的方式解决这个过程中出现的问题</li>
+<li>Maintainability，可维护性：系统的生命周期中，对系统的修改，包括维护当前功能或者增加新功能，都可以高效地（）productively）完成。</li>
+</ul>
+<h2 id="shu-ju-de-cun-chu-huo-qu-chuan-shu">数据的存储、获取、传输</h2>
+<p>数据模型不仅仅关系到一个应用如何实现，还表明了我们对问题的思考方式。通常，数据模型都是一层叠一层，上层的数据模型依赖于下一层的数据模型。比如，</p>
+<ul>
+<li>通常会有应用模型，使用接口和类表示，用于描述领域问题</li>
+<li>这些模型在存储时，可能是 json 或者关系型数据库表、图数据库的图等</li>
+<li>底层的存储引擎，则会把这些数据转变为 bytes</li>
+<li>在更底层还涉及硬件</li>
+</ul>
+<h3 id="shu-ju-mo-xing">数据模型</h3>
+<p>在第二章，主要涉及的是其中的第二项。</p>
+<p>目前，关系模型是使用最广泛的数据模型。然而，关系模型不能和领域级别的抽象一一对应。通常，领域模型使用对象进行描述，而对象和关系模型的表、行、列，并不是一一对应的。对象之间的关联关系，映射到关系模型，就会产生不同的关系，如一对一、多对一、多对多等。这种映射并不直观。很久之前就出现过其他的数据模型，比如网络模型（network model），每个记录之间存在链接，表示相互关系。但是网络模型的查询太复杂，所以败给了关系模型。文档模型又是另外的一种，和网络模型有些类似，都会把嵌套的记录放到父记录中而不是另起一张表，不过文档记录在处理前文的多对一、多对多关系时，存储的 document reference 更像是外键。</p>
+<p>文档模型和关系模型的一大区别在于，关系模型的模式（schema）是确定的，而文档模型的 schema 则更灵活，有时被称为 schemaless。实际上，文档模型只是在写入是不强制必须是统一的 schema，在读数据时，会认为数据具有某种特定的结构。与编程语言里的鸭子类型相似。这种模式，称为 schema-on-read，而传统的关系数据库，则时 schmea-on-write。</p>
+<p>数据存储在硬盘上，目的是为了日后可以读。而根据不同的应用场景，可能需要数据的不同部分。这就涉及了数据的查询。</p>
+<p>数据查询的语言和编程语言类似，可以分为命令时和声明式。常用的编程语言基本都是命令式，需要告诉计算机怎么做。SQL 就是一种声明式的查询语言，只需要表明要干什，不需要说明怎么做。在 Web 开发中，css 选择器以及 xml 的 xpath 选择器，也都是生命式语言。使用这类语言，最大的好处就是不需要关系实现的细节，交给语言的解释器去做优化即可。MongoDB 是文档模型的数据库，支持使用 MapReduce 模式的查询。MapReduce 可以认为是介于命令式和声明式两者之间，因为 map 和 reduce 方法的实现式命令式，而 map 和 reduce 的实现是不会暴露给用户的，对于用户而言，可以认为是声明式。</p>
+<p>图模型是区别以上数据模型的一种模型，擅长处理多对多关系。比如社交网络、交通路网等，都可以用图模型很好的描述。</p>
+<h3 id="cun-chu-he-du-qu">存储和读取</h3>
+<p>第三章是关闭于存储和读取，重点涉及上面所述的数据在磁盘中的存放。</p>
+<p>数据库对于数据的处理需要同时考虑读和写，一般而言，读和写的性能不能同时达到最优，必须由均衡取舍。</p>
+<p>最简单的数据库，就是所有数据存到一个文件，写则追加数据，读则从头开始扫。但是很显然，读性能及其糟糕，作为一个数据库，这个方案是不能接受的。</p>
+<p>以 key-value 数据库为例。为了优化，可以在内存中记录 key 在文件中的 offset，读数据时，根据 offset 取数据即可，称为哈希表（hash table）。这就是哈希索引。为了防止数据文件过大，一般会把数据文件分段存储。这种模型下，修改和删除数据都是在文件尾部追加数据，造成很大的冗余。因此可以在后台起一个线程，压缩合并数据段文件，只保留 key 在文件中的最后一次出现。这种实现很高效，因为顺序写磁盘非常快。而索引在内存中，读数据也并不是很慢。缺点在于哈希表必须在内存中，否则写道磁盘上，会有随机IO，性能很不好。此外，对于范围查询，则只能对范围内的 key 一个个查询，性能完全不行。</p>
+<p>LSM-Tree 是对上述模型的改进。在上述模型中，保证每个数据段文件中，key 是有序的，并且每个 key 在一个数据段文件中只出现一次。这种结构称为 SSTable（Sorted-String Table）。如此，则不需要在内存中存储所有的 key。有 SSTable 组成的存储，就称为 LSM-Tree（Log-structrured Merge-Tree）。由于 SSTable 中 key 有序，则需要在内存中执行写请求，内存中的结构称为 memtable。在 memtable 的大小达到一定阈值，刷盘。再刷盘的同时，新的请求写道新的 memtable。为了防止数据在刷盘之前丢失，需要在每次写数据时，先追加写道日志文件，在数据刷盘后删除。读数据时，则先查内存，再从信道旧，依次查询 SSTable。如果 key 不存在，查询就会比较慢，因此可以使用 bloom filter 来进行优化。</p>
+<p>B-Tree 则是和以上方案的路子都不同。读写都是以 page 作为最小单元，并进行原地更新。为了防止丢失，需要写 redo log，相当于上述的 append only log。</p>
+<p>数据库基本有两类使用场景，OLTP（online transaction processing）和 OLAP（online analytic processing)。OLTP，基本上是对数据库中的少量数据的操作，可能会与用户数据有交互。OLAP 则是注重数据分析，是对大批量的数据进行统计，以获得对于据的统计性的认知。由于使用场景的巨大不同，其底层存储也有差别。</p>
+<h3 id="bian-ma-yu-yan-jin">编码与演进</h3>
+<p>数据结构在存储时，都需要编码为 bytes。而编码不仅仅影响性能，同时会影响应用的结构以及部署方式。</p>
+<p>编码方式有很多，有和特定语言相关的，比如 Java 的 <code>Serializable</code>；有文本方式的编码，比如 json、xml；还有各种二进制编码。</p>
+<p>不同的编码方式，对 schema 要求也不同。json 编解码就不需要 schema，因为信息在编码后的数据中都存在。而 ProtoBuf 就需要 schema，因为其编码使用了数字作为 tag，但是编码后的数据中，并不存在某个数字对应的属性的名字、类型等信息，必须通过 schema 才能拿到，因此必须借助 schema 才能解码。</p>
+<p>不同的编码方式，还会影响到应用的升级兼容。如果新增、删除、修改字段，会导致只认识旧的 schema 的应用崩溃，那么这种方式就很难进行兼容升级，会给开发带来比较大困难。</p>
+<h1 id="part-2-distributed-data">Part 2. Distributed Data</h1>
+<p>第二部分是本书的重头戏，关注数据在多台机器上的存储以及获取。之所以需要考虑在多台机器上保存数据，由三个原因：</p>
+<ul>
+<li>扩展性。单机容量不能满足需求</li>
+<li>容错性、高可用：单机故障时，不影响整体的可用性</li>
+<li>时延：可以靠近用户部署，从而减小访问数据的时间</li>
+</ul>
+<h2 id="replication">Replication</h2>
+<p>同一份数据通过网络保存在多台机器上，就是 Replication（不知道怎么翻译好），存储数据的节点称为 replca。需要数据 replication 的理由是：</p>
+<ul>
+<li>可以在地理上靠近用户</li>
+<li>部分系统故障时，系统可以工作</li>
+<li>允许多台机器处理请求，从而增加吞吐量</li>
+</ul>
+<h3 id="dan-leader">单 leader</h3>
+<p>多个 replica 之间，由 leader/follower，或者 master/salve 之分，其中 leader 处理写请求，follower 只能处理读请求。因此需要 leader 需要把数据复制到其他的节点。</p>
+<p>leader 向其他节点复制数据，就存在一个同步异步的问题。leader 处理请求后，什么时候才认为数据已经成功写入。是在 leader 保存后即认为成功，还是所有 follower 都确认才算是成功。</p>
+<ul>
+<li>全同步复制：其他所有节点都确认，才返回。会导致严重的不可用，因为任何一个节点失效，都会导致无法写入数据。</li>
+<li>半同步：在 n 个节点确认后，认为写入成功。其他的节点异步复制。</li>
+<li>全异步：leader 成功即认为写入成功。会导致数据不一致，因为 leader 有可能在自己成功而没有其他节点确认时崩溃，这个数据就不会被其他节点承认。</li>
+</ul>
+<p>单 leader 模式下，还必须要处理 leader 不可用的异常，必须进行 failover。此时，可能会导致丢数据（具体要看是同步复制还是异步复制）。</p>
+<p>数据怎节点之间的同步，一般时通过复制日志。分为三种</p>
+<p>Statement-based。最简单的方式，leader 把其执行的所有写请求（statement）写到日志，并把日志发送给所有 follower。存在几个问题：</p>
+<ul>
+<li>必须时确定性的，不能由 random、now 这样的不确定性函数</li>
+<li>如果请求依赖数据中的其他内容，或者以来自增ID，那么请求的处理必须保持有序</li>
+<li>如果请求由副作用，那么副作用也必须时确定性的</li>
+</ul>
+<p>Write-ahread log。leader 把所有对数据的写操作写到日志，然后把日志发送给所有 follower。follower 根据日志恢复数据。这种方式的问题在于，日志里的内容时底层数据，更接近存储引擎。leader 和 follower 必须使用相同的数据格式，也因此在数据格式改变时，leader 和 follower 必须同时升级。这就导致在升级时，会有一段时间不可用。</p>
+<p>Logical(row-based) log。使用一种与存储引擎不同的数据格式来写日志，通常时逻辑上的记录。比如新增一行，则记录下一行内所有列的数据。MySQL 的 binlog 就是这种方式。</p>
+<p>既然需要从 leader 复制到 follower，就必然存在延迟（lag），继而应该考虑一下几点：</p>
+<ul>
+<li>写后读。自己写入的数据，自己也应该能够读出来。</li>
+<li>单调读。曾经读过的数据，之后也应该能够读出来。</li>
+<li>consisent prefix reads。具有因果性的数据，不能读到的顺序也因果相反。比如，问答中，问题一定先于回答先读到。</li>
+</ul>
+<h3 id="duo-leader">多 leader</h3>
+<p>单 leader 的问题在于，如果和 leader 的连接出现问题，那么就没有办法写入。并且 leader 也可能会成为系统的性能瓶颈。</p>
+<p>一个自然而然的解决方法就是，允许有多个 leader 同时存在，这也就是多 leader 的模式。多 leader 行能会更好，可以容忍网络问题以及单个机房的宕机。</p>
+<p>多个 leader 同时支持写入，就存在数据冲突的可能，从而需要解决数据冲突，而这是非常困难。如果可能，应该尽量避免数据冲突，比如对特定数据的写，都路由到同一个 leader。另外一种方式，是各 leader 的写入都能达到最终一致，方式可以为：</p>
+<ul>
+<li>每个写入都有一个唯一的 ID，冲突的写入，选择 ID 大的作为最终的胜者，丢弃其他数据。ID 可以是时间戳，甚至是随机数。如果使用时间戳，就是所谓的 last write wins</li>
+<li>每个节点有一个 ID，当数据冲突时，ID 最大的节点的写入作为胜者，丢弃其他数据</li>
+<li>合并多个写入</li>
+<li>记录下所有冲突的值，以待日后解决（有可能最后就是给最终用户一个提示）</li>
+</ul>
+<p>多 leader 之间存在拓扑结构，因为一个 leader 收到的写请求，也发送给其他的 leader。可以分为三类：环形、星型、全连接。</p>
+<h3 id="wu-leader-leaderless">无 leader（leaderless）</h3>
+<p>前两种模式下，客户端只能向 leader 发送写请求，由 leader 决定写入的顺序，而在 leaderless 模式下，则没有这个限制。最典型的系统时 Amazon 的 DynamoDB，写入时，客户端同时想多个节点发送写请求。读也是同时向多个节点发送读请求。</p>
+<p>leaderless 下，由 quorum 的概念：</p>
+<ul>
+<li>数据存储在 n 个节点中，称为 home node</li>
+<li>需要向 w 个节点写入成功，才算写入成功</li>
+<li>读数据时需要同时读 r 个节点的数据</li>
+<li>要求 w + r &gt; n，从而保证客户端读到的数据中，一定由最新的数据</li>
+</ul>
+<p>即便如此，quorum 仍然存在一致性问题：</p>
+<ul>
+<li>sloppy quorum</li>
+<li>并发写仍然会有顺序问题</li>
+<li>并发的读和写，无法确认读到的值是新是旧</li>
+<li>写入时，如果部分节点写入失败，从而少于 w 个节点成功，写入成功的节点并不会回滚。那么对于后续的读，不能确认是否会读到这次失败的写入。</li>
+<li>有新数据的节点宕机，恢复数据时从一个有旧数据的节点恢复，就可能会导致存有新数据的节点数目不足 w</li>
+<li>时序问题</li>
+</ul>
+<p>sloppy quorum是指这样的一种情况，在超过 n 个节点的集群中，客户端无法和某些节点通信，在写入时无法保证 w 个写入成功，此时有两种选择：</p>
+<ol>
+<li>写失败</li>
+<li>向不是 home node 的节点写数据</li>
+</ol>
+<p>第二种选择即 sloppy quorum，会导致数据不一致。因为客户端认为写入成功了，但是实际上，w + r &gt; n 可并不满足，因为不在 n 中的节点被算在 w 里。但是 sloppy quorum 可以提高写的可用性。</p>
+<p>因为允许并发写，因而即使时严格的 quorum，也可能存在冲突。如果每个节点都是简单的覆盖原先的值，肯定会导致数据的永久不一致，这对于一个数据系统来说时不可接受的。即使不能实现强一致性，也至少要保证最终一致性。各个节点最终会得到一致的值。</p>
+<ul>
+<li>
+<p>last write wins，丢弃并发写。这里的 LWW 并不一定时真实的最后，因为写操作式并发的，无法确定最后。但是可以人为确定一个最后。显然可以保证最终一致性，但是对于客户端而言，写入成功的数据也可能会丢失，丧失了持久性。在不能接受数据丢失的场景，这个方案不可行</p>
+</li>
+<li>
+<p>happens-before</p>
+<ul>
+<li>两个事件 A 和 B 的关系只有三种</li>
+<li>A happens-before B</li>
+<li>B happens-before A</li>
+<li>A、B 并发</li>
+<li>对于并发，需要 merge 并发写的值
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Version_vector">Version vector</a>，用于追踪事件的偏序关系（或者叫做因果关系），但是 version vector 随着写的增多，会呈指数级增长<sup class="footnote-reference"><a href="#vector">1</a></sup></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="jie-yu">结语</h1>
+<p>这篇文章从 6.26 开始写（所以文章开头都是基于 6.26 的），到现在两周。大约是全书的三分之一吧，文章内容基本是书中内容的重复性复述。原本是想要写全书的，奈何内容确实很多，而我虽然已经把书读了一般，但是书中所讲并没有完全吃透。因而必须要循着读书时记得一些笔记，并且翻书重看，才能进行下去，也的确耗时。书中余下的内容，应该会有续篇。</p>
+<div class="footnote-definition" id="vector"><sup class="footnote-definition-label">1</sup>
+<p><a href="https://www.zhihu.com/question/19994133">https://www.zhihu.com/question/19994133</a></p>
+</div>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2019&#x2F;an-adventure-to-redis&#x2F;">《Redis深度历险》读后</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2019-06-16</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/du-shu/">#读书</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/redis/">#Redis</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>周末花了两个下午，把之前买的一本书看完了。书名叫做《Redis深度历险：核心原理与应用实践》。书很薄，正文只有230页，全彩印刷，定价79，买的时候有打折，50多块。</p>
+<h1 id="quan-shu-nei-rong">全书内容</h1>
+<p>全书分为5篇，分别是基础和应用篇、原理篇、集群篇、拓展篇和源码篇。</p>
+<h2 id="ji-chu-ying-yong-pian">基础应用篇</h2>
+<p>基础和应用篇，讲了下 Redis 的基础功能，以及 Redis 原生支持的一些功能。读的时候，这一篇原本是想略过的，以为就是要写 Redis 的各种命令的使用。
+实际上也确实是讲了各种命令，但是还讲了一些我原本并不了解的功能。这一篇的内容，大致可以分为两种，一是内置的命令以及应用，比如 HyperLogLog、Bitmap等；二是一些功能如何使用 Redis 实现，书中讲了分布式锁、延时队列、限流等。</p>
+<h3 id="hyperloglog">HyperLogLog</h3>
+<p>书中给 HyperLogLog 举的以一个应用例子是记录一个网页的UV。计算 uv，需要对不同的用户进行去重，一个很直接的想法就是用一个 set 记录所有访问过的用户。这个方法的问题在于，如果用户数过多，占用的空间会非常大。而 HyperLogLog 可以用很少的空间，完成同样的工作，代价则是计数有误差，大概在 0.81%。Redis 的实现里，这个很少的空间是 12KB，与用户的数目无关。</p>
+<p>HyperLogLog 是基于概率基数统计算法。其基本思想是，一个二进制串的集合中，所有元素的第一个为 1 的比特的位置 k，与集合的基数 n 之间，存在<code>n = 2^k</code> 的数学关系，当然，是约等于，并且误差比较大。因此实现上，会进行分桶，用调和平均数减小误差。Redis 的实现里，会使用 2^14 = 16384 个桶。</p>
+<p>书中对 HyperLogLog 只讲了大概，背后涉及的伯努利实验以及概率都没有讲，可以自己 google，网上还是有不少文章的。</p>
+<h2 id="yuan-li-pian">原理篇</h2>
+<p>原理篇讲了一些 Redis 的一些功能的基本原理吧。说了下 IO 模型、通信协议、管道、事务等。因为我本身对 Redis 不是很了解，所以对我而言，这一篇还是学到了一些东西，对 Redis 的一些功能的实现有了点了解。但我还是要说，这一篇的内容不够深入，这也是整本书的风格，内容不够深入。</p>
+<h2 id="ji-qun-pian">集群篇</h2>
+<p>集群篇讲了主从、Sentinel、Codis 以及 Redis Clster。看完可以对这几点内容都有些了解，大面上可以了解 Codis 和 Redis Cluster 区别以及不同的技术选型。比如，Codis 有 zk 保存槽位信息，通过 proxy 访问实例；Redis Cluster 去中心化，实例间通过 Gossip 交互，客户端可以直接访问实例，速度更好。这些了解，在使用中可能也够了。不过，这一篇没有深入实现细节。</p>
+<h2 id="tuo-zhan-pian">拓展篇</h2>
+<p>拓展篇讲了 Redis 5.0 的 Stream，又讲了 Info 命令。然后是过期策略、懒惰删除等。甚至还有如何用 Jedis 以及用 Spiped 来安全传输。总之，这一篇讲的比较杂，设计了 Redis 内置的命令，也有 Redis 的原理以及实现考量，又有如何使用 Redis 的库。算是在源码篇之前，又不适合放到其他篇的一些内容吧。</p>
+<h2 id="yuan-ma-pian">源码篇</h2>
+<p>源码篇，顾名思义，是讲源码的。这一篇的源码，主要是关于 Redis 的数据结构的，比如字符串、hash、list、zset等等。这一篇，可以很明显的感觉到，Redis 实现过程中，对于内存的斤斤计较，以及单线程下对于 CPU 占用时长的考量。</p>
+<h1 id="zong-jie">总结</h1>
+<p>整本书看下来，收获不算小，对 Redis 也有了更多的了解。书的语言也是比较通俗易懂，图解也是很清楚的。看得比较顺畅。缺点呢，也有一些。前边也说过，内容讲得不够深入，偏浅。这一点可能也是因为 Redis 的东西本来就不多吧，很多内容应该可以在网上找到的。还有就是，有些地方是可以不用代码的。比如在讲 HyperLogLog 时，为了说明 n 和 k 关系，贴了两段用于实验的代码，Java 和 Python 各一版。说实话，这些完全没有必要，并没有比用文字更清晰，也和讲解的内容关系不大，有点像是凑篇幅一样。如果作者认为确实很重要，可以放到附录里。此外，书中的一些代码的排版是有问题的，尤其原本 Redis 里的注释。源码的注释，在打印到书里，由于太长，会换行，但是换行还不多。比如这样，</p>
+<pre data-lang="c" style="background-color:#f9f9f9;color:#111111;" class="language-c "><code class="language-c" data-lang="c"><span>    </span><span style="color:#8e908c;">/* If we reached the 1:1 ratio, and we are allowed to resize
+</span><span style="color:#8e908c;">the hash
+</span><span style="color:#8e908c;">     * table (global setting) or we should avoid it but the ratio
+</span><span style="color:#8e908c;">between
+</span><span style="color:#8e908c;">     * elemenets/buckets .....
+</span><span style="color:#8e908c;">     */ 
+</span></code></pre>
+<p>真的很影响阅读体验，并且浪费纸。</p>
+<p>总体而言，给7分吧。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2019&#x2F;neovim-plugin-denite&#x2F;">neovim 插件 denote.nvim</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2019-05-03</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/neovim/">#neovim</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <h1 id="neovim">neovim</h1>
+<p>hyperextensible Vim-based text editor。这是 <a href="https://neovim.io">neovim</a> 官网对其的定义。目前，neovim 仍然在快速迭代，并且现在的版本（v0.3.5）已经可用。neovim 和 vim 在基本使用时兼容的，配置文件也基本是兼容的。因为我不是 vim 重度用 户，所以并没有发现 vim 中可用但是 neovim 中不可用的功能。目前我已经全部切换到 neovim 了。</p>
+<h1 id="denite-nvim">denite.nvim</h1>
+<p><a href="https://github.com/Shougo/denite.nvim">denite.nvim</a> 是 neovim 的一个插件，在 vim 8 中也能使用。denite.nvim 利用了异步特性，性能相比上一代的unite.vim 有了很大的提升。denite 作者对其的描述是，“Dark powered asynchronous unite all interfaces for Neovim/Vim8”。说实话，从这句话，我是根本没明白这个插件到底做的是啥。不过看到一些推荐这个插件的地方，是用作 fuzzy finder 的，所以还是装了看了下。</p>
+<p>简单地说，denite 是给 neovim 中提供了类似于 VSCode、Atom 中类似于 Ctrl-P 的功能。其实也有其他的插件提供类 似的功能，比如 <a href="https://github.com/junegunn/fzf.vim">fzf.vim</a>，<a href="https://github.com/kien/ctrlp.vim">ctrlp.vim</a>。不过我没有用过这些插件，所以本文不会对比。</p>
+<p>denite 的配置比较复杂，幸而文档非常完善。denite 中，通过 source 收集不同的可以访问的对象。利用 <code>:Denite</code> 指令，列出 source 收集的对象，进而针对选择的对象，执行不同的操作。</p>
+<p>先来个简单的例子，<code>:Denite file/rec</code>，查看当前目录下的所有的文件列表，rec 的意思是递归。所以，也有一个 file 的 source，只会显示当前目录下最顶层的文件。执行命令后，会有一个新的 buffer，列出所有的内容，称为 denite buffer。denite buffer 和普通的 vim buffer 不太一样， 可以认为是一个临时的 buffer。denite buffer 的操作方式和 vim buffer 也是不同的，但是也有两种模式，Insert 和 Normal。执行指令后，默认会进入 Insert 模式，denite 会根据用户的输入，过滤掉不匹配的候选项，默认的匹配方法是 fuzzy match，和 VSCode 中的 Ctrl-P 是一样的。选定候选之后，可以执行不同的操作，比如预览、打开、在另一个 buffer 打开等等。</p>
+<h2 id="source">source</h2>
+<p>source 是 denite 的核心概念。denite 可选择的候选都是由 source 提供的。简单而言，每个 source 提供了一个候选对象的（有序）集合。比如前边提到的 file/rec，内置的 source 还包括比如 colorscheme、buffer、command 等。source 可以有参数，在执行 <code>:Denite</code> 时，可以传递参数。比如 file/rec，可以接受一个参数作为搜索的目录，如果参数省略，则使用当前目录。除了参数，source 还可以通过 <code>denite#custom#var</code> 自定义一些变量（variable）。比如</p>
+<pre data-lang="vim" style="background-color:#f9f9f9;color:#111111;" class="language-vim "><code class="language-vim" data-lang="vim"><span>call </span><span style="color:#4271ae;">denite#custom#var</span><span>(</span><span style="color:#839c00;">&#39;file/rec&#39;</span><span>, </span><span style="color:#839c00;">&#39;command&#39;</span><span>, [</span><span style="color:#839c00;">&#39;git&#39;</span><span>, </span><span style="color:#839c00;">&#39;ls-files&#39;</span><span>, </span><span style="color:#839c00;">&#39;-co&#39;</span><span>, </span><span style="color:#839c00;">&#39;--exclude-standard&#39;</span><span>])
+</span></code></pre>
+<p>这行代码自定义了 file/rec 这个 source 的 <code>command</code> 变量，这个变量是 source 获取文件列表的命令。在 Unix 环境下，默认的是使用 <code>find</code> 的。自定义之后，则变成了 <code>git ls-files -co --exclude-standard</code>。不同的 soruce 的参数以及可以自定义的变量都不同，具体的需要查看文档了。</p>
+<h2 id="denite-buffer">denite buffer</h2>
+<p>source 收集的对象，都是列在 denite buffer 里，用户可以通过输入来过滤搜索结果。默认的设置下，进入 denite buffer 是处于 Insert 模式，这时用户可以进行输入过滤结果。在 Insert 模式下，输入 <code>&lt;tab&gt;</code>，可以选择一些可用的 action。不同的结果，可用的 action 也不同。结果又不同的类型，比如 file、buffer 等。不同的类型支持不同的 action 集合。</p>
+<p>和 vim buffer 一样，denite buffer 也支持自定义 map。当然就不是 vim 默认的定义 map 的方式了。denite 中使用 <code>denite#custom#map</code> 定义 map。来个例子</p>
+<pre data-lang="vim" style="background-color:#f9f9f9;color:#111111;" class="language-vim "><code class="language-vim" data-lang="vim"><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;normal&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;tab&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:do_action:preview&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span></code></pre>
+<p>这个例子，把 Normal 模式下的 <code>&lt;tab&gt;</code> 键，映射为预览操作。最后的 <code>noremap</code> 和 vim 中的意义一样，因为默认 denite 也会递归的解析映射的定义。定义了映射后，denite buffer 的操作和 vim 就没有区别了。现在 VSCode 中也是可以使用 vim 的，但是只能在编辑区。使用 Ctrl-P 的时候，可能还是不得不依赖方向键。在 denite 里就没有了这个问题。</p>
+<h2 id="yu-lan-zhu-ti-de-li-zi">预览主题的例子</h2>
+<p>denite 内置了 colorscheme 的 source，收集了所有已安装的主题。本来，在 vim 中切换主题，不是很方便，因为没有预览功能，只能 <code>:color &lt;theme&gt;</code> 选定主题，不合适就继续重复。而 denite 利用 <code>-auto-action=preview</code> 选项，配合 colorscheme source，可以方便的切换主题。</p>
+<pre data-lang="vim" style="background-color:#f9f9f9;color:#111111;" class="language-vim "><code class="language-vim" data-lang="vim"><span>:Denite -auto</span><span style="color:#c99e00;">-action=</span><span>preview </span><span style="color:#4271ae;">colorscheme</span><span>`
+</span></code></pre>
+<p><code>-auto-action=preview</code> 的意思是，对选中的结果，自动执行 preivew 的操作。<code>-auto-action</code> 是 denite 的 option。可以通过 <code>denite#custom#option</code> 设置自定义 option。默认设置下，<code>-auto-action</code> 是空的。</p>
+<pre data-lang="vim" style="background-color:#f9f9f9;color:#111111;" class="language-vim "><code class="language-vim" data-lang="vim"><span>call </span><span style="color:#4271ae;">denite#custom#option</span><span>(</span><span style="color:#839c00;">&#39;default&#39;</span><span>, </span><span style="color:#839c00;">&#39;auto_action&#39;</span><span>, </span><span style="color:#839c00;">&#39;preview&#39;</span><span>)
+</span></code></pre>
+<p>option 的名字需要改一下，去掉前缀的 <code>-</code> 并且把中间的 <code>-</code> 替换为 <code>_</code>。</p>
+<h2 id="wo-de-pei-zhi">我的配置</h2>
+<pre data-lang="vim" style="background-color:#f9f9f9;color:#111111;" class="language-vim "><code class="language-vim" data-lang="vim"><span style="color:#4271ae;">nnoremap </span><span style="color:#c99e00;">&lt;leader&gt;&lt;space&gt;</span><span> :Denite</span><span style="color:#c99e00;">&lt;space&gt;
+</span><span>
+</span><span>call </span><span style="color:#4271ae;">denite#custom#alias</span><span>(</span><span style="color:#839c00;">&#39;source&#39;</span><span>, </span><span style="color:#839c00;">&#39;file/rec/git&#39;</span><span>, </span><span style="color:#839c00;">&#39;file/rec&#39;</span><span>)
+</span><span>call </span><span style="color:#4271ae;">denite#custom#var</span><span>(</span><span style="color:#839c00;">&#39;file/rec/git&#39;</span><span>, </span><span style="color:#839c00;">&#39;command&#39;</span><span>, [</span><span style="color:#839c00;">&#39;git&#39;</span><span>, </span><span style="color:#839c00;">&#39;ls-files&#39;</span><span>, </span><span style="color:#839c00;">&#39;-co&#39;</span><span>, </span><span style="color:#839c00;">&#39;--exclude-standard&#39;</span><span>])
+</span><span style="color:#4271ae;">nnoremap </span><span style="color:#c99e00;">&lt;silent&gt; &lt;C-p&gt;</span><span> :</span><span style="color:#c99e00;">&lt;C-u&gt;</span><span>Denite -auto</span><span style="color:#c99e00;">-action=</span><span>preview 
+</span><span>            </span><span style="color:#8959a8;">\</span><span> `</span><span style="color:#4271ae;">finddir</span><span>(</span><span style="color:#839c00;">&#39;.git&#39;</span><span>, </span><span style="color:#839c00;">&#39;;&#39;</span><span>) </span><span style="color:#8959a8;">!= </span><span style="color:#839c00;">&#39;&#39;</span><span> ? </span><span style="color:#839c00;">&#39;file/rec/git&#39;</span><span> : </span><span style="color:#839c00;">&#39;file/rec&#39;</span><span>`</span><span style="color:#c99e00;">&lt;cr&gt;
+</span><span style="color:#4271ae;">nnoremap </span><span style="color:#c99e00;">&lt;leader&gt;</span><span>c :</span><span style="color:#c99e00;">&lt;C-u&gt;</span><span>Denite </span><span style="color:#4271ae;">colorscheme</span><span> -auto</span><span style="color:#c99e00;">-action=</span><span>preview</span><span style="color:#c99e00;">&lt;cr&gt;
+</span><span style="color:#4271ae;">nnoremap </span><span style="color:#c99e00;">&lt;leader&gt;</span><span>; :</span><span style="color:#c99e00;">&lt;C-u&gt;</span><span>Denite file_mru</span><span style="color:#c99e00;">&lt;cr&gt;
+</span><span>
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;insert&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;tab&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:move_to_next_line&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;insert&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;S-tab&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:move_to_previous_line&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;insert&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;C-cr&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:choose_action&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;insert&#39;</span><span>, </span><span style="color:#839c00;">&#39;jj&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:enter_mode:normal&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;normal&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;tab&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:do_action:preview&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>call </span><span style="color:#4271ae;">denite#custom#map</span><span>(</span><span style="color:#839c00;">&#39;normal&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;S-tab&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;&lt;denite:choose_action&gt;&#39;</span><span>, </span><span style="color:#839c00;">&#39;noremap&#39;</span><span>)
+</span><span>
+</span><span>call </span><span style="color:#4271ae;">denite#custom#option</span><span>(</span><span style="color:#839c00;">&#39;default&#39;</span><span>, </span><span style="color:#839c00;">&#39;winheight&#39;</span><span>, </span><span style="color:#839c00;">&#39;15&#39;</span><span>)
+</span></code></pre>
+<p>有两点说明下。其中 file/rec/git 相关，是 denite 的 FAQ 中的方案。因为默认情况下，file/rec 会显示所有目录下的文件，包括 .git 目录，直接用 file/rec 的结果并非期望的结果，所以当存在 .git 目录时，用 <code>git ls-files</code> 获取文案列表。配置中使用了一个 file_mru 的 source，提供的是最近使用的文件的列表，这个 source 不是 denite 内置的，是由插件 neomru 提供的，与 denite 是同一个作者 Shougo。</p>
+<h1 id="zong-jie">总结</h1>
+<p>denite 的配置难度比较高，但是配置好之后，用起来就非常顺手。另外，neovim 一个很重也好的发展方向，就是 embeded everywhere，也就是嵌入各种地方。给 neovim 套一个更现代的一个壳，是我对 neovim 的一个非常大的期待。而 denite 给现代的壳，提供了一个非常好的实现 Ctrl-P 的方式。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2019&#x2F;jackson-deserialize-with-only-class-names&#x2F;">在只有类名时使用 Jackson 反序列化 Java 对象</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2019-04-21</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jackson/">#Jackson</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <h1 id="fan-xu-lie-hua">反序列化</h1>
+<p>Java 里，用 Jackson 序列号和反序列化，非常简单。序列化不是本文关心的内容，不谈。反序列的接口，基本下边这两个接口。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#3e999f;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#3e999f;">&gt; </span><span style="color:#c99e00;">T </span><span style="color:#c82728;">readValue</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> content, </span><span style="color:#c99e00;">Class</span><span style="color:#4271ae;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#4271ae;">&gt; valueType)</span><span>;
+</span><span style="color:#3e999f;">&lt;</span><span style="color:#c99e00;">T</span><span style="color:#3e999f;">&gt; </span><span style="color:#c99e00;">T </span><span style="color:#c82728;">readValue</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> content, </span><span style="color:#c99e00;">TypeReference</span><span style="color:#4271ae;"> valueTypeRef)</span><span>;
+</span></code></pre>
+<p>使用 <code>Class&lt;T&gt;</code> 的接口，返回的是一个类型为 <code>T</code> 的对象。接口的声明很直接，使用也比较舒服。不过当需要反序列的是带有参数的类型，比如 <code>List</code> 等，这个接口提供的信息就缺失了一些，那就是 <code>List</code> 的类型参数。在语法上，<code>readValue(s, List&lt;Type&gt;.class)</code> 是行不通的。而，<code>List&lt;Dog&gt;</code> 和 <code>List&lt;Cat&gt;</code> 显然不同，在反序列化时，我们期望得到元素类型不同的 <code>List</code> 。</p>
+<p>Java 中，不允许 <code>List&lt;Type&gt;.class</code> 的写法，是因为类型擦除。编译之后，只有 <code>List</code> 这个 rawType。为了解决这个问题，Jackson 提供了 <code>TypeRefernece</code>，来保存类型参数信息。既然可以保存，显然，类型擦除并没有完全地把所有的类型参数的信息都丢掉。实际上，可以通过反射来获取类的泛型信息，方法是通过 <code>Class#getGenericSuperclass</code> 获取泛型父类，返回的类型是 <code>Type</code>。如果父类实际上没有类型参数，则实际上是个 <code>Class</code>，否则，是 <code>ParameterizedType</code>。看下 <code>TypeReference</code> 的具体实现，</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8e908c;">// 删除了无关代码、注释、空行
+</span><span style="color:#8959a8;">public abstract class </span><span style="color:#c99e00;">TypeReference</span><span>&lt;</span><span style="color:#f07219;">T</span><span>&gt; {
+</span><span>    </span><span style="color:#8959a8;">protected final </span><span style="color:#c99e00;">Type </span><span>_type;
+</span><span>    </span><span style="color:#8959a8;">protected </span><span style="color:#4271ae;">TypeReference</span><span>() {
+</span><span>        </span><span style="color:#c99e00;">Type</span><span> superClass </span><span style="color:#3e999f;">= </span><span style="color:#c82728;">getClass</span><span style="color:#4271ae;">()</span><span>.</span><span style="color:#c82728;">getGenericSuperclass</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        </span><span style="color:#8959a8;">if </span><span>(superClass </span><span style="color:#3e999f;">instanceof </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt;) { </span><span style="color:#8e908c;">// sanity check, should never happen
+</span><span>            </span><span style="color:#8959a8;">throw new </span><span style="color:#c99e00;">IllegalArgumentException</span><span>(</span><span style="color:#839c00;">&quot;Internal error: TypeReference constructed without actual type information&quot;</span><span>);
+</span><span>        }
+</span><span>        _type </span><span style="color:#3e999f;">= </span><span>((</span><span style="color:#c99e00;">ParameterizedType</span><span>) superClass).</span><span style="color:#c82728;">getActualTypeArguments</span><span style="color:#4271ae;">()</span><span>[</span><span style="color:#f07219;">0</span><span>];
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getType</span><span>() { </span><span style="color:#8959a8;">return</span><span> _type; }
+</span><span>}
+</span></code></pre>
+<p>注意 <code>TypeReference</code> 是一个抽象类，这意味着实例化时都是要创建一个子类。有了 <code>TypeRerence</code>，反序列化就没有问题了。</p>
+<h1 id="mei-you-lei-xing-de-ju-ti-xin-xi">没有类型的具体信息</h1>
+<p>这里其实还有个问题，假如我没有类的实际信息，只有类的名字以及类型参数的名字，怎么来反序列化呢？我碰到这个问题，是在尝试写一个简单的 RPC，序列化方式就是用的 json。在传递参数时，客户端只能把参数的类型通过字符串传递，需要在服务端解析出来。</p>
+<p><code>TypeReference</code> 的构造函数，要求必须有类型参数。然而，即使通过类名，获得了对应的 <code>Class</code> 实例，也没有办法转变成字面量去创建一个 <code>TypeReference</code>。解决办法其实很简单，重写 <code>getType</code> 方法，因为 <code>TypeReference</code> 的目的就只是提供一个 <code>getType</code> 方法。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">CustomeTypeRef</span><span>&lt;</span><span style="color:#f07219;">T</span><span>&gt; </span><span style="color:#8959a8;">extends </span><span style="color:#839c00;">TypeReference</span><span>&lt;</span><span style="color:#c99e00;">T</span><span>&gt; {
+</span><span>        </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; rawType, paramType;
+</span><span>        </span><span style="color:#8959a8;">protected </span><span style="color:#4271ae;">MyTypeRef</span><span>(</span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; </span><span style="color:#f07219;">rawType</span><span>, </span><span style="color:#c99e00;">Class</span><span>&lt;</span><span style="color:#3e999f;">?</span><span>&gt; </span><span style="color:#f07219;">paramType</span><span>) {
+</span><span>            </span><span style="color:#c82728;">this</span><span>.rawType </span><span style="color:#3e999f;">=</span><span> rawType;
+</span><span>            </span><span style="color:#c82728;">this</span><span>.paramType </span><span style="color:#3e999f;">=</span><span> paramType;
+</span><span>        }
+</span><span>        @</span><span style="color:#c82728;">Override
+</span><span>        </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getType</span><span>() {
+</span><span>            </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">ParameterizedType</span><span>() {
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type</span><span style="color:#8959a8;">[] </span><span style="color:#4271ae;">getActualTypeArguments</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">Type</span><span>[]{paramType};
+</span><span>                }
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getRawType</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return</span><span> rawType;
+</span><span>                }
+</span><span>                @</span><span style="color:#c82728;">Override
+</span><span>                </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">Type </span><span style="color:#4271ae;">getOwnerType</span><span>() {
+</span><span>                    </span><span style="color:#8959a8;">return </span><span style="color:#f07219;">null</span><span>;
+</span><span>                }
+</span><span>            };
+</span><span>        }
+</span><span>    }
+</span><span style="font-style:italic;color:#c82829;">}
+</span></code></pre>
+<p>虽然参数类型 <code>T</code> 已经不需要了，但是必须得有。因为在 <code>TypeReference</code> 的默认构造函数，强制必须有参数类型。</p>
+<p>看起来很简单的样子啊。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2018&#x2F;default-method-in-interface&#x2F;">Default method in interface</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2018-08-31</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/yu-fa/">#语法</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>Java 中的<code>interface</code>是一组抽象方法的集合，是一组对外的接口。Java 8 之前，在<code>interface</code>中是没有方法体，的，只能在子类实现。如果是所有子类都一致的实现，标准方法是定义一个实现这个接口的抽象类，在抽象类中实现公共方法，子类集成这个抽象类，并实现各子类不同的方法。这样的写法并没有什么问题，只是啰嗦而已。在 Java 8 中，接口内可以实现 defaut method。所有实现改接口的类，如果没有重写这个方法，则使用接口中的实现。针对上面的场景，可以少写一个类。</p>
+<p>此外，接口和抽象类的一个重要区别在于，一个类只能继承一个父类，却可以实现多个接口。在没有 default method 的时候，多个接口表示我们在子类中实现的方法变多了。假如一个接口内只有 default method，那么继承这个接口的类可以不用实现接口的方法，而自动的获得了一个方法。在一些场景下，可以利用这个方法给类增加一些 utils 方法。比如下边的代码，<code>Person</code>只需要继承<code>Jsonable</code>就可以自动的获得<code>toJson</code>方法。</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">interface </span><span style="color:#c99e00;">Jsonable </span><span>{
+</span><span>    </span><span style="color:#8959a8;">default </span><span style="color:#c99e00;">String </span><span style="color:#4271ae;">toJson</span><span>() {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">JsonSerializer</span><span>.</span><span style="color:#c82728;">serialize</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">this</span><span style="color:#4271ae;">)</span><span>;
+</span><span>    }
+</span><span>}
+</span><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Person </span><span style="color:#8959a8;">implements </span><span style="color:#839c00;">Jsonable </span><span>{
+</span><span>    </span><span style="color:#8959a8;">private int </span><span>id;
+</span><span>    </span><span style="color:#8959a8;">private </span><span style="color:#c99e00;">String </span><span>name;
+</span><span>}
+</span></code></pre>
+<p>一些简单的 utils 方法，就可以不必定义一个 utils 类了。当然这是一种口味的问题，并不是所有人都喜欢这样一种方法的。此外，之所以说简答的 utils 方法可以这样实现，原因在于 java 的 interface 中不能有状态，所以有些是做不了的。比如缓存、log 等。并且现在 java 还是不支持接口中的私有方法，所以写一些复杂的方法在接口中，会暴露不必要的细节。好消息是 Java 9 已经支持了接口中的私有方法。</p>
+<p>default method 是一种 <a href="https://zh.wikipedia.org/wiki/Mixin">mixin</a>，不过功能有限。而一些语言则提供更完善的 mixin 机制，比如 scala 的<code>trait</code>。<code>trait</code>是可以有状态的，从而对子类的的侵入会更少。对于 mixin 还不是很了解，可以参考下边的链接。</p>
+<p>参考：<br />
+<a href="https://opencredo.com/traits-java-8-default-methods">traits-java-8-default-methods</a> <br />
+<a href="https://stackoverflow.com/questions/16410298/what-are-the-differences-and-similarties-between-scala-traits-vs-java-8-interfa">what-are-the-differences-and-similarties-between-scala-traits-vs-java-8-interfaces</a> <br />
+<a href="https://www.zhihu.com/question/20778853">Mixin是什么概念?</a></p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2018&#x2F;jekyll-to-hugo&#x2F;">从Jekyll迁移到Hugo</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2018-03-10</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jekyll/">#Jekyll</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/hugo/">#Hugo</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/travis-ci/">#Travis CI</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>最近把博客从Jekyll迁移到了Hugo，在这里记录一下。 </p>
+<p>之前一直使用Jekyll，最大的原因是Github Pages原生支持Jekyll，
+repo里只管理源代码就可以，不需要上传build之后的文件。
+不过Jekyll也有许多不尽如人意的地方，主要是一下几点：</p>
+<ul>
+<li>本地开发环境不容易配置。
+没有直接的可执行文件，需要安装ruby，gem，之后再安装jekyll</li>
+<li>Github Pages的build配置不能按照自己的需求定制。
+各种依赖的版本不能自己选择，也不能根据使用Jekyll的一些插件</li>
+<li>编译速度慢。
+因为本站的文章太少，这一点倒是不是什么问题</li>
+</ul>
+<h1 id="nei-rong-qian-yi">内容迁移</h1>
+<p>博客从Jekyll迁移到Hugo，在考虑主题迁移的情况下，还是比较简单的。
+Hugo的命令行可以直接从Jekyll导入文章，</p>
+<pre data-lang="bash" style="background-color:#f9f9f9;color:#111111;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#c82728;">hugo</span><span style="color:#4271ae;"> import jekyll /path/to/jekyll/root /target/path
+</span></code></pre>
+<p>这样可以直接导入文章，Jekyll中其他的静态文件会被放到<code>static</code>文件夹中。
+这个命令比较简单，但并没有把所有事情干完。只是把Jekyll中的文章放到了Hugo中，
+并且根据文件名里的时间，放到了front matter中，其他并没有改动。
+文件名也仍然需要自己手动修改，去掉时间。</p>
+<p>此外，Hugo使用的markdown，在语法上也与Jekyll有些差异，渲染出来的html也是有些不同。
+这里可以在Hugo的配置文件里进行修改，也可以修改文章的语法。</p>
+<h1 id="zi-dong-bian-yi">自动编译</h1>
+<p>使用Jekyll的时候其实是不需要这一步的，直接推到github上就行了。
+使用hugo，如果每次都是本地编译，然后把编译后的html文件推到github，
+那就太不方便了。而且这样也不利于源码文件的管理。</p>
+<h2 id="travis-ci">Travis CI</h2>
+<p>Travis CI是持续集成服务，并且对于Github上的public repo是免费使用的。
+利用Travis CI，可以达到每次push到Github上的时候，自动build，
+并推送到repo的特定的分支。</p>
+<p>首先需要在Travis CI上开启repo的自动集成，然后在repo里添加<code>.travis.yml</code>。
+Travis CI会根据这个文件，进行build。根据<a href="https://docs.travis-ci.com/user/customizing-the-build">Travis CI的文档</a>，
+build过程分为几个阶段。一个静态博客的build，比较简单，
+也不用所有的过程都用上。在<code>install</code>阶段安装hugo，<code>script</code>阶段调用hugo进行编译，
+<code>after_success</code>阶段把生成的文件推到github上。这是本站的使用的配置。</p>
+<pre data-lang="yml" style="background-color:#f9f9f9;color:#111111;" class="language-yml "><code class="language-yml" data-lang="yml"><span style="color:#8e908c;"># .traivs.yml
+</span><span style="color:#c82728;">language</span><span>: </span><span style="color:#839c00;">go
+</span><span style="color:#c82728;">go</span><span>:
+</span><span> - </span><span style="color:#839c00;">&#39;1.10&#39;
+</span><span style="color:#c82728;">branches</span><span>:
+</span><span>  </span><span style="color:#c82728;">only</span><span>:
+</span><span>  - </span><span style="color:#839c00;">source </span><span style="color:#8e908c;"># 只有source分支的推送才触发构建
+</span><span style="color:#c82728;">install</span><span>:
+</span><span>  - </span><span style="color:#839c00;">wget /path/to/hugo/releases -O /tmp/hugo.tar.gz
+</span><span>  - </span><span style="color:#839c00;">mkdir -p bin
+</span><span>  - </span><span style="color:#839c00;">tar -xvf /tmp/hugo.tar.gz -C bin
+</span><span style="color:#c82728;">script</span><span>:
+</span><span>  - </span><span style="color:#839c00;">bin/hugo
+</span><span style="color:#c82728;">after_success</span><span>:
+</span><span>  - </span><span style="color:#839c00;">sh .travis/push.sh
+</span></code></pre>
+<pre data-lang="bash" style="background-color:#f9f9f9;color:#111111;" class="language-bash "><code class="language-bash" data-lang="bash"><span style="color:#8e908c;"># push.sh
+</span><span style="color:#4271ae;">setup_git</span><span>() {
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> config</span><span style="color:#f07219;"> --global</span><span style="color:#4271ae;"> user.name </span><span style="color:#839c00;">&quot;travis@travis-ci.org&quot;
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> config</span><span style="color:#f07219;"> --global</span><span style="color:#4271ae;"> user.email </span><span style="color:#839c00;">&quot;Travis CI&quot;
+</span><span>}
+</span><span>
+</span><span style="color:#4271ae;">commit_files</span><span>() {
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> init
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> add .
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> commit</span><span style="color:#f07219;"> -m</span><span style="color:#839c00;">&quot;Travis build: $</span><span style="color:#c82728;">TRAVIS_BUILD_NUMBER</span><span style="color:#839c00;">&quot;
+</span><span>}
+</span><span>
+</span><span style="color:#4271ae;">push</span><span>() {
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> remote add origin https://${</span><span style="color:#c82728;">GH_TOKEN</span><span style="color:#4271ae;">}@github.com/yourname/yourrepo.git
+</span><span>    </span><span style="color:#c82728;">git</span><span style="color:#4271ae;"> push</span><span style="color:#f07219;"> -f -u</span><span style="color:#4271ae;"> origin master
+</span><span>}
+</span><span>
+</span><span style="color:#4271ae;">cd public
+</span><span style="color:#c82728;">setup_git
+</span><span style="color:#c82728;">commit_files
+</span><span style="color:#c82728;">push
+</span></code></pre>
+<p>由于Travis CI并没有repo的push权限，所以直接推到repo上是会验证失败的。
+<code>push.sh</code>里，<code>GH_TOKEN</code>是有<code>public_repo</code>权限的personal access token，
+可以在<a href="https://github.com/settings/tokens">https://github.com/settings/tokens</a>申请，并在Travis CI上设置。</p>
+<p>至此，Travis CI的自动build就完成了。</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2017&#x2F;memory-barrier-in-synchronized&#x2F;">Synchronized的内存屏障</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2017-08-20</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/bing-fa/">#并发</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <h1 id="wen-ti">问题</h1>
+<p>在V2EX上看到这样<a href="https://www.v2ex.com/t/384263">一个问题</a>，具体来说，就是下面这份代码，注释和不注释，为什么运行会有不同</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public class </span><span style="color:#c99e00;">MyRun </span><span style="color:#8959a8;">implements </span><span style="color:#839c00;">Runnable </span><span>{
+</span><span>
+</span><span>	</span><span style="color:#8959a8;">private boolean </span><span>stop;
+</span><span>
+</span><span>	</span><span style="color:#4271ae;">MyRun</span><span>(</span><span style="color:#8959a8;">boolean </span><span style="color:#f07219;">status</span><span>) {
+</span><span>		</span><span style="color:#c82728;">this</span><span>.stop </span><span style="color:#3e999f;">=</span><span> status;
+</span><span>	}
+</span><span>
+</span><span>	@</span><span style="color:#c82728;">Override
+</span><span>	</span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">run</span><span>() {
+</span><span>		</span><span style="color:#8959a8;">while</span><span>(</span><span style="color:#3e999f;">!</span><span>stop) {
+</span><span>			</span><span style="color:#8e908c;">// System.out.println(&quot;running&quot;);
+</span><span>		}
+</span><span>		</span><span style="color:#c99e00;">System</span><span>.out.</span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;stop&quot;</span><span style="color:#4271ae;">)</span><span>;
+</span><span>	}
+</span><span>
+</span><span>	</span><span style="color:#8959a8;">public void </span><span style="color:#4271ae;">setStop</span><span>(</span><span style="color:#8959a8;">boolean </span><span style="color:#f07219;">stop</span><span>) {
+</span><span>		</span><span style="color:#c82728;">this</span><span>.stop </span><span style="color:#3e999f;">=</span><span> stop;
+</span><span>	}
+</span><span>}
+</span><span>
+</span><span style="color:#8e908c;">// 测试代码
+</span><span style="color:#c99e00;">MyRun</span><span> myRun </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">MyRun</span><span>(</span><span style="color:#f07219;">false</span><span>);
+</span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">Thread</span><span>(myRun).</span><span style="color:#c82728;">start</span><span style="color:#4271ae;">()</span><span>;
+</span><span style="color:#c99e00;">Thread</span><span>.</span><span style="color:#c82728;">sleep</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">1000</span><span style="color:#4271ae;">)</span><span>; </span><span style="color:#8e908c;">// 等待线程执行
+</span><span>myRun.</span><span style="color:#c82728;">setStop</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">true</span><span style="color:#4271ae;">)</span><span>;
+</span></code></pre>
+<p>这个代码目的就是通过主线程修改变量，控制子线程的运行。
+为了这个目的，很显然<code>stop</code>需要添加<code>volitale</code>关键字，表明<code>stop</code>是多线程可见的。
+那么，子线程在读取<code>stop</code>的时候，会从先把主内存的变量同步到自己的工作内存，然后再使用，
+因而可以拿到最新的<code>stop</code>的值。</p>
+<p>抛开<code>volatile</code>不谈，单独这份代码，注释和不注释下，运行结果也有很大差异。</p>
+<ul>
+<li>注释的情况下，子线程没有得到<code>stop</code>的最新值，其工作内存中的<code>stop</code>一直是<code>false</code>，因此程序死循环。
+这和预期情况一致。</li>
+<li>不注释的情况下，程序会一直输出<code>running</code>，知道1秒后，输出<code>stop</code>。显然子线程获得到了<code>stop</code>的最新值。
+这里的我就不太理解了，为什么呢？</li>
+</ul>
+<h1 id="syncronized"><code>syncronized</code></h1>
+<p>最开始我以为是IO引起的用户态内核态切换，会导致从主存中同步，不过查了一圈资料，这个猜想是错误的。</p>
+<p><code>println</code>函数在jdk里的实现是这样的</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public</span><span> void </span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> x) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">synchronized </span><span>(</span><span style="color:#c82728;">this</span><span>) {
+</span><span>        </span><span style="color:#c82728;">print</span><span style="color:#4271ae;">(x)</span><span>;
+</span><span>        </span><span style="color:#c82728;">newLine</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>里面有个<code>synchronized</code>，估计就是和这个有关了。</p>
+<p>手头有本《深入理解Java虚拟机》（简称书），里边关于Java的内存模型，
+有这样的说法</p>
+<blockquote>
+<p>同步块的可见性是由“对一个变量执行unlock操作之前，必须先把此变量同不会主内存中（执行store、wirte操作）”这条规则获得的。</p>
+</blockquote>
+<p>但是这个说法和这里用法不一样，因为书中说法，意思是退出同步块之前，要把<code>synchronized</code>的对象同步会主内存。
+而本问题中，同步块锁住的对象<code>this</code>，是指<code>System.out</code>这个对象，并不是<code>myRun</code>。</p>
+<p>在<a href="https://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html#synchronization">JSR 133 FAQ</a>中，有如下说法</p>
+<blockquote>
+<p>Before we can enter a synchronized block, we acquire the monitor, which has the effect of invalidating the local processor cache so that variables will be reloaded from main memory. We will then be able to see all of the writes made visible by the previous release.</p>
+</blockquote>
+<p>这说明<code>synchronzed</code>可以是使本地CPU缓存失效，从而从主内存中读取最新的变量值。
+但是后面的有一个<em>Important Note</em>，表明只有释放和获取的是同一把锁，才能保证<strong>happen before</strong>关系，
+又让我对这段胡的理解产生了疑问。
+在stackoverflow上，有一个关于这段话的<a href="https://stackoverflow.com/questions/1850270/memory-effects-of-synchronization-in-java">提问</a>，但是并没有让我更明白。</p>
+<p>之后又去看Java语言规范中关于内存模型的部分。
+在<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.1">Java语言规范17.1节</a>，关于<code>synchronized</code>块，有如下说明</p>
+<blockquote>
+<p>attempts to perform a lock action on that object's monitor and does not proceed further until the lock action has successfully completed</p>
+</blockquote>
+<p>这里的一个重点是<strong>lock action</strong>，这章中只说明lock的意思是locking a monitor，并没有具体的解释。
+书中写到Java内存模型有8个操作，其中一个就是<code>lock</code>，但是Java语言规范中并没有相关说明。
+最后在<a href="https://docs.oracle.com/javase/specs/jvms/se6/html/Threads.doc.html">Java6的虚拟机规范第8章</a>中，才找到对其的说明，并有一个对于本问题的重要的规则</p>
+<blockquote>
+<p>Let T be any thread, let V be any variable, and let L be any lock. There are certain constraints on the operations performed by T with respect to V and L:</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>Between a lock operation by T on L and a subsequent use or store operation by T on a variable V, an assign or load operation on V must intervene; moreover, if it is a load operation, then the read operation corresponding to that load must follow the lock operation, as seen by main memory. (Less formally: a lock operation behaves as if it flushes all variables from the thread's working memory, after which the thread must either assign them itself or load copies anew from main memory.)</li>
+</ul>
+</blockquote>
+<p>这个规则说明，<code>synchronized</code>可以保证其工作内存中的变量都是最新版本。对于本问题，对<code>System.out</code>的锁，
+更新了工作内存中的值，从而退出循环。</p>
+<p>不过，在Java7和Java8的虚拟机规范中，这一章被移除了，并将相应的内容放到了Java语言规范中，
+也就是上文所引用的<a href="http://docs.oracle.com/javase/specs/jls/se8/html/jls-17.html#jls-17.1">第17章</a>中。但是我并没有在其中找到与这个规则具有相同意义的规则。
+不知道哪里漏了。</p>
+<h1 id="bian-ti">变体</h1>
+<p>把问题中的<code>run</code>方法改一下，变成</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public</span><span> void </span><span style="color:#c82728;">run</span><span style="color:#4271ae;">() </span><span>{
+</span><span>    </span><span style="color:#8959a8;">while</span><span>(</span><span style="color:#3e999f;">!</span><span>stop) {
+</span><span>        </span><span style="color:#8959a8;">try </span><span>{
+</span><span>            </span><span style="color:#c99e00;">Thread</span><span>.</span><span style="color:#c82728;">sleep</span><span style="color:#4271ae;">(</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">)</span><span>;
+</span><span>        } </span><span style="color:#8959a8;">catch </span><span>(</span><span style="color:#c99e00;">InterruptedException </span><span style="color:#f07219;">e</span><span>) {
+</span><span>            e.</span><span style="color:#c82728;">printStackTrace</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        }
+</span><span>    }
+</span><span>    </span><span style="color:#c99e00;">System</span><span>.out.</span><span style="color:#c82728;">println</span><span style="color:#4271ae;">(</span><span style="color:#839c00;">&quot;stop&quot;</span><span style="color:#4271ae;">)</span><span>;
+</span><span>}
+</span></code></pre>
+<p>实际上也是会最后输出<code>stop</code>的。但是Java语言规范中明确表示，</p>
+<blockquote>
+<p>It is important to note that neither Thread.sleep nor Thread.yield have any synchronization semantics. In particular, the compiler does not have to flush writes cached in registers out to shared memory before a call to Thread.sleep or Thread.yield, nor does the compiler have to reload values cached in registers after a call to Thread.sleep or Thread.yield.</p>
+</blockquote>
+<p>也就是说<code>Thread.sleep</code>是不需要刷新工作内存的。
+但是这里仍然打印了<code>stop</code>，说明在某种情况下，线程冲主内存同步了变量。
+由于这并不是Java的规范，所以这是和JVM的具体实现相关，因此并不能依赖于这一点。</p>
+<h1 id="zong-jie">总结</h1>
+<p>Java的内存模型之前看过，但是并不是非常清楚。这次前后查了好多，也有了更多的理解。
+并且还有个问题并没有搞清楚，Java8的规范里，哪条规则能够明确的推导出Java6关于lock的规则。
+这个就慢慢再看吧</p>
+<h1 id="updated">Updated</h1>
+<p>原贴下有贴出了<a href="http://www.cnblogs.com/cookiezhi/p/5774583.html">一个链接</a>，感觉说得刚靠谱。JVM虚拟机做了优化，会尽可能的保障工作内存与主内存的同步。
+这样就解释了<code>synchronized</code>和<code>sleep</code>时，线程能够获取到最新变量。</p>
+<p>想想还是太naive了，还是要多学多看啊</p>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2017&#x2F;jdk-source-code-string&#x2F;">JDK源码阅读之String</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2017-07-09</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/java/">#Java</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/jdk/">#JDK</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/yuan-ma/">#源码</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/string/">#String</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>这几天看了看Java的<code>String</code>的实现。Java中的所有的<code>String</code>字面量都是<code>String</code>类的实例。
+文件注释中写到了，字面量生命<code>String s = &quot;abc&quot;</code>和</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">char[]</span><span> data </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new char</span><span>[]{</span><span style="color:#839c00;">&#39;a&#39;</span><span>, </span><span style="color:#839c00;">&#39;b&#39;</span><span>, </span><span style="color:#839c00;">&#39;c&#39;</span><span>};
+</span><span style="color:#c99e00;">String</span><span> s </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">String</span><span>(data)
+</span></code></pre>
+<p>效果是一样的。这应该是JVM来实现的。</p>
+<h1 id="jie-kou">接口</h1>
+<p><code>String</code>实现了三个接口，分别是<code>Serializable</code>，<code>Comparable&lt;String&gt;</code>和<code>CharSequence</code>。
+<code>Serializable</code>用于序列化，<code>Comparable&lt;String&gt;</code>用于比较，
+<code>CharSequence</code>则是<code>String</code>的一个更通用的抽象。</p>
+<h1 id="shu-xing">属性</h1>
+<p><code>String</code>最重要的属性是<code>private final char value[]</code>，<code>value</code>中存放着<code>String</code>的实际内容。
+此外，Java的<code>char</code>的长度是16bit，两个字节。
+另外一个属性是<code>private int hash</code>，是<code>String</code>得哈希值，默认为0。<code>hash</code>在调用<code>hashCode()</code>时计算，
+因此不是<code>final</code>。</p>
+<h1 id="gou-zao-fang-fa">构造方法</h1>
+<p><code>String</code>的构造方法分为几类</p>
+<ul>
+<li>无参构造方法，得到的就是空的字符串</li>
+<li>参数是<code>String</code>的，直接对<code>value</code>和<code>hash</code>赋值</li>
+<li><code>char[]</code>相关的，这类方法进行越界检查，由于<code>String</code>是不可变的，还会复制数组</li>
+<li><code>int[]</code>相关的，这里的参数是Unicode的codePoint，因为Unicode是4字节的，所以使用了<code>int</code>。
+对于基本平面（BMP）的字符，只需要<code>char</code>即可。对于辅助平面的字符，一个codePoint，需要两个<code>char</code>才能存下。</li>
+<li><code>byte[]</code>相关的，所有从<code>byte[]</code>转为<code>String</code>的，都需要指明编码格式。
+曾经有过不需要指明编码格式的方法，但是现在已经<code>Deprecated</code>了，因为有bug。</li>
+<li><code>StringBuilder</code>和<code>StringBuffer</code>，具体实现上都是复制数组，<code>StringBuffer</code>加了锁</li>
+<li><code>String(char[] value, boolean share)</code>，这是一个特殊的构造方法，这个方法可访问性是包内可见。
+为了性能上的考量，实现上不做数组复制，只是简单的赋值。调用的时候，<code>share</code>一定是<code>true</code>。</li>
+</ul>
+<h1 id="fang-fa">方法</h1>
+<p>所有方法方法中，涉及到可能产生新的字符串的，都会先检查参数，是否可以直接返回自身。</p>
+<ul>
+<li><code>length</code>直接返回<code>value.length</code></li>
+<li><code>isEmpty</code>判断<code>value.length == 0</code></li>
+<li><code>hasCode</code>返回<code>hash</code>，如果没有计算过，用times31算法计算，并保存结果</li>
+<li><code>equals</code>，不比较<code>hashCode</code>，直接按序比较字符</li>
+<li>其他比较相关的方法，
+<ul>
+<li>定义了内部静态类<code>CaseInsensitiveCompartator</code>，用于处理大小写不敏感的比较</li>
+<li>基本上都是从前向后遍历</li>
+<li><code>compareTo</code>方法是按照Unicode字典序比较的，有不同则返回不同的字符的差，否则返回长度的差</li>
+</ul>
+</li>
+<li><code>indexOf(int ch, int fromIndex)</code>
+<ul>
+<li><code>indexOf(ch) == indexOf(ch, 0)</code></li>
+<li>先判断ch，如果是负值（非法值）或者BMP字符，从前到后扫一遍</li>
+<li>否则是辅助平面字符，从前到后扫，比较前导代理以及后尾代理</li>
+</ul>
+</li>
+<li><code>indexOf(String s, int fromIndex)</code>
+<ul>
+<li>实现上，先找到第一个字符，然后比较余下字符。不断循环</li>
+<li>效率上比较低下，<a href="https://stackoverflow.com/questions/19543547/why-jdks-string-indexof-does-not-use-kmp">stackoverflow</a>有个讨论，我觉得还是有道理的</li>
+</ul>
+</li>
+<li><code>contains</code>，判断<code>indexOf() &gt; -1</code></li>
+<li><code>matches</code>，调用<code>Pattern.matches</code></li>
+<li><code>split(String regex, int limit)</code>
+<ul>
+<li><code>limit</code>表示分割后的数组的长度，若0，表示不限制结果的个数。默认为0</li>
+<li>实现上，如果<code>regex</code>是简单的字符串
+<ul>
+<li>单个字符，并且不是正则表达式的元字符</li>
+<li>两个字符，第一个是<code>'\\'</code>，并且第二个不是ascii字母和数字</li>
+<li>从前到后扫，调用<code>indexOf</code></li>
+</ul>
+</li>
+<li>否则调用Pattern</li>
+<li>空的字符串会返回</li>
+<li>但是，<code>split</code>方法有个坑，就是最后一个分隔符后面如果没有其他字符，那么是没有最后一个空字符串的
+<ul>
+<li><code>&quot;hello,,yes,&quot;.split(&quot;,&quot;) == [&quot;hello&quot;, &quot;&quot;, &quot;yes&quot;]</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><code>join</code>，静态方法，调用<code>StringJoiner</code>
+<ul>
+<li><code>null</code>会按照<code>&quot;null&quot;</code>处理</li>
+</ul>
+</li>
+<li><code>concat(str)</code>，不检查参数，如果为<code>null</code>会报异常，如果<code>str.length != 0</code>，开辟新的数组。
+<ul>
+<li>只调用一次数组复制，</li>
+</ul>
+</li>
+<li><code>substring</code>，检查之后复制数组。之前某个版本好像是没有复制数组，导致了内存泄漏</li>
+<li><code>trim</code>，实现上是去除了前后的所有ascii码小于等于20的字符</li>
+<li><code>replace</code>
+<ul>
+<li>字符替换，如果相同或者未发现，直接返回，否则遍历</li>
+<li>字符串替换，调用<code>Pattern</code></li>
+</ul>
+</li>
+<li>大小写转换相关方法的实现，考虑的东西比较多，实现比较复杂。涉及了<code>Locale</code>，未知名则使用系统默认的。
+不同的语种，大小写规则不太一样，调用了<code>ConditionalSpecialCasing</code>进行实际的转换</li>
+<li><code>toString</code>，返回自己</li>
+<li><code>toCharArray</code>，调用<code>System.arraycopy</code>产生新的数组</li>
+<li><code>valueOf</code>系列
+<ul>
+<li><code>char[]</code>，调用构造函数</li>
+<li><code>Object</code>，<code>&quot;nul&quot;</code>或者<code>toString()</code></li>
+<li>内置类型，直接调用响应的<code>toString()</code></li>
+</ul>
+</li>
+<li><code>native intern()</code>，将自身添加到字符串池</li>
+</ul>
+
+                </div>
+            </div>
+        
+            <div class="post">
+                <h1 class="post-title u-link">
+                    <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;2016&#x2F;before-2017&#x2F;">2017之前</a>
+                </h1>
+                
+<div class="post-meta">
+    <span class="post-date">2016-12-26</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/zong-jie/">#总结</a>
+            </span>
+        
+    
+    
+</div>
+
+
+                <div class="post-content">
+                    <p>2016年，干了几件事，出去实习了，找到工作了，以及毕设相关。</p>
+<p>先说实习，第一次是在腾讯。虽然我进去的之后的岗位也是研发实习生，但这个部门其实并不是一个做研发的部门，是做直播的，腾讯视频的一些的直播的技术支持部门，主要是体育赛事，还会有一些演唱会、新闻等等。由于不是研发部门，其实进去之后首先熟悉了演播室的直播设备，跟着值班了一段时间。除却这些直播技术，部门还负责直播的在线包装、场景设计，使用的广电行业的专用软件，Viz。我感觉Viz还是非常复杂，有各种插件用于实现各种功能，当这些插件无法实现所需要的功能时，Viz还提供脚本支持，可以编写一些复杂的动画、人机交互界面等等。这个脚本还是比较简单的，当时的leader说这个脚本其实就是VB差不多。Viz脚本其实想要招程序员的一个最重要的一点。不过由于我在腾讯的实习其实还是比较短，Viz脚本也没学多少。后来实习快结束的时候，又给我了一个开发一个内部使用的系统的任务。从2015年12月末开始，在腾讯实习了3个月多。由于不是研发部门，对研发的情况不是很了解，就我自己所在的部门，气氛是比较轻松的，也没有特别严格的作息要求。腾讯有专门的内部技术论坛，供工程师交流。</p>
+<p>从腾讯离职之后，由师兄内推，又去了微软实习。部门是微软小冰。进去以后，我的座位是由一个会议室改的，是一个单间，与mentor的办公位不在一起，而且做的项目基本上是一个人项目，所以和其他同事的交流不多。实习期间，做了两个项目，一个是内部数据的在线编辑管理的系统吧，另一个是爬虫。第一个项目，实质上是增删改查，不过需要先把原有的文本文件的数据倒进来。而且需要有个界面，我选了Vue做前台，这里其实就是自己的选择，没有过多的比较，而且在腾讯做的项目也是用了Vue，还没忘光。第二个爬虫是mentor自己从头写的，我要做的就是增添一些功能。通过ssh远程在服务器上写，原因是用了一些库，只能在Linux上运行。因为这，把vim又好好学了一下。在微软实习，还是很轻松，没有压力，任务完成就行，mentor人也好。之后由于要开始找工作了，而且也要做毕设，就离职了。</p>
+<p>大约8月初，各种内推就开始了，直到10月末签了三方，足足3个月。而且必须吐槽网易带了个好头，内推不免笔试，结果都成这个套路了。这段时间，除了吃饭睡觉，就是笔试面试和准备笔试面试。leetcode刷了绝大部分，没有像同学一样其他第二遍。还有就是各种基础吧，主要是笔试面试啥都问，数据库、网络、操作系统、jvm、Java的多线程、JDK的常用集合的实现各种各种，上到高并发设计，下到内存页表。经常投的Java岗，结果笔试还是一堆的c++、php。</p>
+<p>我也也参加了不少面试，给我感觉最好的是Google和AirBnb，两者风格完全不同。Google应该是面试人数比较少，面试前后都会有电话通知，然后我就收到可面试挂了的电话。。面试官是外国人，为了面试专门飞过来的，很有经验，题目就是算法题，白板写。AirBnb
+的面试官是中国人，但是面试要求说英语，一轮45分钟，大约15分钟的题目，剩下的30分钟写代码，是可运行的环境。这个是我最喜欢的方式。面试给我感觉不好的事华为和网易。华为是两面很奇怪，根本没有问一些有区分度的问题，结果就跪了。网易的面试过程还可以，但是安排比较乱，面试官和HR之间的信息沟通不畅，中间空等了好长时间。还有滴滴，虽然我没参加，但是今年的面试安排真的是一团shi。</p>
+<p>至于论文，目的就是毕业了。自己对做科研还是没有太大的兴趣，写代码做工程更适合我。答辩时间改到明年3月，希望一切顺利！</p>
+
+                </div>
+            </div>
+        
+    </div>
+    
+        
+    <div class="pagination">
+        <span class="prev">
+                <a class="disable">&xlArr; 上一页</a>
+            
+        </span>
+        <span class="next">
+                <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;p&#x2F;2&#x2F;">下一页 &xrArr;</a>
+            
+        </span>
+    </div>
+
+
+
+    
+</div>
+
+
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2024.06.24</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2024.06.24</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2024-06-24</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">518 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode.cn/problems/decrypt-string-from-alphabet-to-integer-mapping/description/">1309. 解码字母到整数映射</a></p>
+<p>简单题，反向遍历字符串。注意字母和数字的对应关系，<code>a</code> 对应的是<code>1</code> 而不是<code>0</code> </p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">class </span><span style="color:#c99e00;">Solution </span><span>{
+</span><span>    </span><span style="color:#8959a8;">public </span><span style="color:#c99e00;">String </span><span style="color:#4271ae;">freqAlphabets</span><span>(</span><span style="color:#c99e00;">String </span><span style="color:#f07219;">s</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">int</span><span> len </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">()</span><span>;
+</span><span>        </span><span style="color:#8959a8;">char[]</span><span> seq </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new char</span><span>[len];
+</span><span>        </span><span style="color:#8959a8;">int</span><span> pos </span><span style="color:#3e999f;">=</span><span> len;
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">=</span><span> len </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span>;
+</span><span>        </span><span style="color:#8959a8;">while </span><span>(i </span><span style="color:#3e999f;">&gt;= </span><span style="color:#f07219;">0</span><span>) {
+</span><span>            </span><span style="color:#8959a8;">char</span><span> c </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(i)</span><span>;
+</span><span>            </span><span style="color:#8959a8;">int</span><span> r;
+</span><span>            </span><span style="color:#8959a8;">if </span><span>(c </span><span style="color:#3e999f;">== </span><span style="color:#839c00;">&#39;#&#39;</span><span>) {
+</span><span>                r </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(i</span><span style="color:#3e999f;">-</span><span style="color:#f07219;">1</span><span style="color:#4271ae;">) </span><span style="color:#3e999f;">- </span><span style="color:#839c00;">&#39;0&#39;</span><span>;
+</span><span>                r </span><span style="color:#3e999f;">+= </span><span style="color:#f07219;">10 </span><span style="color:#3e999f;">* </span><span>(s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(i</span><span style="color:#3e999f;">-</span><span style="color:#f07219;">2</span><span style="color:#4271ae;">) </span><span style="color:#3e999f;">- </span><span style="color:#839c00;">&#39;0&#39;</span><span>);
+</span><span>                i </span><span style="color:#3e999f;">-= </span><span style="color:#f07219;">3</span><span>;
+</span><span>            } </span><span style="color:#8959a8;">else </span><span>{
+</span><span>                r </span><span style="color:#3e999f;">=</span><span> c </span><span style="color:#3e999f;">- </span><span style="color:#839c00;">&#39;0&#39;</span><span>;
+</span><span>                i</span><span style="color:#3e999f;">--</span><span>;
+</span><span>            }
+</span><span>            seq[</span><span style="color:#3e999f;">--</span><span>pos] </span><span style="color:#3e999f;">= </span><span>(</span><span style="color:#8959a8;">char</span><span>) (</span><span style="color:#839c00;">&#39;a&#39; </span><span style="color:#3e999f;">+</span><span> r </span><span style="color:#3e999f;">- </span><span style="color:#f07219;">1</span><span>);
+</span><span>        }
+</span><span>
+</span><span>        </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">String</span><span>(</span><span style="color:#c99e00;">Arrays</span><span>.</span><span style="color:#c82728;">copyOfRange</span><span style="color:#4271ae;">(seq, pos, len)</span><span>);
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<p><a href="https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html">https://dev.mysql.com/doc/refman/8.4/en/create-table-generated-columns.html</a>
+<a href="https://dev.mysql.com/doc/refman/8.4/en/create-table-secondary-indexes.html#json-column-indirect-index">https://dev.mysql.com/doc/refman/8.4/en/create-table-secondary-indexes.html#json-column-indirect-index</a></p>
+<p>MySQL 的 Generated column，是知识盲区。</p>
+<ul>
+<li>建表时可以建立 Generated column，但有一定的限制</li>
+<li>两种类型，virtual 和 stored，stored 类型占用存储空间</li>
+<li>可以建立索引</li>
+</ul>
+<h2 id="tips">Tips</h2>
+<p>github clone不下来怎么办？</p>
+<p>~/.config/git/config 或者 ~/.gitconfig 文件，增加一行，表示使用 ssh 替代 https</p>
+<pre data-lang="toml" style="background-color:#f9f9f9;color:#111111;" class="language-toml "><code class="language-toml" data-lang="toml"><span>[</span><span style="color:#c82728;">url </span><span style="color:#839c00;">&quot;ssh://git@github.com&quot;</span><span>]
+</span><span>    </span><span style="color:#c82728;">insteadOf </span><span>= </span><span style="font-style:italic;color:#c82829;">https://github.com
+</span></code></pre>
+<p>~/.ssh/config 文件，增加配置</p>
+<pre data-lang="python" style="background-color:#f9f9f9;color:#111111;" class="language-python "><code class="language-python" data-lang="python"><span>Host github.com
+</span><span>	Hostname ssh.github.com
+</span><span>	Port </span><span style="color:#f07219;">443
+</span><span>	User git
+</span><span>	IdentityFile </span><span style="color:#3e999f;">~/</span><span>.ssh</span><span style="color:#3e999f;">/</span><span>id_xxx
+</span></code></pre>
+<h2 id="share">Share</h2>
+<p><a href="https://coolshell.cn/articles/21672.html">我做系统架构的一些原则 | 酷 壳 - CoolShell</a></p>
+<p>左耳朵耗子的文章，是其个人经验和想法总结。这些原则的整体思路是，重视业务、遵循优秀的实践经验、考虑长期。</p>
+<ol>
+<li>原则一：关注于真正的收益而不是技术本身</li>
+<li>原则二：以应用服务和 API 为视角，而不是以资源和技术为视角</li>
+<li>原则三：选择最主流和成熟的技术</li>
+<li>原则四：完备性会比性能更重要</li>
+<li>原则五：制定并遵循服从标准、规范和最佳实践</li>
+<li>原则六：重视架构扩展性和可运维性</li>
+<li>原则七：对控制逻辑进行全面收口</li>
+<li>原则八：不要迁就老旧系统的技术债务</li>
+<li>原则九：不要依赖自己的经验，要依赖于数据和学习</li>
+<li>原则十：千万要小心 X – Y 问题，要追问原始需求</li>
+<li>原则十一：激进胜于保守，创新与实用并不冲突</li>
+</ol>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

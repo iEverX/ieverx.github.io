@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ARTS 2021&#x2F;02</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ARTS 2021&#x2F;02</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2021-08-14</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/arts/">#ARTS</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">468 字</span>
+        &middot;
+        <span class="reading_time">大约需要 3 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <h2 id="algorithm">Algorithm</h2>
+<p><a href="https://leetcode.com/problems/group-anagrams/">Group Anagrams - LeetCode</a></p>
+<p>一个字符串的数组，按照字符的成分分成多组并输出。根据规则求一个 key，相同的 key 的字符串分成一组就可以了</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span style="color:#8959a8;">public </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">String</span><span>&gt;&gt; </span><span style="color:#c82728;">groupAnagrams</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#8959a8;">[]</span><span style="color:#4271ae;"> strs) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">if </span><span>(strs.length </span><span style="color:#3e999f;">== </span><span style="color:#f07219;">1</span><span>) {
+</span><span>        </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">Arrays</span><span>.</span><span style="color:#c82728;">asList</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">Arrays</span><span style="color:#4271ae;">.</span><span style="color:#c82728;">asList</span><span style="color:#4271ae;">(strs[</span><span style="color:#f07219;">0</span><span style="color:#4271ae;">]))</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#c99e00;">Map</span><span>&lt;</span><span style="color:#c99e00;">Long</span><span>, </span><span style="color:#c99e00;">List</span><span>&lt;</span><span style="color:#c99e00;">String</span><span>&gt;&gt; m </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new </span><span style="color:#c99e00;">HashMap</span><span>&lt;&gt;();
+</span><span>    </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#c99e00;">String</span><span> st </span><span style="color:#3e999f;">:</span><span> strs) {
+</span><span>        m.</span><span style="color:#c82728;">computeIfAbsent</span><span style="color:#4271ae;">(</span><span style="color:#c82728;">key</span><span style="color:#4271ae;">(st), </span><span style="color:#f07219;">k </span><span style="color:#8959a8;">-&gt; new </span><span style="color:#c99e00;">ArrayList</span><span style="color:#4271ae;">&lt;&gt;())</span><span>.</span><span style="color:#c82728;">add</span><span style="color:#4271ae;">(st)</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return new </span><span style="color:#c99e00;">ArrayList</span><span>&lt;&gt;(m.</span><span style="color:#c82728;">values</span><span style="color:#4271ae;">()</span><span>);
+</span><span>}
+</span><span>
+</span><span style="color:#8959a8;">private long </span><span style="color:#c82728;">key</span><span style="color:#4271ae;">(</span><span style="color:#c99e00;">String</span><span style="color:#4271ae;"> s) </span><span>{
+</span><span>    </span><span style="color:#8959a8;">byte[]</span><span> k </span><span style="color:#3e999f;">= </span><span style="color:#8959a8;">new byte</span><span>[</span><span style="color:#f07219;">26</span><span>];
+</span><span>    </span><span style="color:#8959a8;">int</span><span> n </span><span style="color:#3e999f;">=</span><span> s.</span><span style="color:#c82728;">length</span><span style="color:#4271ae;">()</span><span>;
+</span><span>    </span><span style="color:#8959a8;">for </span><span>(</span><span style="color:#8959a8;">int</span><span> i </span><span style="color:#3e999f;">= </span><span style="color:#f07219;">0</span><span>; i </span><span style="color:#3e999f;">&lt;</span><span> n; </span><span style="color:#3e999f;">++</span><span>i) {
+</span><span>        k[s.</span><span style="color:#c82728;">charAt</span><span style="color:#4271ae;">(i) </span><span style="color:#3e999f;">- </span><span style="color:#839c00;">&#39;a&#39;</span><span>]</span><span style="color:#3e999f;">++</span><span>;
+</span><span>    }
+</span><span>    </span><span style="color:#8959a8;">return </span><span style="color:#c99e00;">Arrays</span><span>.</span><span style="color:#c82728;">hashCode</span><span style="color:#4271ae;">(k)</span><span>;
+</span><span>}
+</span></code></pre>
+<h2 id="review">Review</h2>
+<p><a href="https://engineering.fb.com/2021/07/22/data-infrastructure/mysql/">Migrating Facebook to MySQL 8.0 - Facebook Engineering</a></p>
+<p>Facebook 大规模使用MySQL，并且在社区版本上做了很多的修改。8.0版本的MySQL提供了一些有价值的feature，因此决定迁移到8.0。迁移过程中需要移植自己的代码到8.0版本、需要处理一些兼容性问题等</p>
+<h2 id="tip">Tip</h2>
+<p>spring mvc 碰到了一个小的问题</p>
+<pre data-lang="java" style="background-color:#f9f9f9;color:#111111;" class="language-java "><code class="language-java" data-lang="java"><span>@</span><span style="color:#c82728;">GetMapping</span><span>(</span><span style="color:#839c00;">&quot;/hello/{name:^(a|b).*}&quot;</span><span>) </span><span style="color:#8e908c;">// 1
+</span><span>@</span><span style="color:#c82728;">GetMapping</span><span>(</span><span style="color:#839c00;">&quot;/hello/{name:^(?:a|b).*}&quot;</span><span>) </span><span style="color:#8e908c;">// 2
+</span></code></pre>
+<p>1 的方式会报错，必须使用2，non-capturing group。没有深入研究原理，猜测是变量绑定实际上就是使用的group捕捉，在正则里用group则又多了一个组，导致无法确定哪一个需要用到 name 参数上</p>
+<h2 id="share">Share</h2>
+<p><a href="https://zhuanlan.zhihu.com/p/394479212">Hints for Microservice design - 如何进行微服务的划分</a></p>
+<p>业务架构相比于技术架构，可能不那么有趣，所以很多时候考虑得会比较少。造成的结果就是架构和业务并不是很匹配、复杂度高。DDD、Clean Architecture等等都是为了解决业务复杂性的方式，文章中提到的架构设计4+1视图同样也是。</p>
+<p>在这个方面的知识、经验还比较少，还需要不断学习。因为相对而言更偏方法论，或者说更虚，也更需要经验才能有更深的理解</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

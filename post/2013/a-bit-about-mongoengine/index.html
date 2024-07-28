@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>尝试MongoEngine</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">尝试MongoEngine</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2013-08-10</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/mongodb/">#MongoDB</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/python/">#Python</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">788 字</span>
+        &middot;
+        <span class="reading_time">大约需要 4 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>MongoEngine之于MongoDB来说，就类似于SQLAlchemy之于关系型数据库，是ODM。许多人对于MongoDB之类的文档型数据库，不愿意用ODM，认为会拖累速度，而且似乎是又回到了关系型数据库。对于此，我只能说，我是支持使用ODM的，因为我确实感觉到ODM给我的编程提供了许多便利。</p>
+<p>回到MongoEngine，使用MongoEngine，首先要有定义数据库模式，如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>from mongoengine import *
+</span><span>
+</span><span>class User(Document):
+</span><span>    id = SequenceField(primary_key=True)
+</span><span>    name = StringField(unique=True)
+</span><span>
+</span><span>class Reply(EmbeddedDocument):
+</span><span>    user = ReferenceField(&#39;User&#39;, required=True)
+</span><span>    content = StringField()
+</span><span>    time = DateTimeField(default=dt.utcnow())
+</span><span>
+</span><span>class Article(Document):
+</span><span>    title = StringField(required=True)
+</span><span>    author = ReferenceField(&#39;User&#39;, dbref=True)
+</span><span>    content = StringField()
+</span><span>    replies = ListField(EmbeddedDocumentField(Reply))
+</span><span>    create_time = DateTimeField(default=dt.utcnow())
+</span><span>    update_time = DateTimeField()
+</span></code></pre>
+<p>以上的几个类，就完全可以表示一个博客系统的数据库模式，包括了用户、文章、和回复。其中User和Article是两个独立的实体，而回复则是文章的一个属性，所以回复不是一个完整的实体，因此是一个EmbeddedDocument的类型，表示内嵌文档。而Document类的子类会在MongoDB中建立一个collection。这样，以上的模型最终的collection是两个，user和article。关于正常模型，还有几点要说的地方</p>
+<ul>
+<li>SequenceField是一个自增字段。MongoDB本身不提供自增字段，其实现方法一般是findAndModify方法，看这里<a href="http://docs.mongodb.org/manual/tutorial/create-an-auto-incrementing-field/">Create an Auto-Incrementing Sequence Field</a></li>
+<li>ReferenceField表示一个引用，类似于关系型数据库的外键，其中dbref默认为False，表示在建立的模型中，这个字段只保存对应的文档记录的主键，为True则表示存储为dbref（关于dbref，可以看着里<a href="http://docs.mongodb.org/manual/reference/database-references/">Database References</a>），查询的时候，MongoEngine会自动帮你把这个字段的东西取出来</li>
+<li>DateTimeField，MongoDB中的时间没有时区，所以保存为UTC时间是最好的选择</li>
+</ul>
+<p>之后，查询就比较简单了，比如在首页，想要显示全部的文章，</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>articles = Article.objects
+</span></code></pre>
+<p>就是全部的文章的生成器，排序或者限定结果数量，可以这样</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>articles = Article.objects.order_by(&#39;-create_time&#39;).skip(10).limit(10)
+</span></code></pre>
+<p>这表示取按创建时间降序排列的第10到第20篇文章。而现在，如果要显示作者的信息，则可以用<code>article.author.name</code>来表示作者的名字，<code>article</code>是<code>Article</code>类的实例。而添加回复，也很简单</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>r = Reply(user=User(id=1)) # 必须用主键表明User，或者可以从数据中选择一个User的实例
+</span><span>r.content = &#39;xxxxxxxxxx&#39;
+</span><span>article.replies.append(r) # 如果原本没有回复，article.replies是[]
+</span><span>article.save()
+</span></code></pre>
+<p>MongoEngine简化了程序员的劳动，相比于直接用PyMongo操纵MongoDB，程序员可以把一些重复性的代码直接交给MongoEngine，自己只需关心数据的逻辑即可。之前用SQL的时候，感觉ORM好麻烦，不灵活，结果数据层搞得一团糟。而且，貌似MongoEngine带来的性能损失是在可接受范围内，不会对程序的性能造成太大影响。当然，如果觉得自己完全可以驾驭PyMongo，自己写数据模型，当然也是没问题的。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>

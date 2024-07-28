@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>ActiveMQ笔记</title>
+    <link rel="stylesheet" href="https://blog.guolx.com/style.css">
+    <link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/lxgw-wenkai-webfont/1.6.0/style.min.css" />
+</head>
+
+
+<body>
+    <div class="container">
+        <div class="block-container">
+                
+<div id="header" class="header">
+    <div class="header-container">
+        <div class="brand">
+            <h1 class="u-link">
+                <a href="https://blog.guolx.com">天外天</a>
+            </h1>
+        </div>
+        
+
+
+
+<div class="nav-container">
+    <div class="nav">
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;post&#x2F;">archive</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;arts&#x2F;">arts</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;tags">tags</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;message-board&#x2F;">messages</a>
+    </div>
+
+            
+        
+            
+                
+                
+                
+                
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;blog.guolx.com&#x2F;pages&#x2F;links&#x2F;">links</a>
+    </div>
+
+            
+        
+            
+                
+    <div class="u-link nav-item">
+        <a href="https:&#x2F;&#x2F;github.com&#x2F;iEverX">github</a>
+    </div>
+
+            
+        
+    </div>
+    <div class="clearfix"></div>
+</div>
+
+
+
+    </div>
+</div>
+
+            
+<div class="post">    
+    <h1 class="post-title">ActiveMQ笔记</h1>
+    
+<div class="post-meta">
+    <span class="post-date">2014-07-17</span>
+    
+        &middot;
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/activemq/">#ActiveMQ</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/xiao-xi-dui-lie/">#消息队列</a>
+            </span>
+        
+            <span class="post-tag u-link">
+                <a href="https://blog.guolx.com/tags/bi-ji/">#笔记</a>
+            </span>
+        
+    
+    
+        &middot;
+        <span class="word_count">1829 字</span>
+        &middot;
+        <span class="reading_time">大约需要 10 分钟</span>
+    
+</div>
+
+
+    <div class="post-content">
+        <p>实验室的项目需要使用ActiveMQ，目的是为了进行一些耗时间的处理时，不会阻塞程序的主流程。调研ActiveMQ的工作就交给我来做了。</p>
+<p>我们使用ActiveMQ，需要达到的目的有这么几个</p>
+<ul>
+<li>主流程发送消息，不阻塞</li>
+<li>可用于集群</li>
+<li>故障恢复</li>
+<li>负载均衡</li>
+</ul>
+<p>从网上看了一些资料，ActiveMQ可以满足我们的要求</p>
+<h1 id="first-step">First Step</h1>
+<p>从<a href="http://activemq.apache.org">ActiveMQ官网</a>下载即可，目前的最新版本是5.10.0。我下载了Windows版本，进入bin目录，运行</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>activemq start
+</span></code></pre>
+<p>即可启动一个ActiveMQ的Broker。注意，需要设置环境变量<code>JAVA_HOME</code>。</p>
+<h1 id="fa-song-jie-shou-xiao-xi">发送接收消息</h1>
+<p>这一步应该是初接触ActiveMQ最想要做的事情。我们首先需要一个消息的发送者，同时需要一个消息的接受者。不多说，直接贴代码</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>// Sender.java
+</span><span>import javax.jms.Connection;
+</span><span>import javax.jms.ConnectionFactory;
+</span><span>import javax.jms.DeliveryMode;
+</span><span>import javax.jms.Destination;
+</span><span>import javax.jms.JMSException;
+</span><span>import javax.jms.MessageProducer;
+</span><span>import javax.jms.Session;
+</span><span>import javax.jms.TextMessage;
+</span><span>
+</span><span>import org.apache.activemq.ActiveMQConnection;
+</span><span>import org.apache.activemq.ActiveMQConnectionFactory;
+</span><span>
+</span><span>public class Sender {
+</span><span>    private static final String HOST = &quot;tcp://localhost:61616&quot;; // ActiveMQ的监听地址，
+</span><span>    
+</span><span>    public static void main(String[] args) throws InterruptedException {
+</span><span>        ConnectionFactory factory; // JMS连接的工厂
+</span><span>        Connection conn = null; // JMS连接
+</span><span>        Session session; // JMS会话
+</span><span>        Destination destination; // 目的地，对于PTP模式，目的地是Queue；对于订阅模式，目的地是Topic
+</span><span>        MessageProducer producer; // 生产者
+</span><span>        
+</span><span>        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD, HOST);
+</span><span>        
+</span><span>        try {
+</span><span>            conn = factory.createConnection();
+</span><span>            conn.start(); // 必须显式调用start方法
+</span><span>            session = conn.createSession(true, Session.AUTO_ACKNOWLEDGE);
+</span><span>            
+</span><span>            destination = session.createQueue(&quot;Test&quot;);
+</span><span>            producer = session.createProducer(destination);
+</span><span>            producer.setDeliveryMode(DeliveryMode.PERSISTENT); // 设置消息持久化
+</span><span>            for (int i = 0;; i+=2) {
+</span><span>                send(session, producer, i);
+</span><span>                Thread.sleep(1000);
+</span><span>            }
+</span><span>        } catch (JMSException e) {
+</span><span>            // TODO Auto-generated catch block
+</span><span>            e.printStackTrace();
+</span><span>        } finally {
+</span><span>            if (conn != null) {
+</span><span>                try {
+</span><span>                    conn.close();
+</span><span>                } catch (JMSException e) {
+</span><span>                    // TODO Auto-generated catch block
+</span><span>                    e.printStackTrace();
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>    
+</span><span>    static void send(Session session, MessageProducer producer, int label) {
+</span><span>        try {
+</span><span>            String s = &quot;消息: &quot; + label;
+</span><span>            TextMessage msg = session.createTextMessage(s);
+</span><span>            System.out.println(&quot;sending: &lt;&quot; + s + &quot;&gt;&quot;);
+</span><span>            producer.send(msg);
+</span><span>            session.commit(); // 提交之后，消息才会发送。之后立即进入下一个事务
+</span><span>        } catch (JMSException e) {
+</span><span>            
+</span><span>        }
+</span><span>        
+</span><span>    }
+</span><span>}
+</span><span>
+</span><span>
+</span><span>// Reciever.java
+</span><span>import javax.jms.Connection;
+</span><span>import javax.jms.ConnectionFactory;
+</span><span>import javax.jms.Destination;
+</span><span>import javax.jms.JMSException;
+</span><span>import javax.jms.MessageConsumer;
+</span><span>import javax.jms.Session;
+</span><span>import javax.jms.TextMessage;
+</span><span>
+</span><span>import org.apache.activemq.ActiveMQConnection;
+</span><span>import org.apache.activemq.ActiveMQConnectionFactory;
+</span><span>
+</span><span>public class Reciever {
+</span><span>    
+</span><span>    private static final String HOST = &quot;tcp://localhost:61616&quot;;
+</span><span>    
+</span><span>    public static void main(String[] args) throws InterruptedException {
+</span><span>        ConnectionFactory factory;
+</span><span>        Connection conn = null;
+</span><span>        Session session = null;
+</span><span>        Destination destination = null;
+</span><span>        MessageConsumer consumer;
+</span><span>        factory = new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_USER, ActiveMQConnection.DEFAULT_PASSWORD, HOST);
+</span><span>        try {
+</span><span>            conn = factory.createConnection();
+</span><span>            conn.start();
+</span><span>            session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+</span><span>            destination = session.createQueue(&quot;Test&quot;);
+</span><span>            consumer = session.createConsumer(destination);
+</span><span>            
+</span><span>            for (;;) {
+</span><span>                try {
+</span><span>                    TextMessage msg = (TextMessage)consumer.receive(1000);
+</span><span>                    if (msg != null) {
+</span><span>                        System.out.println(&quot;recieved: &quot; + msg.getText());
+</span><span>                    }
+</span><span>                    Thread.sleep(3000);
+</span><span>                } catch (IllegalStateException e) {
+</span><span>                    
+</span><span>                }
+</span><span>            }
+</span><span>            
+</span><span>        } catch (JMSException e) {
+</span><span>            // TODO Auto-generated catch block
+</span><span>            e.printStackTrace();
+</span><span>        } finally {
+</span><span>            if (conn != null) {
+</span><span>                try {
+</span><span>                    conn.close();
+</span><span>                } catch (JMSException e) {
+</span><span>                    // TODO Auto-generated catch block
+</span><span>                    e.printStackTrace();
+</span><span>                }
+</span><span>            }
+</span><span>        }
+</span><span>    }
+</span><span>}
+</span></code></pre>
+<p>两段代码，非常容易，这里都是使用点对点（PTP）方式，一个消息只能由一个接受者接收并处理。其中使用过的API都是JMS的标准接口，可以查看<a href="http://docs.oracle.com/javaee/7/api/">JMS的API doc</a>来获取更多信息。注释中，有一句“设置消息持久化”，所谓的消息持久化，是指将消息保存介质中，即使broker突然死掉了，重新启动broker之后，也可以获得之前的未处理的消息，持久化的方式在配置文件一节会说到</p>
+<h1 id="pei-zhi-wen-jian">配置文件</h1>
+<p>有了初步认识之后，再来看看配置文件。我主要关注<code>broker</code>这个节点，这个节点的属性<code>brokerName</code>应该是唯一的，<code>dataDirectory</code>指定了当前broker存放数据（比如持久化的消息）的目录。</p>
+<h2 id="persistenceadapterjie-dian">persistenceAdapter节点</h2>
+<p>这个节点配置消息持久化的方式，有AMQ、KahaDB、JDBC、LevelDB四种，从5.4版本起，KahaDB作为默认持久化方式。其中，JDBC是将消息持久化到数据库，KahaDB和LevelDB是基于文件的本地数据库，而AMQ则是一种文件存储形式。具体可以参考<a href="http://blog.csdn.net/xyw_blog/article/details/9128219">ActiveMQ持久化方式</a>。</p>
+<h2 id="transportconnectors">transportConnectors</h2>
+<p>这个节点配置客户端连接到ActiveMQ Broker的方式。ActiveMQ支持多种连接方式，包括tcp、vm、amqp、stomp、mqtt等多种。一个连接是一个<code>transportConnector</code>节点，每个Broker可以配置多个连接，连接最重要的是<code>uri</code>属性，其指明了客户端连接Broker时的地址。具体请参见官方文档<a href="http://activemq.apache.org/configuring-transports.html">Configuring Transports</a>。</p>
+<h1 id="ji-qun">集群</h1>
+<p>集群分为两种，一种是Master Slave Cluster，另一种是Broker Cluster。</p>
+<h2 id="master-slave-cluster">Master Slave Cluster</h2>
+<p>主从模式，可以完成故障恢复，但是没有负载均衡的能力，即同一时刻只有一个Broker（Master）在处理，其他的Broker等待（只是复制Master的状态，但是不进行任何处理）。主从模式又可以分为三种</p>
+<h3 id="pure-master-savle-cluster">Pure Master Savle Cluster</h3>
+<p>这是最简单的方式，这种方式下，只能有一个Slave Broker。Master无需额外配置，Slave可以采用如下的配置文件</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker masterConnectorURI=&quot;tcp://masterhost:61617&quot; shutdownOnMasterFailure=&quot;false&quot;&gt; 
+</span><span>    ...
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://slavehost:61616&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>&lt;/broker&gt;
+</span></code></pre>
+<p>其中，<code>masterConnectorURI</code>指明了Master，<code>shutdownOnMasterFailure</code>指明在Master失效后，Slave是停止还是成为新的Master继续运行。</p>
+<p>在客户端连接的时候，应该采用<code>failover://(tcp://masterhost:61617,tcp://slavehost:61616)?randomize=false</code>作为URL连接ActiveMQ</p>
+<h3 id="shared-file-system-master-slave">Shared File System Master Slave</h3>
+<p>共享文件系统的主从模式，这个模式是多个Broker使用相同的目录作为消息持久化的存储地址，利用文件锁实现主从模式。获得文件锁的Broker是当前的Master，Master失效后，其余的Slave中，获得文件锁的Broker成为新的Master。所有Broker的配置文件中，都需要做如下配置</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;persistenceAdapter&gt;
+</span><span>    &lt;kahaDB directory=&quot;/activemq/data&quot;/&gt;
+</span><span>&lt;/persistenceAdapter&gt; 
+</span></code></pre>
+<p>其中<code>directory</code>属性值必须保持相同，可以采用其他的持久化方式</p>
+<h3 id="jdbc-master-slave">JDBC Master Slave</h3>
+<p>和Shared File System Master Salve相同，只不过是持久化方式改为了数据库，配置如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker ...&gt;
+</span><span>    &lt;persistenceAdapter&gt;
+</span><span>        &lt;jdbcPersistenceAdapter dataSource=&quot;#mysql-ds&quot;/&gt; 
+</span><span>    &lt;/persistenceAdapter&gt; 
+</span><span>&lt;/broker&gt;
+</span><span>&lt;bean id=&quot;mysql-ds&quot; class=&quot;org.apache.commons.dbcp.BasicDataSource&quot; destroy-method=&quot;close&quot;&gt;
+</span><span>    &lt;property name=&quot;driverClassName&quot; value=&quot;com.mysql.jdbc.Driver&quot;/&gt;
+</span><span>    &lt;property name=&quot;url&quot; value=&quot;jdbc:mysql://localhost:3306/test?relaxAutoCommit=true&quot;/&gt;
+</span><span>    &lt;property name=&quot;username&quot; value=&quot;username&quot;/&gt;
+</span><span>    &lt;property name=&quot;password&quot; value=&quot;passward&quot;/&gt;
+</span><span>    &lt;property name=&quot;poolPreparedStatements&quot; value=&quot;true&quot;/&gt;
+</span><span>&lt;/bean&gt; 
+</span></code></pre>
+<p>其中<code>dataSource</code>指定了数据库源，需要在配置文件中设置一个<code>id</code>与之相等的<code>bean</code>配置详细的数据库信息。</p>
+<h2 id="broker-cluster">Broker Cluster</h2>
+<p>多个Broker组成网络，这种集群有负载均衡的能力，采用这种方式的集群，在一个Broker失效后，会连接到另外一个Broker上，但是失效的Broker上的消息，在该Broker恢复之前，不能被其他Broker获得并处理。失效的Broker恢复之后，持久化消息恢复，非持久化消息将会丢失。</p>
+<p>这种集群有动态发现和静态发现两种配置方式。区别是，静态发现需要配置在配置文件中制定所有的Broker的地址，而动态发现则无需指明，由Broker自己去发现其他的Broker。</p>
+<p>静态配置文件如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt;
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://localhost:61616&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>    &lt;networkConnectors&gt;
+</span><span>        &lt;networkConnector uri=&quot;static:(tcp://localhost:61616,tcp://remotehost:61616)&quot;/&gt;
+</span><span>    &lt;/networkConnectors&gt;
+</span><span>&lt;/broker&gt; 
+</span></code></pre>
+<p>此时客户端连接时，应使用<code>failover://static://(tcp://localhost:61616,tcp://remotehost://61616)</code>作为URL。</p>
+<p>动态配置文件如下</p>
+<pre style="background-color:#f9f9f9;color:#111111;"><code><span>&lt;broker brokerName=&quot;receiver&quot; persistent=&quot;false&quot; useJmx=&quot;false&quot;&gt;
+</span><span>    &lt;transportConnectors&gt;
+</span><span>        &lt;transportConnector uri=&quot;tcp://localhost:61616&quot; discoveryUri=&quot;multicast://default&quot;/&gt;
+</span><span>    &lt;/transportConnectors&gt;
+</span><span>    &lt;networkConnectors&gt;
+</span><span>        &lt;networkConnector uri=&quot;multicast://default&quot;/&gt;
+</span><span>    &lt;/networkConnectors&gt;
+</span><span>&lt;/broker&gt; 
+</span></code></pre>
+<p>此时客户端在连接到ActiveMQ时，应使用<code>discovery://(multicast://default)</code>作为URL。</p>
+<h1 id="zong-jie">总结</h1>
+<p>ActiveMQ作为一个高性能的消息队列，可以满足我们的使用需求，并且，其配置使用都还算简单，没有门槛，这是我最喜欢的地方。</p>
+<p>最后，集群一节中，大量参考了<a href="http://wenku.baidu.com/view/6989622de2bd960590c67760.html">Ac​t​i​v​e​M​Q​集​群​的​使​用​与​配​置</a>一文，有关更多的集群配置内容，可以参考。</p>
+
+    </div>
+</div>
+
+
+<span id="comments"></span>
+<script src="https://utteranc.es/client.js"
+        repo="iEverX/ieverx.github.io"
+        issue-term="pathname"
+            label="comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script>
+
+
+
+
+    <div class="navigation">
+            <span class="prev"></span>
+        
+            <span class="next"></span>
+        
+    </div>
+
+
+        </div>
+    </div>
+        
+<div id="footer">
+    <div class="footer-container">
+        <div class="copyright" >
+            <span> &copy; 2012 - 2024</span>
+            &hearts;
+            <span class="author">天外天</span>
+        </div>
+        <div class="support">
+            <span class="powered-by">本站由 <a href="https://getzola.org" target="_blank">zola</a> 驱动</span>
+            &middot;
+            <span class="theme">采用 <a href="https://github.com/ieverx/zola-theme-ink" target="_blank">ink</a> 主题</span>
+        </div>
+    </div>
+</div>
+
+    
+        
+    <!-- Google Analytics -->
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-54098391-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-54098391-1');
+    </script>
+    <!-- End Google Analytics -->
+
+
+    
+</body>
+</html>
